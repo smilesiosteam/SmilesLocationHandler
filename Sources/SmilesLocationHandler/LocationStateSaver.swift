@@ -8,7 +8,7 @@
 import Foundation
 import SmilesUtilities
 
-@objc class LocationStateSaver: NSObject {
+@objc public class LocationStateSaver: NSObject {
     
     public static func saveLocationInfo(_ userLocation: AppUserInfo?) {
         if let userLoc = userLocation {

@@ -8,7 +8,7 @@
 import SmilesUtilities
 
 public class RemoveAddressRequestModel: Codable {
-    public var userInfo: UserInfo?
+    public var userInfo: SmilesUserInfo?
     public var addressId: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -20,7 +20,7 @@ public class RemoveAddressRequestModel: Codable {
 
     public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        userInfo = try values.decodeIfPresent(UserInfo.self, forKey: .userInfo)
+        userInfo = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInfo)
         addressId = try values.decodeIfPresent(Int.self, forKey: .addressId)
     }
 
@@ -33,7 +33,7 @@ public class RemoveAddressRequestModel: Codable {
     }
 }
 
-public class UserInfo: Codable {
+public class SmilesUserInfo: Codable {
     public var mambaId: String?
     public var locationId: String?
 

@@ -10,22 +10,22 @@ import SmilesUtilities
 import SmilesBaseMainRequestManager
 import NetworkingLayer
 
-class RegisterLocationResponse: BaseMainResponse {
-    var userInfo: AppUserInfo?
+public class RegisterLocationResponse: BaseMainResponse {
+    public var userInfo: AppUserInfo?
 
     enum CodingKeys: String, CodingKey {
         case userInfo
     }
     
-    override init() { super.init() }
+    public override init() { super.init() }
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         userInfo = try values.decodeIfPresent(AppUserInfo.self, forKey: .userInfo)
         try super.init(from: decoder)
     }
     
-    func asDictionary(dictionary: [String: Any]) -> [String: Any] {
+    public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
         let encoder = DictionaryEncoder()
         guard let encoded = try? encoder.encode(self) as [String: Any] else {
             return [:]

@@ -10,11 +10,14 @@ import NetworkingLayer
 import CoreLocation
 import SmilesUtilities
 
-class LocationBaseServices {
+public class LocationBaseServices {
     
     let networkManager = NetworkManager()
     
-    static let shared = LocationBaseServices()
+    public static let shared = LocationBaseServices()
+    
+    public init() {}
+    
     //MARK: - User Location Api's
     
     public func registerLocation(_ location: CLLocation?, completionHandler: @escaping (_ response: RegisterLocationResponse) -> (), failureBlock: @escaping (_ error: ErrorCodeConfiguration?) -> ()) {
@@ -118,7 +121,7 @@ class LocationBaseServices {
         }
     }
     
-    func getPlaceFromLocation(_ location: CLLocation?, completionHandler: @escaping (_ place: String) -> ()){
+    public func getPlaceFromLocation(_ location: CLLocation?, completionHandler: @escaping (_ place: String) -> ()){
         
         if let userLocation = location{
             LocationManager.shared.reverseGeocoding = false
@@ -136,7 +139,7 @@ class LocationBaseServices {
         }
     }
     
-    func getNewPlaceLocationName(_ location: CLLocation?, completionHandler: @escaping (_ place: String) -> ()){
+    public func getNewPlaceLocationName(_ location: CLLocation?, completionHandler: @escaping (_ place: String) -> ()){
         
         if let userLocation = location{
             LocationManager.shared.reverseGeocoding = false
@@ -154,7 +157,7 @@ class LocationBaseServices {
     }
     
     
-    internal func startUpdatingLocation(){
+    public  func startUpdatingLocation(){
         LocationManager.shared.getLocation { (location, error) in
             
         }

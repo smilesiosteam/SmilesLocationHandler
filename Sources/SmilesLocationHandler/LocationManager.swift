@@ -9,11 +9,11 @@ import UIKit
 import MapKit
 import SmilesLanguageManager
 
-protocol LocationUpdateProtocol: AnyObject {
+public protocol LocationUpdateProtocol: AnyObject {
     func locationDidUpdateToLocation(location: CLLocation?, placemark: CLPlacemark?)
 }
 
-final class LocationManager: NSObject {
+public final class LocationManager: NSObject {
     
     enum LocationErrors: String {
         case denied = "Locations are turned off. Please turn it on in Settings"
@@ -25,21 +25,21 @@ final class LocationManager: NSObject {
         case unknown = "Some Unknown Error occurred"
     }
     
-    typealias LocationClosure = ((_ location:CLLocation?,_ error: NSError?)->Void)
+    public typealias LocationClosure = ((_ location:CLLocation?,_ error: NSError?)->Void)
     private var locationCompletionHandler: LocationClosure?
     
-    typealias ReverseGeoLocationClosure = ((_ location:CLLocation?, _ placemark:CLPlacemark?,_ error: NSError?)->Void)
+    public typealias ReverseGeoLocationClosure = ((_ location:CLLocation?, _ placemark:CLPlacemark?,_ error: NSError?)->Void)
     private var geoLocationCompletionHandler: ReverseGeoLocationClosure?
     
     private var locationManager:CLLocationManager?
     var locationAccuracy = kCLLocationAccuracyBest
     
     private var lastLocation:CLLocation?
-    weak var delegate: LocationUpdateProtocol?
+    public weak var delegate: LocationUpdateProtocol?
     
-    var reverseGeocoding = false
+    public var reverseGeocoding = false
     //Singleton Instance
-    static let shared: LocationManager = {
+    public static let shared: LocationManager = {
         let instance = LocationManager()
         // setup code
         return instance
@@ -64,7 +64,7 @@ final class LocationManager: NSObject {
         
     }
     
-    func destroyLocationManager() {
+    public func destroyLocationManager() {
         locationManager?.delegate = nil
         locationManager = nil
         lastLocation = nil
@@ -111,11 +111,11 @@ final class LocationManager: NSObject {
     ///
     /// - Parameter completionHandler: nil
     /// - Returns: Bool
-    func isLocationEnabled() -> Bool {
+    public func isLocationEnabled() -> Bool {
         return CLLocationManager.locationServicesEnabled()
     }
     
-    func isEnabled() -> Bool {
+    public func isEnabled() -> Bool {
         guard CLLocationManager.locationServicesEnabled() else { return false }
         return [.authorizedAlways, .authorizedWhenInUse].contains(CLLocationManager.authorizationStatus())
     }
@@ -123,7 +123,7 @@ final class LocationManager: NSObject {
     /// Get current location
     ///
     /// - Parameter completionHandler: will return CLLocation object which is the current location of the user and NSError in case of error
-    func getLocation(completionHandler:@escaping LocationClosure) {
+    public func getLocation(completionHandler:@escaping LocationClosure) {
         
         //Resetting last location
         lastLocation = nil
@@ -139,7 +139,7 @@ final class LocationManager: NSObject {
     /// - Parameters:
     ///   - location: location Passed which is a CLLocation object
     ///   - completionHandler: will return CLLocation object and CLPlacemark of the CLLocation and NSError in case of error
-    func getReverseGeoCodedLocation(location:CLLocation,completionHandler:@escaping ReverseGeoLocationClosure) {
+    public func getReverseGeoCodedLocation(location:CLLocation,completionHandler:@escaping ReverseGeoLocationClosure) {
         
         self.geoLocationCompletionHandler = nil
         self.geoLocationCompletionHandler = completionHandler
@@ -168,7 +168,7 @@ final class LocationManager: NSObject {
     /// Get current location with placemark
     ///
     /// - Parameter completionHandler: will return Location,Placemark and error
-    func getCurrentReverseGeoCodedLocation(completionHandler:@escaping ReverseGeoLocationClosure) {
+    public func getCurrentReverseGeoCodedLocation(completionHandler:@escaping ReverseGeoLocationClosure) {
         
         if !reverseGeocoding {
             
@@ -273,7 +273,7 @@ final class LocationManager: NSObject {
     }
     
     
-    func showPopupForSettings(title: String = "DisabledLocationTitle".localizedString, message: String = "TurnOnLocationTitle".localizedString) {
+    public func showPopupForSettings(title: String = "DisabledLocationTitle".localizedString, message: String = "TurnOnLocationTitle".localizedString) {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: UInt64(0.2))) {
 //            CommonMethods.showPrompetPopUpTitle(title, message: message, confirmTitle: "SettingTitle".localizedString, cancelTitle: "btn_Cancel".localizedString, confirmationHandler: {
 //
@@ -319,7 +319,7 @@ final class LocationManager: NSObject {
 extension LocationManager: CLLocationManagerDelegate {
     
     //MARK:- CLLocationManager Delegates
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         lastLocation = locations.last
         if let location = locations.last {
             let locationAge = -(location.timestamp.timeIntervalSinceNow)
@@ -340,7 +340,7 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
         switch status {
             
@@ -389,7 +389,7 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error.localizedDescription)
         self.didComplete(location: nil, error: error as NSError?)
     }

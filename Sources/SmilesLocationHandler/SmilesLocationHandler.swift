@@ -52,14 +52,14 @@ public class SmilesLocationHandler {
     public var showLocationToolTip: (() -> Void)?
     public var dismissLocationToolTip: (() -> Void)?
     
-    var toolTipForLocationShown: Bool = false
-    weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
+    public var toolTipForLocationShown: Bool = false
+    public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
     
     init() {
         locationsViewModel.fireEvent = fireEvent
     }
     
-    convenience init(controller:UIViewController?, isFirstLaunch: Bool = false){
+    public convenience init(controller:UIViewController?, isFirstLaunch: Bool = false){
         self.init()
         
         
@@ -116,7 +116,7 @@ extension SmilesLocationHandler{
     }
     
     
-    func locationUpdatedManually(_ notification: Notification) {
+    public func locationUpdatedManually(_ notification: Notification) {
         if let userInfo = notification.userInfo as NSDictionary? {
             self.locationsUseCaseInput.send(.updateUserLocation(userInfo: userInfo,request: nil))
         }
@@ -287,7 +287,7 @@ extension SmilesLocationHandler{
 
 //MARK:LocationUpdateProtocol
 extension SmilesLocationHandler: LocationUpdateProtocol {
-    func locationDidUpdateToLocation(location: CLLocation?, placemark: CLPlacemark?) {
+    public func locationDidUpdateToLocation(location: CLLocation?, placemark: CLPlacemark?) {
         userLocation = location
         if let placemark = placemark {
             self.displayLocationName((placemark.name ?? "") + ", " + (placemark.country ?? ""))
