@@ -5,11 +5,6 @@ import UIKit
 import SmilesUtilities
 import AnalyticsSmiles
 
-public protocol LocationToolTipViewDelegate: AnyObject {
-    func searchBtnTapped()
-    func detectBtnTapped()
-}
-
 public protocol SmilesLocationHandlerDelegate: AnyObject {
     func getUserLocationWith(locationName:String, andLocationNickName:String)
     func showPopupForLocationSetting()
@@ -80,8 +75,7 @@ public class SmilesLocationHandler {
     
 }
 
-//MARK: LocationToolTipViewDelegate
-extension SmilesLocationHandler: LocationToolTipViewDelegate{
+extension SmilesLocationHandler {
     public func detectBtnTapped() {
         self.hideToolTip()
         LocationManager.shared.getLocation { location, _ in
