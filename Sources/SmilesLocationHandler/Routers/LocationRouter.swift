@@ -10,6 +10,7 @@ import Foundation
 import SmilesBaseMainRequestManager
 import SmilesUtilities
 import NetworkingLayer
+import CoreLocation
 
 public enum LocationRouter: URLRequestConvertible {
     case getCitiesList
@@ -23,7 +24,11 @@ public enum LocationRouter: URLRequestConvertible {
     case saveDefaultAddress(request: RemoveAddressRequestModel)
     case getAllAddresss(requst: RegisterLocationRequest)
     case getPolyLine(request: PolyLineRequestModel)
-
+    case osmLocationForwardGeocoding(address: String, format: OSMResponseType, limit: Int, addressDetails: Bool)
+    case locationReverseGeocodingFromOSMId(osmId: String, format: OSMResponseType)
+    case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
+    
+    
     public var methods: Alamofire.HTTPMethod {
         switch self {
         case .getCitiesList:
@@ -47,7 +52,14 @@ public enum LocationRouter: URLRequestConvertible {
         case .removeAddress:
             return .post
         case .getPolyLine:
-        return .get
+            return .get
+        case .osmLocationForwardGeocoding:
+            return .get
+        case .locationReverseGeocodingFromOSMId:
+            return .get
+        case .locationReverseGeocodingFromOSMCoordinates:
+            return .get
+            
         }
     }
     
@@ -112,6 +124,13 @@ public enum LocationRouter: URLRequestConvertible {
             
         case .getPolyLine:
             return nil
+        case .locationReverseGeocodingFromOSMId:
+            return nil
+        case .locationReverseGeocodingFromOSMCoordinates:
+            return nil
+        case .osmLocationForwardGeocoding:
+            return nil
+
         }
     }
     
@@ -180,6 +199,40 @@ public enum LocationRouter: URLRequestConvertible {
             if let wayPointLat = request.wayPointsLat, let wayPointLong = request.wayPointsLong {
                 urlComponents.queryItems?.append(URLQueryItem(name: "waypoints", value: String(format: "%f,%f",wayPointLat, wayPointLong)))
             }
+            return urlComponents.url!
+            
+        case .osmLocationForwardGeocoding(let address, let format, let limit, let addressDetails):
+            var urlComponents = URLComponents(string: "https://nominatim.openstreetmap.org/search")!
+            
+            urlComponents.queryItems = [
+                URLQueryItem(name: "q", value: address),
+                URLQueryItem(name: "format", value: format.rawValue),
+                URLQueryItem(name: "addressdetails", value: addressDetails ? "\(1)" : "\(0)"),
+                URLQueryItem(name: "limit", value: "\(limit)"),
+                URLQueryItem(name: "countrycodes", value: "AE")
+            ]
+            
+            return urlComponents.url!
+            
+        case .locationReverseGeocodingFromOSMId(let osmId, let format):
+            var urlComponents = URLComponents(string: "https://nominatim.openstreetmap.org/lookup")!
+            
+            urlComponents.queryItems = [
+                URLQueryItem(name: "osm_ids", value: osmId),
+                URLQueryItem(name: "format", value: format.rawValue)
+            ]
+            
+            return urlComponents.url!
+            
+        case .locationReverseGeocodingFromOSMCoordinates(let coordinates, let format):
+            var urlComponents = URLComponents(string: "https://nominatim.openstreetmap.org/reverse")!
+            
+            urlComponents.queryItems = [
+                URLQueryItem(name: "lat", value: "\(coordinates.latitude)"),
+                URLQueryItem(name: "lon", value: "\(coordinates.longitude)"),
+                URLQueryItem(name: "format", value: format.rawValue)
+            ]
+            
             return urlComponents.url!
         }
         
