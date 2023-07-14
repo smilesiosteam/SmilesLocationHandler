@@ -7,12 +7,14 @@
 
 import Foundation
 import SmilesUtilities
+import SmilesBaseMainRequestManager
 
 @objc public class LocationStateSaver: NSObject {
     
     public static func saveLocationInfo(_ userLocation: AppUserInfo?) {
         if let userLoc = userLocation {
             UserDefaults.standard.set(try! PropertyListEncoder().encode(userLoc), forKey: UserDefaultKeys.locationSaver)
+            SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = userLoc
         }
     }
 
@@ -25,6 +27,7 @@ import SmilesUtilities
 
     public static func removeLocation() {
         UserDefaults.standard.removeObject(forKey: UserDefaultKeys.locationSaver)
+        SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = nil
     }
     
     //MARK: - Recent Locations
