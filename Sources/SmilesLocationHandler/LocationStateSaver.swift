@@ -8,6 +8,7 @@
 import Foundation
 import SmilesUtilities
 import SmilesBaseMainRequestManager
+import SmilesSharedModels
 
 @objc public class LocationStateSaver: NSObject {
     

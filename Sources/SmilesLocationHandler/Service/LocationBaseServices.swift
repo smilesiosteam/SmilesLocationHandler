@@ -9,6 +9,7 @@ import UIKit
 import NetworkingLayer
 import CoreLocation
 import SmilesUtilities
+import SmilesSharedModels
 
 public class LocationBaseServices {
     

@@ -9,6 +9,7 @@ import UIKit
 import SmilesUtilities
 import SmilesBaseMainRequestManager
 import NetworkingLayer
+import SmilesSharedModels
 
 public class RegisterLocationResponse: BaseMainResponse {
     public var userInfo: AppUserInfo?

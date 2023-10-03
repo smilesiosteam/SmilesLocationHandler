@@ -7,6 +7,7 @@
 
 import UIKit
 import SmilesUtilities
+import SmilesSharedModels
 
 public class RegisterLocationRequest: Codable {
     public var userInfo: AppUserInfo?

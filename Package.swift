@@ -15,11 +15,13 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/smilesiosteam/SmilesEasyTipView.git", branch: "main"),
-        .package(url: "https://github.com/smilesiosteam/SmilesUtilities.git", branch: "main"),
-        .package(url: "https://github.com/smilesiosteam/NetworkingLayer.git", branch: "main"),
+        .package(url: "https://github.com/smilesiosteam/SmilesEasyTipView.git", branch: "shared_Models"),
+        .package(url: "https://github.com/smilesiosteam/SmilesUtilities.git", branch: "shared_Models"),
+        .package(url: "https://github.com/smilesiosteam/NetworkingLayer.git", branch: "shared_Models"),
         .package(url: "https://github.com/smilesiosteam/SmilesAnalytics.git", branch: "main"),
-        .package(url: "https://github.com/smilesiosteam/SmilesBaseMainRequest.git", branch: "main")
+        .package(url: "https://github.com/smilesiosteam/SmilesBaseMainRequest.git", branch: "shared_models"),
+        .package(url: "https://github.com/smilesiosteam/SmilesSharedModels.git", branch: "main")
+        
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -31,7 +33,8 @@ let package = Package(
                 .product(name: "SmilesUtilities", package: "SmilesUtilities"),
                 .product(name: "NetworkingLayer", package: "NetworkingLayer"),
                 .product(name: "AnalyticsSmiles", package: "SmilesAnalytics"),
-                .product(name: "SmilesBaseMainRequestManager", package: "SmilesBaseMainRequest")
+                .product(name: "SmilesBaseMainRequestManager", package: "SmilesBaseMainRequest"),
+                .product(name: "SmilesSharedModels", package: "SmilesSharedModels")
             ]),
     ]
 )
