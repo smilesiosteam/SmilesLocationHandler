@@ -7,6 +7,7 @@
 
 import Foundation
 import NetworkingLayer
+import SmilesSharedModels
 
 public class RemoveAddressResponseModel: BaseMainResponse {
     public var status: Int?
