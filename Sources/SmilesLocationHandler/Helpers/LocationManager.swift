@@ -8,6 +8,7 @@
 import UIKit
 import MapKit
 import SmilesLanguageManager
+import SmilesUtilities
 
 public protocol LocationUpdateProtocol: AnyObject {
     func locationDidUpdateToLocation(location: CLLocation?, placemark: CLPlacemark?)

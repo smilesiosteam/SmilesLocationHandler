@@ -32,6 +32,9 @@ let package = Package(
                 .product(name: "NetworkingLayer", package: "NetworkingLayer"),
                 .product(name: "AnalyticsSmiles", package: "SmilesAnalytics"),
                 .product(name: "SmilesBaseMainRequestManager", package: "SmilesBaseMainRequest")
-            ]),
+            ],
+            resources: [
+                .process("Resources")
+            ])
     ]
 )
