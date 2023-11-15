@@ -8,6 +8,7 @@
 import UIKit
 import SmilesLanguageManager
 import SmilesFontsManager
+import SmilesUtilities
 
 
 final class SmilesDetectLocationPopUp: UIViewController {
@@ -26,8 +27,8 @@ final class SmilesDetectLocationPopUp: UIViewController {
     // MARK: - View Controller Lifecycle
     public override func viewDidLoad() {
         super.viewDidLoad()
-        styleFontAndTextColor()
         setupUI()
+        styleFontAndTextColor()
     }
     
     // MARK: - Methods
@@ -50,6 +51,10 @@ final class SmilesDetectLocationPopUp: UIViewController {
         self.messageLabel.fontTextStyle = .smilesHeadline4
         self.detectButton.fontTextStyle = .smilesHeadline4
         self.searchButton.fontTextStyle = .smilesBody4
+        
+        self.messageLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
+        self.detectButton.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
+        self.searchButton.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
     }
     
     private func setupUI() {

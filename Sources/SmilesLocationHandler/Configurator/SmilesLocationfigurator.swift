@@ -10,7 +10,7 @@ import UIKit
 
 struct SmilesLocationfigurator {
     
-    public enum ConfiguratorType {
+     enum ConfiguratorType {
         case createDetectLocationPopup( viewModel: DetectLocationPopupViewModel?)
     }
     
