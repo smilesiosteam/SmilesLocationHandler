@@ -17,7 +17,7 @@ public final class SmilesLocationRouter {
     // MARK: - Methods
     
     public func showDetectLocationPopup(from viewController: UIViewController, controllerType: ControllerType) {
-        if let popupViewController = SmilesLocationfigurator.create(type: .createDetectLocationPopup(controller: controllerType)) as? SmilesDetectLocationPopUp {
+        if let popupViewController = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controller: controllerType)) as? SmilesDetectLocationPopUp {
             setActionsForControllerType(popupViewController: popupViewController, controllerType: controllerType)
             viewController.present(popupViewController, animated: true, completion: nil)
         }
