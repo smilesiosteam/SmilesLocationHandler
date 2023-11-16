@@ -1,0 +1,54 @@
+{
+    "status":204,
+    "cities":[
+        {
+            "cityId":1,
+            "cityName":"Dubai",
+            "cityLatitude":25,
+            "cityLongitude":55
+        },
+        {
+            "cityId":2,
+            "cityName":"Abu Dhabi",
+            "cityLatitude":24,
+            "cityLongitude":54
+        },
+        {
+            "cityId":3,
+            "cityName":"Sharjah",
+            "cityLatitude":25,
+            "cityLongitude":55
+        },
+        {
+            "cityId":6,
+            "cityName":"Ajman",
+            "cityLatitude":25,
+            "cityLongitude":56
+        },
+        {
+            "cityId":9,
+            "cityName":"Umm Al Quwain",
+            "cityLatitude":26,
+            "cityLongitude":56
+        },
+        {
+            "cityId":7,
+            "cityName":"Ras Al Khaimah",
+            "cityLatitude":26,
+            "cityLongitude":56
+        },
+        {
+            "cityId":8,
+            "cityName":"Fujairah",
+            "cityLatitude":25,
+            "cityLongitude":56
+        },
+        {
+            "cityId":4,
+            "cityName":"Al Ain",
+            "cityLatitude":24,
+            "cityLongitude":56
+        }
+    ],
+    "extTransactionId":"3804133410140"
+}

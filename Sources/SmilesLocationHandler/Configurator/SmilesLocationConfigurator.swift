@@ -8,10 +8,11 @@
 import Foundation
 import UIKit
 
-struct SmilesLocationfigurator {
+struct SmilesLocationConfigurator {
     
     enum ConfiguratorType {
         case createDetectLocationPopup(viewModel: DetectLocationPopupViewModel?)
+        case setLocationPopUp
     }
     
     static func create(type: ConfiguratorType) -> UIViewController {
@@ -19,6 +20,9 @@ struct SmilesLocationfigurator {
         case .createDetectLocationPopup(let viewModel):
             let vc = SmilesDetectLocationPopUp()
             vc.configure(with: viewModel ?? nil)
+            return vc
+        case .setLocationPopUp:
+            let vc = SetLocationPopupViewController()
             return vc
         }
     }

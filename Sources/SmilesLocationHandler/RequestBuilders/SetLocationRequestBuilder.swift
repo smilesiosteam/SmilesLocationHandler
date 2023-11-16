@@ -47,6 +47,6 @@ enum SetLocationRequestBuilder {
     
     // compose urls for each request
     func getURL(baseUrl: String, endPoint: SetLocationEndPoints) -> String {
-        return baseUrl + endPoint.rawValue
+        return baseUrl + endPoint.serviceEndPoints
     }
 }

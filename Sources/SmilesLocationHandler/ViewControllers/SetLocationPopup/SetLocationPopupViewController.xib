@@ -5,7 +5,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -83,9 +82,9 @@ Choose a reason for canceling your order below.</string>
                                         </label>
                                     </subviews>
                                 </stackView>
-                                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="bz9-1g-fYn">
+                                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="bz9-1g-fYn">
                                     <rect key="frame" x="0.0" y="88.666666666666686" width="361" height="184"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="184" id="Dda-nj-hns"/>
                                     </constraints>
@@ -139,14 +138,14 @@ Choose a reason for canceling your order below.</string>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" white="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstItem="kqN-Nz-4fq" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="9F2-ui-sp2"/>
+                <constraint firstItem="kqN-Nz-4fq" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="Gsv-gV-OOy"/>
                 <constraint firstItem="QpI-oh-vYQ" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="IO0-5H-IbM"/>
                 <constraint firstItem="QpI-oh-vYQ" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="Pkf-2o-xyi"/>
+                <constraint firstItem="kqN-Nz-4fq" firstAttribute="bottom" secondItem="i5M-Pr-FkT" secondAttribute="bottom" id="RSW-hp-Hm5"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="QpI-oh-vYQ" secondAttribute="trailing" id="W9S-lR-mUZ"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="kqN-Nz-4fq" secondAttribute="trailing" id="bU9-Dt-0RE"/>
                 <constraint firstItem="QpI-oh-vYQ" firstAttribute="bottom" secondItem="73E-bz-1CF" secondAttribute="bottom" id="exB-Sy-pzz"/>
-                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="kqN-Nz-4fq" secondAttribute="trailing" id="fOU-N3-EaT"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="oFz-Is-O6e" secondAttribute="bottom" id="ftY-Gt-fUX"/>
-                <constraint firstAttribute="bottom" secondItem="kqN-Nz-4fq" secondAttribute="bottom" id="qJX-iy-If3"/>
             </constraints>
             <point key="canvasLocation" x="45" y="-1"/>
         </view>
@@ -163,9 +162,6 @@ Choose a reason for canceling your order below.</string>
         </designable>
     </designables>
     <resources>
-        <image name="close" width="24" height="24"/>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
+        <image name="close" width="32" height="32"/>
     </resources>
 </document>
