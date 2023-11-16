@@ -14,7 +14,7 @@
         </array>
     </customFonts>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SmilesLocationDetectViewController" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SmilesLocationDetectViewController" customModule="SmilesLocationHandler">
             <connections>
                 <outlet property="detectButton" destination="ZCd-L5-vp4" id="5ae-Nb-79R"/>
                 <outlet property="imageIcon" destination="9i4-fW-Sh3" id="z3y-Qh-yDr"/>
@@ -137,14 +137,14 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tvG-wK-NxJ">
-                    <rect key="frame" x="0.0" y="0.0" width="393" height="477"/>
+                    <rect key="frame" x="0.0" y="59" width="393" height="418"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="calibratedRGB"/>
             <constraints>
-                <constraint firstItem="tvG-wK-NxJ" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="-59" id="EI6-8G-5nv"/>
+                <constraint firstItem="tvG-wK-NxJ" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="EI6-8G-5nv"/>
                 <constraint firstAttribute="bottom" secondItem="kNB-Nn-QYE" secondAttribute="bottom" id="Een-CH-DdN"/>
                 <constraint firstItem="tvG-wK-NxJ" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="RvO-4u-Kq1"/>
                 <constraint firstItem="tvG-wK-NxJ" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="fIB-40-bBi"/>

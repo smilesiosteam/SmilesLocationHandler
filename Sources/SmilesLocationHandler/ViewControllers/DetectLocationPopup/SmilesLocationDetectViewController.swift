@@ -27,8 +27,10 @@ class SmilesLocationDetectViewController: UIViewController {
     private var viewModel: DetectLocationPopupViewModel?
     // MARK: - Methods
     init(_ viewModel: DetectLocationPopupViewModel?) {
+        
         self.viewModel = viewModel
         super.init(nibName: "SmilesLocationDetectViewController", bundle: .module)
+        self.modalPresentationStyle = .overFullScreen
     }
     
     required init?(coder: NSCoder) {
