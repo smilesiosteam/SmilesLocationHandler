@@ -47,7 +47,7 @@ class SmilesLocationDetectViewController: UIViewController {
         
         self.messageLabel.text = viewModel?.data?.message
         if let imageName = viewModel?.data?.iconImage {
-            self.imageIcon.image = UIImage(named: imageName)
+            self.imageIcon.image = UIImage(named: imageName, in: .module, compatibleWith: nil)
         }
         self.detectButton.setTitle(viewModel?.data?.detectButtonTitle, for: .normal)
         self.searchButton.setTitle(viewModel?.data?.searchButtonTitle, for: .normal)
