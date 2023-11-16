@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-public struct SmilesLocationfigurator {
+struct SmilesLocationfigurator {
     
-    public enum ConfiguratorType {
+    enum ConfiguratorType {
         
     }
     
