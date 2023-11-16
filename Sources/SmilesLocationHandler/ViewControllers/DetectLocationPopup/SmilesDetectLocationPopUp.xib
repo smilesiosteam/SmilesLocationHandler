@@ -19,6 +19,7 @@
                 <outlet property="detectButton" destination="imP-Jw-CNL" id="Rpi-ES-XCn"/>
                 <outlet property="mainContainerView" destination="mYI-nj-pQe" id="kw4-2L-wfv"/>
                 <outlet property="messageLabel" destination="Jzl-kz-yhE" id="nFz-fa-Ib2"/>
+                <outlet property="panDismissView" destination="D9H-8K-pWM" id="cMG-9E-fH3"/>
                 <outlet property="searchButton" destination="Mgw-bK-LhQ" id="bq1-cG-LPG"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -136,17 +137,33 @@ choice free</string>
                         <constraint firstItem="ex2-VB-leM" firstAttribute="centerX" secondItem="mYI-nj-pQe" secondAttribute="centerX" id="zKM-tR-l3b"/>
                     </constraints>
                 </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="D9H-8K-pWM">
+                    <rect key="frame" x="0.0" y="0.0" width="393" height="477"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="D9H-8K-pWM" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="5It-YK-6Vm"/>
                 <constraint firstItem="mYI-nj-pQe" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="6dM-t3-Euf"/>
+                <constraint firstItem="D9H-8K-pWM" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="PsZ-VT-8KU"/>
+                <constraint firstItem="D9H-8K-pWM" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="Pvq-bE-GVw"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="mYI-nj-pQe" secondAttribute="trailing" id="RdG-vC-f6M"/>
+                <constraint firstItem="D9H-8K-pWM" firstAttribute="bottom" secondItem="ex2-VB-leM" secondAttribute="bottom" id="cwt-MS-6iH"/>
                 <constraint firstAttribute="bottom" secondItem="mYI-nj-pQe" secondAttribute="bottom" id="zci-ig-dcJ"/>
             </constraints>
             <point key="canvasLocation" x="-69.465648854961827" y="-1.4084507042253522"/>
         </view>
     </objects>
+    <designables>
+        <designable name="Mgw-bK-LhQ">
+            <size key="intrinsicContentSize" width="115" height="32"/>
+        </designable>
+        <designable name="imP-Jw-CNL">
+            <size key="intrinsicContentSize" width="114" height="32"/>
+        </designable>
+    </designables>
     <resources>
         <image name="detectLocationCross" width="24" height="24"/>
         <image name="detectLocationIcon" width="90.333335876464844" height="90"/>
