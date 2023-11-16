@@ -28,6 +28,7 @@ class SetLocationPopupViewController: UIViewController {
     private var citiesResponse: GetCitiesResponse?
     private var interItemSpacing: CGFloat = 8
     private var itemHeight: CGFloat = 40
+    private var showShimmer = true
     
     // MARK: - ACTIONS -
     @IBAction func closePressed(_ sender: Any) {
@@ -35,6 +36,15 @@ class SetLocationPopupViewController: UIViewController {
     }
     
     @IBAction func continuePressed(_ sender: Any) {
+    }
+    
+    // MARK: - INITIALIZERS -
+    init() {
+        super.init(nibName: "SetLocationPopupViewController", bundle: .module)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - METHODS -
@@ -50,7 +60,7 @@ class SetLocationPopupViewController: UIViewController {
         panDismissView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
         panDismissView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
         setupCollectionView()
-        input.send(.getCities)
+        getCities()
         
     }
     
@@ -71,6 +81,17 @@ class SetLocationPopupViewController: UIViewController {
             collectionViewHeight.constant = CGFloat(totalRowHeight + totalSpace)
             locationsCollectionView.layoutIfNeeded()
         }
+        
+    }
+    
+    private func getCities() {
+        
+        if let citiesResponse = GetCitiesResponse.fromModuleFile() {
+            self.citiesResponse = citiesResponse
+            setupCollectionViewHeight()
+            locationsCollectionView.reloadData()
+        }
+        input.send(.getCities)
         
     }
 
@@ -118,6 +139,7 @@ extension SetLocationPopupViewController {
             .sink { [weak self] event in
                 switch event {
                 case .fetchCitiesDidSucceed(let response):
+                    self?.showShimmer = false
                     self?.citiesResponse = response
                     self?.setupCollectionViewHeight()
                     self?.locationsCollectionView.reloadData()
@@ -144,7 +166,13 @@ extension SetLocationPopupViewController: UICollectionViewDelegate, UICollection
         
         let cell = collectionView.dequeueReusableCell(withClass: LocationTitleCollectionViewCell.self, for: indexPath)
         if let city = citiesResponse?.cities?[indexPath.item] {
-            cell.setValues(city: city)
+            if showShimmer {
+                cell.enableSkeleton()
+                cell.showAnimatedSkeleton()
+            } else {
+                cell.hideSkeleton()
+                cell.setValues(city: city)
+            }
         }
         return cell
         
@@ -156,6 +184,7 @@ extension SetLocationPopupViewController: UICollectionViewDelegate, UICollection
             for (index, city) in cities.enumerated() {
                 city.isSelected = index == indexPath.item
             }
+            collectionView.reloadData()
         }
         
     }

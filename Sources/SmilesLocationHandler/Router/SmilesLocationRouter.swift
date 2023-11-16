@@ -22,7 +22,13 @@ public final class SmilesLocationRouter {
             viewController.present(popupViewController, animated: true, completion: nil)
         }
     }
-    
+    public func presentSetLocationPopUp(on viewController: UIViewController) {
+        
+        let setLocationPopUp = SmilesLocationConfigurator.create(type: .setLocationPopUp) as! SetLocationPopupViewController
+        setLocationPopUp.modalPresentationStyle = .overFullScreen
+        viewController.present(setLocationPopUp, animated: true)
+        
+    }
     // MARK: - Private Methods
     
     private func setActionsForControllerType(popupViewController: SmilesDetectLocationPopUp, controllerType: ControllerType) {
@@ -71,4 +77,5 @@ public final class SmilesLocationRouter {
     private func navigateToDetectLocation() {
         // Implement navigation logic to detect location
     }
+    
 }
