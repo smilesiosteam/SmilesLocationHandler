@@ -10,7 +10,6 @@ import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
 
-
 final class SmilesDetectLocationPopUp: UIViewController {
     
     // MARK: - IBOutlets

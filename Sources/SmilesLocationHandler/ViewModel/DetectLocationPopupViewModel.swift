@@ -8,8 +8,7 @@
 import Foundation
 
 // MARK: - ViewModel
-
-final class DetectLocationPopupViewModel {
+ final class DetectLocationPopupViewModel {
     
     let data: DetectLocationPopupModel?
     
@@ -21,7 +20,7 @@ final class DetectLocationPopupViewModel {
 
 
 
-enum ControllerType {
+public enum ControllerType {
     case detectLocation
     case automaticallyDetectLocation
     case deleteWorkAddress
