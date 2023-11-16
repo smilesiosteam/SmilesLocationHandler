@@ -89,7 +89,7 @@ extension SetLocationPopupViewController {
                 })
             }
         case .ended:
-            if dismissViewTranslation.y < 200 {
+            if dismissViewTranslation.y < 150 {
                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                     self.view.transform = .identity
                 })
