@@ -12,18 +12,15 @@ struct SmilesLocationConfigurator {
     
     enum ConfiguratorType {
 
-        case createDetectLocationPopup(controller: ControllerType)
+        case createDetectLocationPopup(_ viewModel: DetectLocationPopupViewModel?)
         case setLocationPopUp
 
     }
     
     static func create(type: ConfiguratorType) -> UIViewController {
         switch type {
-        case .createDetectLocationPopup(let controllerType):
-            let viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
-            let vc = SmilesDetectLocationPopUp()
-            vc.configure(with: viewModel)
-            return vc
+        case .createDetectLocationPopup(let viewModel):
+            return SmilesLocationDetectViewController(viewModel)
         case .setLocationPopUp:
             let vc = SetLocationPopupViewController()
             return vc

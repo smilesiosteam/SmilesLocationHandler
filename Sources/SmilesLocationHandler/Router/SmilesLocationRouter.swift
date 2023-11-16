@@ -17,9 +17,11 @@ public final class SmilesLocationRouter {
     // MARK: - Methods
     
     public func showDetectLocationPopup(from viewController: UIViewController, controllerType: ControllerType) {
-        if let popupViewController = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controller: controllerType)) as? SmilesDetectLocationPopUp {
-            setActionsForControllerType(popupViewController: popupViewController, controllerType: controllerType)
-            viewController.present(popupViewController, animated: true, completion: nil)
+        let viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
+        if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(viewModel)) as? SmilesLocationDetectViewController {
+            setActionsForControllerType(popupViewController: detectLocationPopup, controllerType: controllerType)
+            viewController.modalPresentationStyle = .overFullScreen
+            viewController.present(detectLocationPopup, animated: true, completion: nil)
         }
     }
     public func presentSetLocationPopUp(on viewController: UIViewController) {
@@ -31,7 +33,7 @@ public final class SmilesLocationRouter {
     }
     // MARK: - Private Methods
     
-    private func setActionsForControllerType(popupViewController: SmilesDetectLocationPopUp, controllerType: ControllerType) {
+    private func setActionsForControllerType(popupViewController: SmilesLocationDetectViewController, controllerType: ControllerType) {
         popupViewController.setDetectLocationAction {
             self.handleDetectLocationAction(for: controllerType)
         }
