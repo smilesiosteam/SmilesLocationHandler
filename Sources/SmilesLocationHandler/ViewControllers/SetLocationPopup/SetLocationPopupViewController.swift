@@ -36,8 +36,10 @@ class SetLocationPopupViewController: UIViewController {
     }
     
     @IBAction func continuePressed(_ sender: Any) {
-        dismiss(animated: true) {
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC()
+        dismiss(animated: true) { [weak self] in
+            if let selectedCity = self?.citiesResponse?.cities?.first(where: { $0.isSelected }) {
+                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: selectedCity)
+            }
         }
     }
     
@@ -193,6 +195,11 @@ extension SetLocationPopupViewController: UICollectionViewDelegate, UICollection
                 city.isSelected = index == indexPath.item
             }
             collectionView.reloadData()
+            if !continueButton.isEnabled {
+                continueButton.isEnabled = true
+                continueButton.setBackgroundColor(UIColor(hexString: "#75428e"), for: .normal)
+                continueButton.setTitleColor(.white, for: .normal)
+            }
         }
         
     }
