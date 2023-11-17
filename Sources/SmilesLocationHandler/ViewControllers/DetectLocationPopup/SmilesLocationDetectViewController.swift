@@ -1,8 +1,8 @@
 //
-//  SmilesExplorerPickTicketPopUp.swift
+//  SmilesLocationDetectViewController.swift
 //
 //
-//  Created by Ghullam  Abbas on 15/11/2023.
+//  Created by Ghullam  Abbas on 16/11/2023.
 //
 
 import UIKit
@@ -10,8 +10,7 @@ import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
 
-
-final class SmilesDetectLocationPopUp: UIViewController {
+class SmilesLocationDetectViewController: UIViewController {
     
     // MARK: - IBOutlets
     @IBOutlet private weak var mainContainerView: UIView!
@@ -25,34 +24,42 @@ final class SmilesDetectLocationPopUp: UIViewController {
     private var detectLocationAction: (() -> Void)?
     private var searchLocationAction: (() -> Void)?
     private var dismissViewTranslation = CGPoint(x: 0, y: 0)
-    
-    // MARK: - View Controller Lifecycle
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        styleFontAndTextColor()
-    }
-    
+    private var viewModel: DetectLocationPopupViewModel?
     // MARK: - Methods
-    init() {
-        super.init(nibName: "SmilesDetectLocationPopUp", bundle: .module)
+    init(_ viewModel: DetectLocationPopupViewModel?) {
+        
+        self.viewModel = viewModel
+        super.init(nibName: "SmilesLocationDetectViewController", bundle: .module)
+        self.modalPresentationStyle = .overFullScreen
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func configure(with viewModel: DetectLocationPopupViewModel?) {
+    // MARK: - View Controller Lifecycle
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        styleFontAndTextColor()
+        if let viewModel = viewModel {
+            self.configure(with: viewModel)
+        }
+    }
+    private  func configure(with viewModel: DetectLocationPopupViewModel?) {
+        
         self.messageLabel.text = viewModel?.data?.message
-        self.imageIcon.image = UIImage(named: viewModel?.data?.iconImage ?? "")
+        if let imageName = viewModel?.data?.iconImage {
+            self.imageIcon.image = UIImage(named: imageName, in: .module, compatibleWith: nil)
+        }
         self.detectButton.setTitle(viewModel?.data?.detectButtonTitle, for: .normal)
         self.searchButton.setTitle(viewModel?.data?.searchButtonTitle, for: .normal)
     }
     
     private func styleFontAndTextColor() {
+        
         self.messageLabel.fontTextStyle = .smilesHeadline4
         self.detectButton.fontTextStyle = .smilesHeadline4
-        self.searchButton.fontTextStyle = .smilesBody4
+        self.searchButton.fontTextStyle = .smilesHeadline4
         
         self.messageLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         self.detectButton.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
@@ -94,7 +101,7 @@ final class SmilesDetectLocationPopUp: UIViewController {
 }
 
 // MARK: - GESTURES ACTION HANDLING -
-extension SmilesDetectLocationPopUp {
+extension SmilesLocationDetectViewController {
     
     @objc func handleDismiss(sender: UIPanGestureRecognizer) {
         switch sender.state {
