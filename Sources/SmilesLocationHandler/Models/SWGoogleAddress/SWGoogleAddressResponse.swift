@@ -10,8 +10,8 @@ import NetworkingLayer
 
 class SWGoogleAddressResponse : BaseMainResponse {
     
-    var plusCode : SWPlusCode?
-    var results : [SWGResult]?
+    var plusCode : SWGooglePlusCode?
+    var results : [SWGoogleResult]?
     var status : String?
     
     enum CodingKeys: String, CodingKey {
@@ -22,8 +22,8 @@ class SWGoogleAddressResponse : BaseMainResponse {
     
     required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        plusCode = try SWPlusCode(from: decoder)
-        results = try values.decodeIfPresent([SWGResult].self, forKey: .results)
+        plusCode = try SWGooglePlusCode(from: decoder)
+        results = try values.decodeIfPresent([SWGoogleResult].self, forKey: .results)
         status = try values.decodeIfPresent(String.self, forKey: .status)
         try super.init(from: decoder)
     }

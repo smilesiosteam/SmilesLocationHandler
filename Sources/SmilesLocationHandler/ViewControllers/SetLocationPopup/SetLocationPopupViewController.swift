@@ -36,6 +36,10 @@ class SetLocationPopupViewController: UIViewController {
     }
     
     @IBAction func continuePressed(_ sender: Any) {
+        dismiss(animated: true) { [weak self] in
+            guard let navVC = self?.navigationController else { return }
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(navigationVC: navVC)
+        }
     }
     
     // MARK: - INITIALIZERS -
@@ -149,6 +153,7 @@ extension SetLocationPopupViewController {
                     self?.locationsCollectionView.reloadData()
                 case .fetchCitiesDidFail(let error):
                     print(error.localizedDescription)
+                default: break
                 }
             }.store(in: &cancellables)
     }

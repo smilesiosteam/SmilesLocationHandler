@@ -155,7 +155,11 @@ extension ConfirmUserLocationViewController {
                 case .fetchAddressFromCoordinatesDidSucceed(let response):
                     self?.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesDidFail(let error):
-                    print(error?.localizedDescription ?? "")
+                    debugPrint(error?.localizedDescription ?? "")
+                case .fetchAddressFromCoordinatesOSMDidSucceed(let response):
+                    self?.configureAddressString(response: response)
+                case .fetchAddressFromCoordinatesOSMDidFail(let error):
+                    debugPrint(error?.localizedDescription ?? "")
                 default: break
                 }
             }.store(in: &cancellables)
@@ -193,15 +197,8 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
     }
     
     func mapView(_ mapView: GMSMapView, markerInfoWindow marker: GMSMarker) -> UIView? {
-//        marker.isDraggable = true
-//        return presenter?.generateCustomPinView()
+        return LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: 63))
     }
-    
-    func mapView(_ mapView: GMSMapView, didCloseInfoWindowOf marker: GMSMarker) {
-//        marker.isDraggable = true
-    }
-    
-    
     
     func mapView(_ mapView: GMSMapView, didDrag marker: GMSMarker) {
         

@@ -7,6 +7,7 @@
 
 import Foundation
 import NetworkingLayer
+import CoreLocation
 
 class OSMLocationResponse: BaseMainResponse {
     
@@ -34,7 +35,7 @@ class OSMLocationResponse: BaseMainResponse {
         latitude = try values.decodeIfPresent(String.self, forKey: .latitude)
         longitude = try values.decodeIfPresent(String.self, forKey: .longitude)
         displayName = try values.decodeIfPresent(String.self, forKey: .displayName)
-        address = try values.decodeIfPresent(OSMAddressModel.self, forKey: .address)
+        address = try values.decodeIfPresent(OSMLocationAddressModel.self, forKey: .address)
         osmType = try values.decodeIfPresent(String.self, forKey: .osmType)
         osmId = try values.decodeIfPresent(Int64.self, forKey: .osmId)
 

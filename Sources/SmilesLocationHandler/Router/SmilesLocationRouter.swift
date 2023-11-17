@@ -20,4 +20,11 @@ public final class SmilesLocationRouter {
         
     }
     
+    public func pushConfirmUserLocationVC(navigationVC: UINavigationController) {
+        
+        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation) as! ConfirmUserLocationViewController
+        navigationVC.pushViewController(vc, animated: true)
+        
+    }
+    
 }
