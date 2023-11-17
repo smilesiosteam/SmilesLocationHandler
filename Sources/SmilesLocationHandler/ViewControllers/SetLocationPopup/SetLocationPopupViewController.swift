@@ -36,6 +36,10 @@ class SetLocationPopupViewController: UIViewController {
     }
     
     @IBAction func continuePressed(_ sender: Any) {
+        dismiss(animated: true) { [weak self] in
+            guard let navVC = self?.navigationController else { return }
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(navigationVC: navVC)
+        }
     }
     
     // MARK: - INITIALIZERS -
@@ -53,10 +57,14 @@ class SetLocationPopupViewController: UIViewController {
         setupViews()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        mainView.roundSpecifiCorners(corners: [.topLeft, .topRight], radius: 16)
+    }
+    
     private func setupViews() {
         
         bind(to: viewModel)
-        mainView.roundSpecifiCorners(corners: [.topLeft, .topRight], radius: 16)
         panDismissView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
         panDismissView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
         setupCollectionView()
@@ -145,6 +153,7 @@ extension SetLocationPopupViewController {
                     self?.locationsCollectionView.reloadData()
                 case .fetchCitiesDidFail(let error):
                     print(error.localizedDescription)
+                default: break
                 }
             }.store(in: &cancellables)
     }

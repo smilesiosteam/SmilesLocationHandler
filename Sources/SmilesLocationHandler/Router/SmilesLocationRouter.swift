@@ -88,4 +88,11 @@ public final class SmilesLocationRouter {
         // Implement navigation logic to detect location
     }
     
+    public func pushConfirmUserLocationVC(navigationVC: UINavigationController) {
+        
+        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation) as! ConfirmUserLocationViewController
+        navigationVC.pushViewController(vc, animated: true)
+        
+    }
+    
 }
