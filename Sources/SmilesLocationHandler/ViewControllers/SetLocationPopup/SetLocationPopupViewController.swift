@@ -53,10 +53,14 @@ class SetLocationPopupViewController: UIViewController {
         setupViews()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        mainView.roundSpecifiCorners(corners: [.topLeft, .topRight], radius: 16)
+    }
+    
     private func setupViews() {
         
         bind(to: viewModel)
-        mainView.roundSpecifiCorners(corners: [.topLeft, .topRight], radius: 16)
         panDismissView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
         panDismissView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
         setupCollectionView()
