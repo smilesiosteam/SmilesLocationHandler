@@ -78,7 +78,7 @@ class ConfirmUserLocationViewController: UIViewController {
         
     }
 
-    func setUpNavigationBar() {
+    private func setUpNavigationBar() {
         
         title = SmilesLanguageManager.shared.getLocalizedString(for: "Set your location")
         let appearance = UINavigationBarAppearance()
