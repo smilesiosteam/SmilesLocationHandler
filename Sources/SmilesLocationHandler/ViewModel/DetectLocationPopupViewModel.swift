@@ -23,7 +23,7 @@ import Foundation
 public enum ControllerType {
     case detectLocation
     case automaticallyDetectLocation
-    case deleteWorkAddress
+    case deleteWorkAddress(message: String? = nil)
     // Add more cases as needed
 }
 
@@ -35,8 +35,8 @@ final class DetectLocationPopupViewModelFactory {
             return createViewModelForDetectLocation()
         case .automaticallyDetectLocation:
             return createViewModelForAutomaticallyDetectLocation()
-        case .deleteWorkAddress:
-            return createViewModelForDeleteWorkAddress()
+        case .deleteWorkAddress(let message):
+            return createViewModelForDeleteWorkAddress(message: message)
         }
     }
     
@@ -50,8 +50,12 @@ final class DetectLocationPopupViewModelFactory {
         return DetectLocationPopupViewModel(data: model)
     }
     
-    private static func createViewModelForDeleteWorkAddress() -> DetectLocationPopupViewModel {
-        let model = DetectLocationPopupModel(message: "Delete Work address?", iconImage: "delete_work_icon", detectButtonTitle: "yes_delete".localizedString, searchButtonTitle: "no_keep_it".localizedString)
+    private static func createViewModelForDeleteWorkAddress(message: String?) -> DetectLocationPopupViewModel {
+        var messageText = "Delete Work address?"
+        if let message = message {
+            messageText = message
+        }
+        let model = DetectLocationPopupModel(message: messageText, iconImage: "delete_work_icon", detectButtonTitle: "yes_delete".localizedString, searchButtonTitle: "no_keep_it".localizedString)
         return DetectLocationPopupViewModel(data: model)
     }
 }

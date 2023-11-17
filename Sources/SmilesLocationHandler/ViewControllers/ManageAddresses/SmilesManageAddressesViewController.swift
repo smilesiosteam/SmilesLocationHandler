@@ -1,6 +1,6 @@
 //
 //  SmilesManageAddressesViewController.swift
-//  
+//
 //
 //  Created by Ghullam  Abbas on 17/11/2023.
 //
@@ -17,7 +17,7 @@ final class SmilesManageAddressesViewController: UIViewController {
     @IBOutlet weak var savedAddressedLabel: UILabel!
     
     // MARK: - Properties
-    
+    var isEditingEnabled: Bool = false
     // MARK: - Methods
     init() {
         super.init(nibName: "SmilesManageAddressesViewController", bundle: .module)
@@ -26,7 +26,7 @@ final class SmilesManageAddressesViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-   private func setUpNavigationBar() {
+    private func setUpNavigationBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         let appearance = UINavigationBarAppearance()
         appearance.backgroundColor = .white
@@ -39,7 +39,7 @@ final class SmilesManageAddressesViewController: UIViewController {
         locationNavBarTitle.textColor = .black
         locationNavBarTitle.fontTextStyle = .smilesHeadline4
         
-       locationNavBarTitle.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
+        locationNavBarTitle.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
         self.navigationItem.titleView = locationNavBarTitle
         /// Back Button Show
@@ -67,6 +67,7 @@ final class SmilesManageAddressesViewController: UIViewController {
     }
     private func updateUI() {
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
+        self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
     }
     func setupTableViewCells() {
         addressesTableView.registerCellFromNib(SmilesManageAddressTableViewCell.self, withIdentifier: String(describing: SmilesManageAddressTableViewCell.self), bundle: .module)
@@ -85,10 +86,21 @@ final class SmilesManageAddressesViewController: UIViewController {
         setUpNavigationBar()
         updateUI()
     }
+    // MARK: - IBActions
+    @IBAction func didTabEditButton(_ sender: UIButton) {
+        if (isEditingEnabled) {
+            self.isEditingEnabled = false
+            self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
+        } else {
+            self.isEditingEnabled = true
+            self.editButton.setTitle("Done".localizedString, for: .normal)
+        }
+        self.addressesTableView.reloadData()
+    }
 }
 
 // MARK: - UITableView Delegate & DataSource -
-extension SmilesManageAddressesViewController: UITableViewDelegate,UITableViewDataSource {
+extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewDataSource, SmilesManageAddressTableViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 4
@@ -96,8 +108,17 @@ extension SmilesManageAddressesViewController: UITableViewDelegate,UITableViewDa
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SmilesManageAddressTableViewCell", for: indexPath) as? SmilesManageAddressTableViewCell else { return UITableViewCell() }
+        cell.editButton.isHidden = !isEditingEnabled
+        cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
+        cell.delegate = self
         return cell
     }
-    
+    func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+        // Handle the action here based on the cell's action
+        if let indexPath = self.addressesTableView.indexPath(for: cell) {
+            SmilesLocationRouter.shared.showDetectLocationPopup(from: self, controllerType: .deleteWorkAddress())
+            // Perform actions based on indexPath
+        }
+    }
     
 }
