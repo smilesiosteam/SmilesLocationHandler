@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="SmilesManageAddressTableViewCell" rowHeight="95" id="KGk-i7-Jjw" customClass="SmilesManageAddressTableViewCell" customModule="SmilesLocationHandler">
+            <rect key="frame" x="0.0" y="0.0" width="347" height="100"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="347" height="100"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1wc-I7-Hc0" customClass="UICustomView" customModule="SmilesUtilities">
+                        <rect key="frame" x="16" y="8" width="315" height="84"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_address_icon" translatesAutoresizingMaskIntoConstraints="NO" id="dKw-nw-5Qy">
+                                <rect key="frame" x="16" y="16" width="24" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="R3a-RI-Pl3"/>
+                                    <constraint firstAttribute="width" constant="24" id="fXb-gh-efd"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xZr-L9-UQf">
+                                <rect key="frame" x="275" y="16" width="24" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="RLG-s2-bhp"/>
+                                    <constraint firstAttribute="width" constant="24" id="bca-MQ-iqj"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" image="manage_address_chevron"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Home" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sRj-G5-W62">
+                                <rect key="frame" x="52" y="16" width="211" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Zee Zee Tower, Al Barsha 1, Dubai, United Arab Emirates" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Xw-yu-rlh">
+                                <rect key="frame" x="52" y="45" width="211" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="3Xw-yu-rlh" firstAttribute="top" secondItem="sRj-G5-W62" secondAttribute="bottom" constant="8" id="Bar-A3-0vc"/>
+                            <constraint firstAttribute="trailing" secondItem="xZr-L9-UQf" secondAttribute="trailing" constant="16" id="CHK-2B-gnZ"/>
+                            <constraint firstItem="3Xw-yu-rlh" firstAttribute="trailing" secondItem="sRj-G5-W62" secondAttribute="trailing" id="JPu-V3-tD1"/>
+                            <constraint firstItem="sRj-G5-W62" firstAttribute="top" secondItem="1wc-I7-Hc0" secondAttribute="top" constant="16" id="OQO-9S-Taw"/>
+                            <constraint firstItem="xZr-L9-UQf" firstAttribute="top" secondItem="1wc-I7-Hc0" secondAttribute="top" constant="16" id="R9U-UZ-vSd"/>
+                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="3Xw-yu-rlh" secondAttribute="bottom" constant="16" id="Ulm-ad-UqP"/>
+                            <constraint firstItem="xZr-L9-UQf" firstAttribute="leading" secondItem="sRj-G5-W62" secondAttribute="trailing" constant="12" id="VWx-Vi-pNQ"/>
+                            <constraint firstItem="sRj-G5-W62" firstAttribute="leading" secondItem="dKw-nw-5Qy" secondAttribute="trailing" constant="12" id="cBY-8K-Cnr"/>
+                            <constraint firstItem="dKw-nw-5Qy" firstAttribute="top" secondItem="1wc-I7-Hc0" secondAttribute="top" constant="16" id="t3q-WS-oeA"/>
+                            <constraint firstItem="3Xw-yu-rlh" firstAttribute="leading" secondItem="sRj-G5-W62" secondAttribute="leading" id="tOG-ne-t7V"/>
+                            <constraint firstItem="dKw-nw-5Qy" firstAttribute="leading" secondItem="1wc-I7-Hc0" secondAttribute="leading" constant="16" id="v1D-8n-XD4"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                <real key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                <color key="value" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="1wc-I7-Hc0" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="bt1-Hd-T82"/>
+                    <constraint firstAttribute="trailing" secondItem="1wc-I7-Hc0" secondAttribute="trailing" constant="16" id="mHg-I5-rm5"/>
+                    <constraint firstAttribute="bottom" secondItem="1wc-I7-Hc0" secondAttribute="bottom" constant="8" id="w8v-D5-1nx"/>
+                    <constraint firstItem="1wc-I7-Hc0" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="yXT-9h-ZWD"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="addressIcon" destination="dKw-nw-5Qy" id="qWw-CY-xRe"/>
+                <outlet property="detailLabel" destination="3Xw-yu-rlh" id="T8s-of-ZKB"/>
+                <outlet property="forwardButton" destination="xZr-L9-UQf" id="fP5-Bb-7al"/>
+                <outlet property="headingLabel" destination="sRj-G5-W62" id="hSf-3V-1WX"/>
+                <outlet property="mainView" destination="1wc-I7-Hc0" id="Ciu-x5-T9f"/>
+            </connections>
+            <point key="canvasLocation" x="51.145038167938928" y="16.197183098591552"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="home_address_icon" width="24" height="24"/>
+        <image name="manage_address_chevron" width="30" height="30"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

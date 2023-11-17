@@ -31,6 +31,11 @@ public final class SmilesLocationRouter {
         viewController.present(setLocationPopUp, animated: true)
         
     }
+    func pushManageAddressesViewController(with navigationController: UINavigationController) {
+        let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
     // MARK: - Private Methods
     
     private func setActionsForControllerType(popupViewController: SmilesLocationDetectViewController, controllerType: ControllerType) {
@@ -45,6 +50,9 @@ public final class SmilesLocationRouter {
     private func handleDetectLocationAction(for controllerType: ControllerType) {
         switch controllerType {
         case .detectLocation:
+            if let navigationController = navigationController {
+                self.pushManageAddressesViewController(with: navigationController)
+            }
             // Handle detect location action for DetectLocation
             break
         case .automaticallyDetectLocation:

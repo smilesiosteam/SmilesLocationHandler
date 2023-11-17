@@ -14,6 +14,7 @@ struct SmilesLocationConfigurator {
 
         case createDetectLocationPopup(_ viewModel: DetectLocationPopupViewModel?)
         case setLocationPopUp
+        case manageAddresses
         case confirmUserLocation
 
     }
@@ -25,6 +26,8 @@ struct SmilesLocationConfigurator {
         case .setLocationPopUp:
             let vc = SetLocationPopupViewController()
             return vc
+        case .manageAddresses:
+            return SmilesManageAddressesViewController()
         case .confirmUserLocation:
             let vc = ConfirmUserLocationViewController()
             return vc
