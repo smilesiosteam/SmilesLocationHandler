@@ -78,13 +78,15 @@ class SmilesLocationDetectViewController: UIViewController {
     
     // MARK: - IBActions
     @IBAction private func didTabDetectLocationButton(_ sender: UIButton) {
-        detectLocationAction?()
-        self.dismiss(animated: true)
+        dismiss(animated: true) { [weak self] in
+            self?.detectLocationAction?()
+        }
     }
     
     @IBAction private func didTabSearchLocationButton(_ sender: UIButton) {
-        searchLocationAction?()
-        self.dismiss(animated: true)
+        dismiss(animated: true) { [weak self] in
+            self?.searchLocationAction?()
+        }
     }
     
     @IBAction private func didTabCrossButton(_ sender: UIButton) {

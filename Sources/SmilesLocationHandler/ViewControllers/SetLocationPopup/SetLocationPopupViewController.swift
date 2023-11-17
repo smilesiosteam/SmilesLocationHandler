@@ -36,9 +36,8 @@ class SetLocationPopupViewController: UIViewController {
     }
     
     @IBAction func continuePressed(_ sender: Any) {
-        dismiss(animated: true) { [weak self] in
-            guard let navVC = self?.navigationController else { return }
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC(navigationVC: navVC)
+        dismiss(animated: true) {
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC()
         }
     }
     

@@ -11,7 +11,7 @@ import UIKit
 public final class SmilesLocationRouter {
     
     // MARK: - Singleton Instance
-    public var navigationController: UINavigationController!
+    public var navigationController: UINavigationController?
     public static let shared = SmilesLocationRouter()
     
     // MARK: - Methods
@@ -67,8 +67,9 @@ public final class SmilesLocationRouter {
     private func handleSearchLocationAction(for controllerType: ControllerType) {
         switch controllerType {
         case .detectLocation:
-            // Handle search location action for DetectLocation
-            break
+            if let topViewController = navigationController?.topViewController {
+                presentSetLocationPopUp(on: topViewController)
+            }
         case .automaticallyDetectLocation:
             // Handle search location action for AutomaticallyDetectLocation
             break
@@ -88,10 +89,10 @@ public final class SmilesLocationRouter {
         // Implement navigation logic to detect location
     }
     
-    public func pushConfirmUserLocationVC(navigationVC: UINavigationController) {
+    public func pushConfirmUserLocationVC() {
         
         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation) as! ConfirmUserLocationViewController
-        navigationVC.pushViewController(vc, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
         
     }
     
