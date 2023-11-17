@@ -10,6 +10,11 @@ import SmilesUtilities
 import SmilesFontsManager
 import SmilesLanguageManager
 
+protocol SmilesManageAddressTableViewCellDelegate: AnyObject {
+    func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell)
+}
+
+
 class SmilesManageAddressTableViewCell: UITableViewCell {
     
     // MARK: - OUTLETS -
@@ -18,6 +23,11 @@ class SmilesManageAddressTableViewCell: UITableViewCell {
     @IBOutlet weak var headingLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var forwardButton: UIButton!
+    @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var mainViewLeading: NSLayoutConstraint!
+    
+    // MARK: - PROPERTIES
+    weak var delegate: SmilesManageAddressTableViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -40,5 +50,11 @@ class SmilesManageAddressTableViewCell: UITableViewCell {
         self.headingLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         self.detailLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
+    }
+    // MARK: - IBActions
+    @IBAction func didTabDeleteButton(_ sender: UIButton) {
+        if let delegate = delegate {
+            delegate.didTapDeleteButtonInCell(self)
+        }
     }
 }
