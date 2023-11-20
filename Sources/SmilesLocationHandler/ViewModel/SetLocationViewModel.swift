@@ -18,6 +18,8 @@ class SetLocationViewModel: NSObject {
         case getCities
         case reverseGeocodeLatitudeAndLongitudeForAddress(latitude: String, longitude: String)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
+        case searchLocation(location: String, isFromGoogle: Bool)
+        case getLocationDetails(locationId: String, isFromGoogle: Bool)
     }
     
     enum Output {
@@ -29,6 +31,12 @@ class SetLocationViewModel: NSObject {
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
+        
+        case searchLocationDidSucceed(response: [SearchLocationResponseModel])
+        case searchLocationDidFail(error: Error)
+        
+        case fetchLocationDetailsDidSucceed(response: SearchedLocationDetails)
+        case fetchLocationDetailsDidFail(error: Error?)
     }
     
     // MARK: -- Variables
@@ -55,6 +63,12 @@ extension SetLocationViewModel {
             case .locationReverseGeocodingFromOSMCoordinates(let coordinates, let format):
                 self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
                 self?.locationServicesInput.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: format))
+            case .searchLocation(let location, let isFromGoogle):
+                self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
+                self?.locationServicesInput.send(.searchLocation(text: location, isFromGoogle: isFromGoogle))
+            case .getLocationDetails(let locationId, let isFromGoogle):
+                self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
+                self?.locationServicesInput.send(.getLocationDetails(locationId: locationId, isFromGoogle: isFromGoogle))
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -107,6 +121,14 @@ extension SetLocationViewModel {
                     self?.output.send(.fetchAddressFromCoordinatesOSMDidSucceed(response: response))
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
                     self?.output.send(.fetchAddressFromCoordinatesOSMDidFail(error: error))
+                case .searchLocationDidSucceed(let response):
+                    self?.output.send(.searchLocationDidSucceed(response: response))
+                case .searchLocationDidFail(let error):
+                    self?.output.send(.searchLocationDidFail(error: error))
+                case .fetchLocationDetailsDidSucceed(let locationDetails):
+                    self?.output.send(.fetchLocationDetailsDidSucceed(response: locationDetails))
+                case .fetchLocationDetailsDidFail(let error):
+                    self?.output.send(.fetchLocationDetailsDidFail(error: error))
                 }
             }.store(in: &cancellables)
     }

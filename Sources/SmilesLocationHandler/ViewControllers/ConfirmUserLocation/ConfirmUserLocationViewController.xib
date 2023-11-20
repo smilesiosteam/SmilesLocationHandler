@@ -218,6 +218,9 @@
         </view>
     </objects>
     <designables>
+        <designable name="JlL-8h-qva">
+            <size key="intrinsicContentSize" width="94.333333333333329" height="15.666666666666666"/>
+        </designable>
         <designable name="TGk-iL-YBX">
             <size key="intrinsicContentSize" width="108" height="24"/>
         </designable>

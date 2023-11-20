@@ -190,6 +190,7 @@ extension SetLocationPopupViewController: UICollectionViewDelegate, UICollection
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
+        guard !showShimmer else { return }
         if let cities = citiesResponse?.cities {
             for (index, city) in cities.enumerated() {
                 city.isSelected = index == indexPath.item

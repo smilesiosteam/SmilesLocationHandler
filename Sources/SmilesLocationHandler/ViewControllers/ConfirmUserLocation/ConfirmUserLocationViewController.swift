@@ -35,6 +35,7 @@ class ConfirmUserLocationViewController: UIViewController {
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
+        SmilesLocationRouter.shared.pushSearchLocationVC()
     }
     
     @IBAction func currentLocationPressed(_ sender: Any) {
@@ -61,6 +62,22 @@ class ConfirmUserLocationViewController: UIViewController {
     }
     
     @IBAction func confirmPressed(_ sender: Any) {
+        
+//        let location = SearchLocationResponseModel()
+//        location.title = locationLabel.text
+//        location.lat = Double(latitude)
+//        location.long = Double(longitude)
+//        if let cityName = selectedCity.cityName {
+//            location.selectCityName = cityName
+//        }
+//        
+//        if let delegate = delegate {
+//            delegate.getNewAddressLocation(location:location)
+//            presenter?.goBackToEditAddressView()
+//        }else{
+//            presenter?.confirmButtonTapped(location: location, isFromAddNewAddress: isFromAddNewAddress.asBoolOrFalse(), redirectTo: confirmLocationRedirection)
+//        }
+        
     }
     
     // MARK: - INITIALIZERS -

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 16/11/2023.
 //
@@ -10,6 +10,7 @@ import Combine
 import NetworkingLayer
 import SmilesUtilities
 import CoreLocation
+import GooglePlaces
 
 class LocationServicesViewModel: NSObject {
     
@@ -17,6 +18,8 @@ class LocationServicesViewModel: NSObject {
     enum Input {
         case reverseGeoCodeToGetCompleteAddress(latitude: String, longitude: String)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
+        case searchLocation(text: String, isFromGoogle: Bool)
+        case getLocationDetails(locationId: String, isFromGoogle: Bool)
     }
     
     enum Output {
@@ -25,6 +28,12 @@ class LocationServicesViewModel: NSObject {
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
+        
+        case searchLocationDidSucceed(response: [SearchLocationResponseModel])
+        case searchLocationDidFail(error: Error)
+        
+        case fetchLocationDetailsDidSucceed(locationDetails: SearchedLocationDetails)
+        case fetchLocationDetailsDidFail(error: Error?)
     }
     
     // MARK: -- Variables
@@ -44,6 +53,18 @@ extension LocationServicesViewModel {
                 self?.getAddressFromCoordinates(latitude: latitude, longitude: longitude)
             case .locationReverseGeocodingFromOSMCoordinates(let coordinates, let format):
                 self?.getAddressFromCoordinatesOSM(coordinates: coordinates, format: format)
+            case .searchLocation(let location, let isFromGoogle):
+                if isFromGoogle {
+                    self?.getAutoCompleteResultsFromGoogle(location: location)
+                } else {
+                    self?.getAutoCompleteResultsFromOSM(location: location)
+                }
+            case .getLocationDetails(let locationId, let isFromGoogle):
+                if isFromGoogle {
+                    self?.getLocationDetailsFromGoogle(locationId: locationId)
+                } else {
+                    self?.getLocationDetailsFromOSM(locationId: locationId)
+                }
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -101,6 +122,118 @@ extension LocationServicesViewModel {
                 self?.output.send(.fetchAddressFromCoordinatesOSMDidSucceed(response: response))
             }
             .store(in: &cancellables)
+    }
+    
+    private func getAutoCompleteResultsFromGoogle(location: String) {
+        
+        let token = GMSAutocompleteSessionToken.init()
+        let filter = GMSAutocompleteFilter()
+        let placesClient = GMSPlacesClient()
+        
+        placesClient.findAutocompletePredictions(fromQuery: location, filter: filter, sessionToken: token) { [weak self] (results, error) in
+            if let error = error {
+                self?.output.send(.searchLocationDidFail(error: error))
+            }
+            var searchResults = [SearchLocationResponseModel]()
+            if let results = results {
+                for result in results {
+                    let location = SearchLocationResponseModel()
+                    location.addressId = result.placeID
+                    location.title = result.attributedPrimaryText.string
+                    location.subTitle = result.attributedSecondaryText?.string ?? ""
+                    searchResults.append(location)
+                }
+            }
+            self?.output.send(.searchLocationDidSucceed(response: searchResults))
+        }
+        
+    }
+    
+    private func getAutoCompleteResultsFromOSM(location: String) {
+        
+        let service = LocationServicesRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            endPoint: .getAutoCompleteResultsFromOSM(location: location, format: .json, limit: 5, addressDetails: false)
+        )
+        
+        service.getAutoCompleteResultsFromOSM()
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(let error):
+                    self?.output.send(.fetchAddressFromCoordinatesOSMDidFail(error: error))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                var searchResults = [SearchLocationResponseModel]()
+                for result in response {
+                    let location = SearchLocationResponseModel()
+                    location.addressId = "\(result.getOSMType()?.urlParameter ?? "")\(result.osmId ?? 0)"
+                    location.title = result.getFormattedTitle()
+                    location.subTitle = result.displayName ?? ""
+                    searchResults.append(location)
+                }
+                self?.output.send(.searchLocationDidSucceed(response: searchResults))
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func getLocationDetailsFromGoogle(locationId: String) {
+        
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "GoogleAppKey") as? String else {
+            output.send(.fetchLocationDetailsDidFail(error: nil))
+            return
+        }
+        let service = LocationServicesRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            endPoint: .getLocationDetailsFromGoogle(placeId: locationId, key: key)
+        )
+        
+        service.getLocationDetailsFromGoogle()
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(let error):
+                    self?.output.send(.fetchLocationDetailsDidFail(error: error))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                if let result = response.result {
+                    let locationDetails = SearchedLocationDetails(latitude: result.geometry?.location?.lat ?? 0, longitude: result.geometry?.location?.lng ?? 0, formattedAddress: result.formattedAddress)
+                    self?.output.send(.fetchLocationDetailsDidSucceed(locationDetails: locationDetails))
+                }
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func getLocationDetailsFromOSM(locationId: String) {
+        
+        let service = LocationServicesRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            endPoint: .getLocationDetailsFromOSM(osmId: locationId, format: .json)
+        )
+        
+        service.getLocationDetailsFromOSM()
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(let error):
+                    self?.output.send(.fetchLocationDetailsDidFail(error: error))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                if let location = response[safe: 0]?.getLocation(), let address = response[safe: 0]?.displayName {
+                    let locationDetails = SearchedLocationDetails(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, formattedAddress: address)
+                    self?.output.send(.fetchLocationDetailsDidSucceed(locationDetails: locationDetails))
+                }
+            }
+            .store(in: &cancellables)
+        
     }
     
 }

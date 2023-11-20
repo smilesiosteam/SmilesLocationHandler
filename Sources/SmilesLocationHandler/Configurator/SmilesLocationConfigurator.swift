@@ -16,6 +16,7 @@ struct SmilesLocationConfigurator {
         case setLocationPopUp
         case manageAddresses
         case confirmUserLocation(selectedCity: GetCitiesModel)
+        case searchLocation
 
     }
     
@@ -30,6 +31,9 @@ struct SmilesLocationConfigurator {
             return SmilesManageAddressesViewController()
         case .confirmUserLocation(let selectedCity):
             let vc = ConfirmUserLocationViewController(selectedCity: selectedCity)
+            return vc
+        case .searchLocation:
+            let vc = SearchLocationViewController()
             return vc
         }
     }

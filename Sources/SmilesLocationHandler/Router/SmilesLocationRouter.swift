@@ -97,4 +97,11 @@ public final class SmilesLocationRouter {
         
     }
     
+    func pushSearchLocationVC() {
+        
+        let vc = SmilesLocationConfigurator.create(type: .searchLocation) as! SearchLocationViewController
+        navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
 }
