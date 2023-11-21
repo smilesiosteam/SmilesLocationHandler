@@ -35,7 +35,11 @@ class ConfirmUserLocationViewController: UIViewController {
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
-        SmilesLocationRouter.shared.pushSearchLocationVC()
+        SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
+            self?.latitude = "\(selectedLocation.latitude)"
+            self?.longitude = "\(selectedLocation.longitude)"
+            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+        })
     }
     
     @IBAction func currentLocationPressed(_ sender: Any) {

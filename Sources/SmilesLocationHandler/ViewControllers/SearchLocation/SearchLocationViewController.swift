@@ -28,6 +28,7 @@ class SearchLocationViewController: UIViewController {
     }()
     private var searchTask: DispatchWorkItem?
     private var switchToOpenStreetMap = false
+    private var locationSelected: ((SearchedLocationDetails) -> Void)?
     private var searchResults = [SearchedLocationDetails]() {
         didSet {
             searchResultsTableView.reloadData()
@@ -55,7 +56,8 @@ class SearchLocationViewController: UIViewController {
     }
     
     // MARK: - INITIALIZERS -
-    init() {
+    init(locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+        self.locationSelected = locationSelected
         super.init(nibName: "SearchLocationViewController", bundle: .module)
     }
     
@@ -89,6 +91,8 @@ class SearchLocationViewController: UIViewController {
         searchResultsTableView.delegate = self
         searchResultsTableView.dataSource = self
         searchResultsTableView.contentInsetAdjustmentBehavior = .never
+        searchResultsTableView.estimatedSectionHeaderHeight = 40
+        searchResultsTableView.sectionHeaderHeight = UITableView.automaticDimension
         
     }
     
@@ -237,7 +241,7 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return showRecents ? 40 : 0
+        return showRecents ? UITableView.automaticDimension : 0
     }
     
 }
@@ -251,6 +255,10 @@ extension SearchLocationViewController {
         selectedResult?.longitude = locationDetails.longitude
         selectedResult?.formattedAddress = locationDetails.formattedAddress
         saveLocationData()
+        if let selectedResult {
+            locationSelected?(selectedResult)
+            SmilesLocationRouter.shared.popVC()
+        }
         
     }
     

@@ -97,11 +97,15 @@ public final class SmilesLocationRouter {
         
     }
     
-    func pushSearchLocationVC() {
+    func pushSearchLocationVC(locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         
-        let vc = SmilesLocationConfigurator.create(type: .searchLocation) as! SearchLocationViewController
+        let vc = SmilesLocationConfigurator.create(type: .searchLocation(locationSelected: locationSelected)) as! SearchLocationViewController
         navigationController?.pushViewController(vc, animated: true)
         
+    }
+    
+    func popVC() {
+        navigationController?.popViewController(animated: true)
     }
     
 }
