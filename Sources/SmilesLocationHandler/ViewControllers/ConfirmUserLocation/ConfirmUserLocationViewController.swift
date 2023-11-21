@@ -105,6 +105,8 @@ class ConfirmUserLocationViewController: UIViewController {
         
         bind(to: viewModel)
         currentLocationButton.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceLeftToRight : .forceRightToLeft
+        currentLocationButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: AppCommonMethods.languageIsArabic() ? 0 : 5,
+                                                             bottom: 0, right: AppCommonMethods.languageIsArabic() ? 5 : 0)
         setupMap()
         setupPinForLocation()
         
