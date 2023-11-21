@@ -12,6 +12,7 @@ class RecentLocationHeader: UIView {
 
     // MARK: - OUTLETS -
     @IBOutlet var mainView: UIView!
+    @IBOutlet weak var titleLabel: UILocalizableLabel!
     
     
     // MARK: - PROPERTIES -
@@ -40,6 +41,7 @@ class RecentLocationHeader: UIView {
         addSubview(mainView)
         mainView.frame = bounds
         mainView.bindFrameToSuperviewBounds()
+        titleLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
 

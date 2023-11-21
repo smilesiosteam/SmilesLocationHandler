@@ -12,6 +12,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RecentLocationHeader" customModule="SmilesLocationHandler">
             <connections>
                 <outlet property="mainView" destination="iN0-l3-epB" id="n54-ad-5Km"/>
+                <outlet property="titleLabel" destination="tHO-wE-Do1" id="l2o-gC-887"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>

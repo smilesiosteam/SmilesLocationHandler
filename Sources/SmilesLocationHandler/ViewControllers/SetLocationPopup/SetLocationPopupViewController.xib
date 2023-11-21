@@ -106,7 +106,7 @@ Choose a reason for canceling your order below.</string>
                                         <color key="titleColor" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </state>
                                     <userDefinedRuntimeAttributes>
-                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedTitle" value="Continue"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedTitle" value="ContinueText"/>
                                         <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesHeadline4"/>
                                         <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                             <real key="value" value="24"/>
