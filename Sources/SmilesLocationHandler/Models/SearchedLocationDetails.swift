@@ -7,13 +7,28 @@
 
 import Foundation
 
-class SearchedLocationDetails {
+class SearchedLocationDetails: Codable {
     
-    let latitude: Double
-    let longitude: Double
-    let formattedAddress: String?
+    let addressId: String
+    let title: String
+    let subTitle: String
+    var latitude: Double
+    var longitude: Double
+    var formattedAddress: String?
     
-    init(latitude: Double, longitude: Double, formattedAddress: String?) {
+    enum CodingKeys: CodingKey {
+        case addressId
+        case title
+        case subTitle
+        case latitude
+        case longitude
+        case formattedAddress
+    }
+    
+    init(addressId: String = "", title: String = "", subTitle: String = "", latitude: Double = 0, longitude: Double = 0, formattedAddress: String? = nil) {
+        self.addressId = addressId
+        self.title = title
+        self.subTitle = subTitle
         self.latitude = latitude
         self.longitude = longitude
         self.formattedAddress = formattedAddress

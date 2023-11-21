@@ -28,9 +28,18 @@ class SearchLocationViewController: UIViewController {
     }()
     private var searchTask: DispatchWorkItem?
     private var switchToOpenStreetMap = false
-    private var searchResults = [SearchLocationResponseModel]() {
+    private var searchResults = [SearchedLocationDetails]() {
         didSet {
             searchResultsTableView.reloadData()
+        }
+    }
+    private var selectedResult: SearchedLocationDetails?
+    private var numberOfSearchLocationsToSave = 10
+    private var showRecents = true {
+        didSet {
+            if showRecents {
+                setupRecentSearches()
+            }
         }
     }
     
@@ -41,6 +50,7 @@ class SearchLocationViewController: UIViewController {
         searchTextField.resignFirstResponder()
         closeButton.isHidden = true
         searchResults.removeAll()
+        showRecents = true
         
     }
     
@@ -69,6 +79,7 @@ class SearchLocationViewController: UIViewController {
         bind(to: viewModel)
         setupTableView()
         setupSearchBar()
+        setupRecentSearches()
         
     }
     
@@ -77,6 +88,7 @@ class SearchLocationViewController: UIViewController {
         searchResultsTableView.registerCellFromNib(LocationSearchResultTableViewCell.self, withIdentifier: "LocationSearchResultTableViewCell", bundle: .module)
         searchResultsTableView.delegate = self
         searchResultsTableView.dataSource = self
+        searchResultsTableView.contentInsetAdjustmentBehavior = .never
         
     }
     
@@ -85,6 +97,8 @@ class SearchLocationViewController: UIViewController {
         searchTextField.delegate = self
         searchTextField.placeholder = SmilesLanguageManager.shared.getLocalizedString(for: "Search") + "..."
         searchTextField.placeHolderTextColor = .black.withAlphaComponent(0.2)
+        searchTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        searchTextField.textAlignment = AppCommonMethods.languageIsArabic() ? .right : .left
         
     }
     
@@ -123,11 +137,13 @@ extension SearchLocationViewController {
             .sink { [weak self] event in
                 switch event {
                 case .searchLocationDidSucceed(let results):
+                    self?.showRecents = false
                     self?.searchResults = results
                 case .searchLocationDidFail(let error):
                     print(error.localizedDescription)
                 case .fetchLocationDetailsDidSucceed(let locationDetails):
                     SmilesLoader.dismiss()
+                    self?.setupSearchedLocationData(locationDetails: locationDetails)
                     break
                 case .fetchLocationDetailsDidFail(let error):
                     SmilesLoader.dismiss()
@@ -140,38 +156,34 @@ extension SearchLocationViewController {
 }
 
 // MARK: - UISEARCHBAR DELEGATE -
-extension SearchLocationViewController: UISearchBarDelegate, UITextFieldDelegate {
-
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        
-        if let text = textField.text,
-           let textRange = Range(range, in: text) {
-            let updatedText = text.replacingCharacters(in: textRange, with: string)
-            if !updatedText.isEmpty {
-                closeButton.isHidden = false
-                guard updatedText.count >= 3 else { return true }
-                self.searchTask?.cancel()
-                let task = DispatchWorkItem { [weak self] in
-                    DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-                        guard let self else { return }
-                        //Use search text and perform the query
-                        self.input.send(.searchLocation(location: updatedText, isFromGoogle: !self.switchToOpenStreetMap))
-                    }
-                }
-                self.searchTask = task
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: task)
-            } else {
-                closeButton.isHidden = true
-                searchResults.removeAll()
-            }
-        }
-        return true
-        
-    }
+extension SearchLocationViewController: UITextFieldDelegate {
     
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        searchResults.removeAll()
-        return true
+    @objc func textFieldDidChange(_ textField: UITextField) {
+
+        guard let text = textField.text else { return }
+        if !text.isEmpty {
+            closeButton.isHidden = false
+            self.searchTask?.cancel()
+            guard text.count >= 3 else {
+                showRecents = false
+                searchResults.removeAll()
+                return
+            }
+            let task = DispatchWorkItem { [weak self] in
+                DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+                    guard let self else { return }
+                    //Use search text and perform the query
+                    self.input.send(.searchLocation(location: text, isFromGoogle: !self.switchToOpenStreetMap))
+                }
+            }
+            self.searchTask = task
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: task)
+        } else {
+            closeButton.isHidden = true
+            searchResults.removeAll()
+            showRecents = true
+        }
+        
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -211,9 +223,56 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if let addressId = searchResults[indexPath.row].addressId {
+        let result = searchResults[indexPath.row]
+        if !result.addressId.isEmpty {
+            selectedResult = result
             SmilesLoader.show()
-            input.send(.getLocationDetails(locationId: addressId, isFromGoogle: !switchToOpenStreetMap))
+            input.send(.getLocationDetails(locationId: result.addressId, isFromGoogle: !switchToOpenStreetMap))
+        }
+        
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return showRecents ? RecentLocationHeader() : nil
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return showRecents ? 40 : 0
+    }
+    
+}
+
+// MARK: - DATA CONFIGURATIONS -
+extension SearchLocationViewController {
+    
+    private func setupSearchedLocationData(locationDetails: SearchedLocationDetails) {
+        
+        selectedResult?.latitude = locationDetails.latitude
+        selectedResult?.longitude = locationDetails.longitude
+        selectedResult?.formattedAddress = locationDetails.formattedAddress
+        saveLocationData()
+        
+    }
+    
+    private func saveLocationData() {
+        
+        guard let selectedResult else { return }
+        if var recentLocations = UserDefaults.standard.object([SearchedLocationDetails].self, with: Constants.Keys.recentLocation) {
+            if recentLocations.count >= numberOfSearchLocationsToSave {
+                recentLocations.removeFirst()
+            }
+            recentLocations.append(selectedResult)
+            UserDefaults.standard.set(object: recentLocations, forKey: Constants.Keys.recentLocation)
+        } else {
+            UserDefaults.standard.set(object: [selectedResult], forKey: Constants.Keys.recentLocation)
+        }
+        
+    }
+    
+    private func setupRecentSearches() {
+        
+        if let recentLocations = UserDefaults.standard.object([SearchedLocationDetails].self, with: Constants.Keys.recentLocation) {
+            searchResults = recentLocations.reversed()
         }
         
     }

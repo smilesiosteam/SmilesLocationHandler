@@ -29,7 +29,7 @@ class LocationServicesViewModel: NSObject {
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
         
-        case searchLocationDidSucceed(response: [SearchLocationResponseModel])
+        case searchLocationDidSucceed(response: [SearchedLocationDetails])
         case searchLocationDidFail(error: Error)
         
         case fetchLocationDetailsDidSucceed(locationDetails: SearchedLocationDetails)
@@ -77,7 +77,7 @@ extension LocationServicesViewModel {
     
     private func getAddressFromCoordinates(latitude: String, longitude: String) {
         
-        guard let key = Bundle.main.object(forInfoDictionaryKey: "GoogleAppKey") as? String else {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: Constants.Keys.googleAppKey) as? String else {
             output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
             return
         }
@@ -134,13 +134,12 @@ extension LocationServicesViewModel {
             if let error = error {
                 self?.output.send(.searchLocationDidFail(error: error))
             }
-            var searchResults = [SearchLocationResponseModel]()
+            var searchResults = [SearchedLocationDetails]()
             if let results = results {
                 for result in results {
-                    let location = SearchLocationResponseModel()
-                    location.addressId = result.placeID
-                    location.title = result.attributedPrimaryText.string
-                    location.subTitle = result.attributedSecondaryText?.string ?? ""
+                    let location = SearchedLocationDetails(addressId: result.placeID,
+                                                           title: result.attributedPrimaryText.string,
+                                                           subTitle: result.attributedSecondaryText?.string ?? "")
                     searchResults.append(location)
                 }
             }
@@ -166,12 +165,11 @@ extension LocationServicesViewModel {
                     debugPrint("nothing much to do here")
                 }
             } receiveValue: { [weak self] response in
-                var searchResults = [SearchLocationResponseModel]()
+                var searchResults = [SearchedLocationDetails]()
                 for result in response {
-                    let location = SearchLocationResponseModel()
-                    location.addressId = "\(result.getOSMType()?.urlParameter ?? "")\(result.osmId ?? 0)"
-                    location.title = result.getFormattedTitle()
-                    location.subTitle = result.displayName ?? ""
+                    let location = SearchedLocationDetails(addressId: "\(result.getOSMType()?.urlParameter ?? "")\(result.osmId ?? 0)",
+                                                           title: result.getFormattedTitle(),
+                                                           subTitle: result.displayName ?? "")
                     searchResults.append(location)
                 }
                 self?.output.send(.searchLocationDidSucceed(response: searchResults))
@@ -182,7 +180,7 @@ extension LocationServicesViewModel {
     
     private func getLocationDetailsFromGoogle(locationId: String) {
         
-        guard let key = Bundle.main.object(forInfoDictionaryKey: "GoogleAppKey") as? String else {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: Constants.Keys.googleAppKey) as? String else {
             output.send(.fetchLocationDetailsDidFail(error: nil))
             return
         }

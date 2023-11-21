@@ -26,7 +26,7 @@ class LocationSearchResultTableViewCell: UITableViewCell {
         // Initialization code
     }
     
-    func setValues(location: SearchLocationResponseModel) {
+    func setValues(location: SearchedLocationDetails) {
         
         locationTitleLabel.text = location.title
         locationSubTitleLabel.text = location.subTitle

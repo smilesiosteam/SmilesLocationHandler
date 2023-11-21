@@ -32,7 +32,7 @@ class SetLocationViewModel: NSObject {
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
         
-        case searchLocationDidSucceed(response: [SearchLocationResponseModel])
+        case searchLocationDidSucceed(response: [SearchedLocationDetails])
         case searchLocationDidFail(error: Error)
         
         case fetchLocationDetailsDidSucceed(response: SearchedLocationDetails)
