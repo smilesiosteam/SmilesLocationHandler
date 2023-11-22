@@ -29,7 +29,7 @@ class UpdateLocationCell: UITableViewCell {
     @IBOutlet weak var mainViewLeading: NSLayoutConstraint!
     
     // MARK: - PROPERTIES
-    weak var delegate: SmilesManageAddressTableViewCellDelegate?
+    weak var delegate: SmilesUpdateLocationTableViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()

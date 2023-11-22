@@ -48,7 +48,7 @@ public final class SmilesLocationRouter {
         switch controllerType {
         case .detectLocation:
             if let navigationController = navigationController {
-                self.pushManageAddressesViewController(with: navigationController)
+                self.pushUpdateLocationViewController(with: navigationController)
             }
             // Handle detect location action for DetectLocation
             break
@@ -96,6 +96,11 @@ public final class SmilesLocationRouter {
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)
         }
+    }
+    func pushUpdateLocationViewController(with navigationController: UINavigationController) {
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
     }
     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel) {
         

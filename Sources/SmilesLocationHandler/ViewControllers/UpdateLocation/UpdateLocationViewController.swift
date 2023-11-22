@@ -18,6 +18,7 @@ final class UpdateLocationViewController: UIViewController {
     @IBOutlet weak var savedAddressedLabel: UILabel!
     
     // MARK: - Properties
+    var selectedIndex = 0
     var isEditingEnabled: Bool = false
     var addressDataSource = [Address]()
     private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
@@ -27,7 +28,7 @@ final class UpdateLocationViewController: UIViewController {
     }()
     // MARK: - Methods
     init() {
-        super.init(nibName: "SmilesManageAddressesViewController", bundle: .module)
+        super.init(nibName: "UpdateLocationViewController", bundle: .module)
     }
     
     required init?(coder: NSCoder) {
@@ -42,7 +43,7 @@ final class UpdateLocationViewController: UIViewController {
         
         
         let locationNavBarTitle = UILabel()
-        locationNavBarTitle.text = "SavedAddresses".localizedString
+        locationNavBarTitle.text = "UpdateYourLocationText".localizedString
         locationNavBarTitle.textColor = .black
         locationNavBarTitle.fontTextStyle = .smilesHeadline4
         
@@ -77,7 +78,7 @@ final class UpdateLocationViewController: UIViewController {
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
     }
     func setupTableViewCells() {
-        addressesTableView.registerCellFromNib(SmilesManageAddressTableViewCell.self, withIdentifier: String(describing: SmilesManageAddressTableViewCell.self), bundle: .module)
+        addressesTableView.registerCellFromNib(UpdateLocationCell.self, withIdentifier: String(describing: UpdateLocationCell.self), bundle: .module)
     }
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
@@ -110,14 +111,14 @@ final class UpdateLocationViewController: UIViewController {
 }
 
 // MARK: - UITableView Delegate & DataSource -
-extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesManageAddressTableViewCellDelegate {
+extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "SmilesManageAddressTableViewCell", for: indexPath) as? SmilesManageAddressTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
         cell.editButton.isHidden = !isEditingEnabled
         cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
         cell.delegate = self
@@ -126,6 +127,13 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
         cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
         cell.selectionStyle = .none
+        if (selectedIndex == indexPath.row) {
+            cell.mainView.borderColor = .appRevampPurpleMainColor
+            cell.forwardButton.setImage(UIImage(named: "checked_address_radio", in: .module, with: nil), for: .normal)
+        } else {
+            cell.forwardButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, with: nil), for: .normal)
+            cell.mainView.borderColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+        }
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -136,7 +144,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         }
         
     }
-    func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
              let item = self.addressDataSource[indexPath.row]
@@ -151,12 +159,12 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             // Perform actions based on indexPath
         }
     }
-    func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+    func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
              let item = self.addressDataSource[indexPath.row]
             // Perform actions based on indexPath
             if let navigationController = self.navigationController {
-                SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+                //SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
             }
         }
     }
