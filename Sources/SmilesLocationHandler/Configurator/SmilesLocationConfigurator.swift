@@ -11,13 +11,13 @@ import UIKit
 struct SmilesLocationConfigurator {
     
     enum ConfiguratorType {
-
+        
         case createDetectLocationPopup(_ viewModel: DetectLocationPopupViewModel?)
         case setLocationPopUp
         case manageAddresses
+        case addOrEditAddress
         case confirmUserLocation(selectedCity: GetCitiesModel)
         case searchLocation(locationSelected: ((SearchedLocationDetails) -> Void))
-
     }
     
     static func create(type: ConfiguratorType) -> UIViewController {
@@ -34,6 +34,9 @@ struct SmilesLocationConfigurator {
             return vc
         case .searchLocation(let locationSelected):
             let vc = SearchLocationViewController(locationSelected: locationSelected)
+            return vc
+        case .addOrEditAddress:
+            let vc = AddOrEditAddressViewController()
             return vc
         }
     }

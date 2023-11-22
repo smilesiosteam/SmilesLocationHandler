@@ -8,6 +8,7 @@
 import UIKit
 import SmilesUtilities
 import SmilesLanguageManager
+import Combine
 
 final class SmilesManageAddressesViewController: UIViewController {
     
@@ -18,6 +19,12 @@ final class SmilesManageAddressesViewController: UIViewController {
     
     // MARK: - Properties
     var isEditingEnabled: Bool = false
+    var addressDataSource = [Address]()
+    private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
+    private var cancellables = Set<AnyCancellable>()
+    private lazy var viewModel: ManageAddressViewModel = {
+        return ManageAddressViewModel()
+    }()
     // MARK: - Methods
     init() {
         super.init(nibName: "SmilesManageAddressesViewController", bundle: .module)
@@ -78,13 +85,16 @@ final class SmilesManageAddressesViewController: UIViewController {
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        bind(to: viewModel)
         setupTableViewCells()
         styleFontAndTextColor()
+        
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
+        self.input.send(.getAllAddress)
     }
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
@@ -103,7 +113,7 @@ final class SmilesManageAddressesViewController: UIViewController {
 extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewDataSource, SmilesManageAddressTableViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return addressDataSource.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -111,14 +121,72 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         cell.editButton.isHidden = !isEditingEnabled
         cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
         cell.delegate = self
+        let address = addressDataSource [indexPath.row]
+        cell.headingLabel.text = address.nickname
+        cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
+        cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
+        cell.selectionStyle = .none
         return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let item = self.addressDataSource[indexPath.row]
+        if let navigationController = self.navigationController {
+            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+        }
+        
     }
     func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            SmilesLocationRouter.shared.showDetectLocationPopup(from: self, controllerType: .deleteWorkAddress())
+             let item = self.addressDataSource[indexPath.row]
+            let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
+            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
+                vc.setDetectLocationAction {
+                    self.addressDataSource.remove(at: indexPath.row)
+                    self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
+                }
+                self.present(vc, animated: true)
+            }
             // Perform actions based on indexPath
         }
     }
+    func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+        if let indexPath = self.addressesTableView.indexPath(for: cell) {
+             let item = self.addressDataSource[indexPath.row]
+            // Perform actions based on indexPath
+            if let navigationController = self.navigationController {
+                SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+            }
+        }
+    }
     
+}
+
+// MARK: - ViewModel Binding
+extension SmilesManageAddressesViewController {
+    
+    func bind(to viewModel: ManageAddressViewModel) {
+        input = PassthroughSubject<ManageAddressViewModel.Input, Never>()
+        let output = viewModel.transform(input: input.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .fetchAllAddressDidSucceed(let response):
+                    debugPrint(response)
+                    if let address = response.addresses {
+                        self?.addressDataSource = address
+                        self?.addressesTableView.reloadData()
+                    }
+                case .fetchAllAddressDidFail(error: let error):
+                    debugPrint(error?.localizedDescription ?? "")
+                case .removeAddressDidSucceed(response: let response):
+                    debugPrint(response)
+                    self?.input.send(.getAllAddress)
+                case .removeAddressDidFail(error: _):
+                    self?.input.send(.getAllAddress)
+                    break
+                }
+            }.store(in: &cancellables)
+    }
 }
