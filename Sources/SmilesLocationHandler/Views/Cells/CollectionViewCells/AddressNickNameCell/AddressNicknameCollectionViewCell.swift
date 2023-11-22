@@ -9,13 +9,15 @@
 import Foundation
 import UIKit
 import SmilesUtilities
+import SmilesFontsManager
 
 class AddressNicknameCollectionViewCell: UICollectionViewCell {
     @IBOutlet var containerView: UIView!
+    @IBOutlet var addressIconImageView: UIImageView!
     @IBOutlet var titleLabel: UILabel! {
         didSet {
-            titleLabel.font = .montserratSemiBoldFont(size: 15)
-            titleLabel.textColor = .appDarkGrayColor
+            titleLabel.fontTextStyle = .smilesHeadline4
+            titleLabel.textColor = .black
         }
     }
     
@@ -29,6 +31,7 @@ class AddressNicknameCollectionViewCell: UICollectionViewCell {
     }
     
     func configureCellWithData(nickName: Nicknames) {
+        addressIconImageView.setImageWithUrlString(nickName.nickNameIcon ?? "")
         titleLabel.text = nickName.nickname
     }
 }

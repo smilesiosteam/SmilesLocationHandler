@@ -9,8 +9,9 @@ import UIKit
 import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
+import Combine
 
-final class AddOrEditAddressViewController: UIViewController {
+ class AddOrEditAddressViewController: UIViewController {
     
     // MARK: - IBOutlets
     @IBOutlet weak var btnChange: UIButton!
@@ -33,9 +34,9 @@ final class AddOrEditAddressViewController: UIViewController {
     @IBOutlet var nickNameTextField: UITextField!
     @IBOutlet var nickNameView: UIView!
     @IBOutlet var saveButton: UICustomButton!
-    @IBOutlet var deliveryToLabel: UILabel!{
+    @IBOutlet var deliveryToLabel: UILabel! {
         didSet {
-            deliveryToLabel.textColor = .black.withAlphaComponent(0.7)
+            deliveryToLabel.textColor = .black.withAlphaComponent(0.8)
             deliveryToLabel.fontTextStyle = .smilesTitle2
         }
     }
@@ -45,31 +46,31 @@ final class AddOrEditAddressViewController: UIViewController {
             villaFlatNoLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var buildingNameLabel: UILabel!{
+    @IBOutlet var buildingNameLabel: UILabel! {
         didSet {
             buildingNameLabel.textColor = .black.withAlphaComponent(0.7)
             buildingNameLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var areaStreetLabel: UILabel!{
+    @IBOutlet var areaStreetLabel: UILabel! {
         didSet {
             areaStreetLabel.textColor = .black.withAlphaComponent(0.7)
             areaStreetLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var landmarkLabel: UILabel!{
+    @IBOutlet var landmarkLabel: UILabel! {
         didSet {
             landmarkLabel.textColor = .black.withAlphaComponent(0.7)
             landmarkLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var nickNameLabel: UILabel!{
+    @IBOutlet var nickNameLabel: UILabel! {
         didSet {
             nickNameLabel.textColor = .black.withAlphaComponent(0.7)
             nickNameLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var enterNicknameLabel: UILabel!{
+    @IBOutlet var enterNicknameLabel: UILabel! {
         didSet {
             enterNicknameLabel.textColor = .black.withAlphaComponent(0.7)
             enterNicknameLabel.fontTextStyle = .smilesTitle2
@@ -77,25 +78,25 @@ final class AddOrEditAddressViewController: UIViewController {
     }
     @IBOutlet var addressScrollView: UIScrollView!
     @IBOutlet var nickNameTextFieldContainer: UIView!
-    @IBOutlet var invalidFlatNumberLabel: UILabel!{
+    @IBOutlet var invalidFlatNumberLabel: UILabel! {
         didSet {
             invalidFlatNumberLabel.textColor = .appRedColor3
             invalidFlatNumberLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var invalidBuildingNameLabel: UILabel!{
+    @IBOutlet var invalidBuildingNameLabel: UILabel! {
         didSet {
             invalidBuildingNameLabel.textColor = .appRedColor3
             invalidBuildingNameLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var invalidStreetLabel: UILabel!{
+    @IBOutlet var invalidStreetLabel: UILabel! {
         didSet {
             invalidStreetLabel.textColor = .appRedColor3
             invalidStreetLabel.fontTextStyle = .smilesTitle2
         }
     }
-    @IBOutlet var invalidLandmarkLabel: UILabel!{
+    @IBOutlet var invalidLandmarkLabel: UILabel! {
         didSet {
             invalidLandmarkLabel.textColor = .appRedColor3
             invalidLandmarkLabel.fontTextStyle = .smilesTitle2
@@ -106,6 +107,7 @@ final class AddOrEditAddressViewController: UIViewController {
     var selectedLocation: SearchLocationResponseModel?
     var isShortFormEnabled = true
     var nickNamesArray = [Nicknames]()
+   
     var selectedNickName: String?
     var otherNickNameSelected = false
     var addressObj: Address?
@@ -114,6 +116,12 @@ final class AddOrEditAddressViewController: UIViewController {
     var streetNameValid: Bool = false
     var buildNameValid: Bool = false
     var isChangeButtonHidden = false
+    
+    private var  input: PassthroughSubject<AddOrEditAddressViewModel.Input, Never> = .init()
+    private var cancellables = Set<AnyCancellable>()
+    private lazy var viewModel: AddOrEditAddressViewModel = {
+        return AddOrEditAddressViewModel()
+    }()
     
     // MARK: - Methods
     init() {
@@ -161,8 +169,10 @@ final class AddOrEditAddressViewController: UIViewController {
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        bind(to: viewModel)
         setupCollectionView()
         setUpViewUI()
+        self.input.send(.getLocationsNickName)
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -174,11 +184,9 @@ final class AddOrEditAddressViewController: UIViewController {
     }
     // MARK: - helper methods
     private func setupCollectionView() {
-        
         nickNameCollectionView.register(nib: UINib(nibName: "AddressNicknameCollectionViewCell", bundle: .module), forCellWithClass: AddressNicknameCollectionViewCell.self)
-        nickNameCollectionView.delegate = self
-        nickNameCollectionView.dataSource = self
-        
+        self.nickNameCollectionView.delegate = self
+        self.nickNameCollectionView.dataSource = self
     }
     func setUpViewUI() {
         invalidFlatNumberLabel.isHidden = true
@@ -190,11 +198,11 @@ final class AddOrEditAddressViewController: UIViewController {
         flatNoTextFieldContainer.layer.borderWidth = 0
         buildingTextFieldContainer.layer.borderWidth = 0
         streetTextFieldContainer.layer.borderWidth = 0
-        //        landmarkTextFieldContainer.layer.borderWidth = 0
+        landmarkTextFieldContainer.layer.borderWidth = 0
         
         btnChange.isHidden = isChangeButtonHidden
         btnChange.setTitle("change".localizedString.capitalizingFirstLetter(), for: .normal)
-        
+        btnChange.fontTextStyle = .smilesTitle2
         nickNameView.isHidden = true
         for txtField in textFieldCollection {
             txtField.font = .montserratMediumFont(size: 15)
@@ -208,19 +216,21 @@ final class AddOrEditAddressViewController: UIViewController {
             }
         }
         
-       // presenter?.getLocationName(lat: String(selectedLocation?.lat ?? 0.0), long: String(selectedLocation?.long ?? 0.0))
+        self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
        
-        deliveryToLabel.text = "Delivering to".localizedString
+       
+        deliveryToLabel.text = "deliver_address".localizedString
         villaFlatNoLabel.text = "VillaFlatno".localizedString
-        flatNoTextField.placeholder = "EnterFlatNoText".localizedString
+        flatNoTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
         buildingNameLabel.text = "VillaBuildingName".localizedString
-        buildingNameTextField.placeholder = "EnterFlatNameText".localizedString
+        buildingNameTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
         areaStreetLabel.text = "AreaStreetName".localizedString
-        streetTextField.placeholder = "EnterStreetText".localizedString
-        landmarkLabel.text = "Landmark".localizedString
-        landmarkTextField.placeholder = "EnterLandmarkText".localizedString
-        nickNameLabel.text = "Nickname".localizedString
-        enterNicknameLabel.text = "EnterNickname".localizedString
+        streetTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
+        landmarkLabel.text = "nearby_landmark_optional".localizedString
+        landmarkTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
+        nickNameLabel.text = "save_address_as".localizedString
+        enterNicknameLabel.text = "nick_name_define_others".localizedString
+        nickNameTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
         saveButton.setTitle("Save address".localizedString, for: .normal)
         
         invalidFlatNumberLabel.text = "\("InvalidText".localizedString) \("VillaFlatno".localizedString)"
@@ -235,13 +245,11 @@ final class AddOrEditAddressViewController: UIViewController {
             nickNameCollectionView.semanticContentAttribute = .forceLeftToRight
         }
         
-        // setUpViewForEditAddress()
     }
     
     func setUpViewForEditAddress() {
         if let addressToEdit = addressObj {
-          //  presenter?.getLocationName(lat: addressToEdit.latitude ?? "", long: addressToEdit.longitude ?? "")
-            //            addressLabel.text = addressToEdit.locationName
+            self.input.send(.getLocationName(lat: addressToEdit.latitude ?? "", long: addressToEdit.longitude ?? ""))
             buildingNameTextField.text = addressToEdit.building
             flatNoTextField.text = addressToEdit.flatNo
             streetTextField.text = addressToEdit.street
@@ -252,16 +260,21 @@ final class AddOrEditAddressViewController: UIViewController {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
     }
-    
-    
-    
     func saveButtonApperence(isValid: Bool) {
-        //saveButton.setEnabled(isValid)
+        
+        saveButton.isEnabled = isValid
+        if (isValid) {
+            saveButton.backgroundColor = .appRevampPurpleMainColor
+        } else {
+            saveButton.backgroundColor =  UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1)
+        }
+        
     }
     
-    func setTextFieldBorderColorGreen(view: UIView) {
+    func setTextFieldActiveBorderColor(view: UIView) {
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.appGreenSecondaryColor.cgColor
+        view.backgroundColor = .white
+        view.layer.borderColor = UIColor.black.withAlphaComponent(0.2).cgColor
     }
     
     func setTextFieldBorderColorRed(view: UIView) {
@@ -270,11 +283,13 @@ final class AddOrEditAddressViewController: UIViewController {
     }
     
     func setTextFieldBorderColorClear(view: UIView) {
+        
         view.layer.borderWidth = 0
+        view.backgroundColor = UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1)
     }
     // MARK: - IBActions
-    @IBAction func changeButtonClicked(_ sender : Any){
-       // presenter?.changeButtonClicked()
+    @IBAction func changeButtonClicked(_ sender : Any) {
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC()
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
@@ -299,58 +314,79 @@ final class AddOrEditAddressViewController: UIViewController {
             address.longitude = String(selectedLocation?.long ?? 0)
             address.locationName = selectedLocation?.title
         }
-       // presenter?.saveAddress(address: address, withLocation: selectedLocation, openFrom: redirectTo)
+        self.input.send(.saveAddress(address: address))
+        
+    }
+     
+}
+// MARK: - ViewModel Binding
+extension AddOrEditAddressViewController {
+    
+    func bind(to viewModel: AddOrEditAddressViewModel) {
+        input = PassthroughSubject<AddOrEditAddressViewModel.Input, Never>()
+        let output = viewModel.transform(input: input.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .fetchLocationsNickNameDidSucceed(let nickNameResponse):
+                    if let nickNamesArray = nickNameResponse.addressDetail?.nicknames {
+                        self?.nickNamesResponse(nickNames: nickNamesArray)
+                    }
+                case .fetchLocationsNickNameDidFail(error: let error):
+                    debugPrint(error?.localizedDescription ?? "")
+                case .fetchLocationNameDidSucceed(response: let response):
+                    self?.updateLocationName(place: response)
+                case .fetchLocationNameDidFail(error: _):
+                    break
+                case .saveAddressDidSucceed(response: let response):
+                    debugPrint(response)
+                    break
+                case .saveAddressDidFail(error: _):
+                    break
+                }
+            }.store(in: &cancellables)
     }
 }
+
 // MARK: - UICollectionView Delegate & DataSource
 extension AddOrEditAddressViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return nickNamesArray.count
     }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddressNicknameCollectionViewCell", for: indexPath as IndexPath) as! AddressNicknameCollectionViewCell
         
-        let nickName = nickNamesArray[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withClass: AddressNicknameCollectionViewCell.self, for: indexPath)
         
-        cell.containerView.layer.borderWidth = 1
-        if nickName.isSelected.asBoolOrFalse() {
-            cell.containerView.backgroundColor = UIColor(hex: "8754a1")
-            cell.titleLabel.textColor = UIColor(hex: "ffffff")
-            cell.containerView.layer.borderColor = UIColor(hex: "8754a1").cgColor
-            selectedNickName = nickName.nickname
-            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
-            nickNameView.isHidden = false
-        } else {
-            cell.containerView.backgroundColor = UIColor(hex: "ffffff")
-            cell.titleLabel.textColor = UIColor(hex: "353738")
-            cell.containerView.layer.borderColor = UIColor(hex: "d9d9d9").cgColor
-            collectionView.deselectItem(at: indexPath, animated: true)
-            nickNameView.isHidden = true
-        }
+        let nickNameObject = nickNamesArray[indexPath.item]
+            cell.containerView.layer.borderWidth = 1
+            if nickNameObject.isSelected.asBoolOrFalse() {
+                
+                cell.containerView.backgroundColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+                selectedNickName = nickNameObject.nickname
+                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
+                nickNameView.isHidden = false
+            } else {
+                cell.containerView.backgroundColor = UIColor(hex: "ffffff")
+                collectionView.deselectItem(at: indexPath, animated: true)
+                nickNameView.isHidden = true
+            }
+            cell.containerView.layer.borderColor = UIColor.black.withAlphaComponent(0.2).cgColor
+            cell.configureCellWithData(nickName: nickNameObject)
+            isValid()
         
-        cell.configureCellWithData(nickName: nickName)
-        isValid()
         
-        return cell
+            return cell
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let text = nickNamesArray[indexPath.row].nickname ?? ""
-        let width = estimatedFrame(text: text, font: .montserratSemiBoldFont(size: 15)).width + 52
-        return CGSize(width: width, height: 36.0)
+        return CGSize(width: 89.0, height: 40.0)
     }
-    
-    func estimatedFrame(text: String, font: UIFont) -> CGRect {
-        let size = CGSize(width: 200, height: 1000) // temporary size
-        let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
-        return NSString(string: text).boundingRect(with: size,
-                                                   options: options,
-                                                   attributes: [NSAttributedString.Key.font: font],
-                                                   context: nil)
-    }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let nickName = nickNamesArray[indexPath.row]
         selectedNickName = nickName.nickname
@@ -382,23 +418,38 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         
         if textField == flatNoTextField {
-            setTextFieldBorderColorClear(view: flatNoTextFieldContainer)
+            if (textField.text?.isEmpty ?? false) {
+                setTextFieldBorderColorClear(view: flatNoTextFieldContainer)
+            }
+            
         }
         
         if textField == buildingNameTextField {
-            setTextFieldBorderColorClear(view: buildingTextFieldContainer)
+            if (textField.text?.isEmpty ?? false) {
+                setTextFieldBorderColorClear(view: buildingTextFieldContainer)
+            }
+            
         }
         
         if textField == streetTextField {
-            setTextFieldBorderColorClear(view: streetTextFieldContainer)
+            if (textField.text?.isEmpty ?? false) {
+                setTextFieldBorderColorClear(view: streetTextFieldContainer)
+            }
+            
         }
         
         if textField == landmarkTextField {
-            setTextFieldBorderColorClear(view: landmarkTextFieldContainer)
+            if (textField.text?.isEmpty ?? false) {
+                setTextFieldBorderColorClear(view: landmarkTextFieldContainer)
+            }
+            
         }
         
         if textField == nickNameTextField {
-            setTextFieldBorderColorClear(view: nickNameTextFieldContainer)
+            if (textField.text?.isEmpty ?? false) {
+                setTextFieldBorderColorClear(view: nickNameTextFieldContainer)
+            }
+            
             addressScrollView.scrollToPosition(extraScroll: 0, animated: true, position: .bottom)
         }
         
@@ -407,19 +458,19 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField == nickNameTextField {
-            setTextFieldBorderColorGreen(view: nickNameTextFieldContainer)
+            setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
             
         } else if textField == flatNoTextField {
-            setTextFieldBorderColorGreen(view: flatNoTextFieldContainer)
+            setTextFieldActiveBorderColor(view: flatNoTextFieldContainer)
             flatNumberValid = self.checkTextFieldValid(textField: textField, view: flatNoTextFieldContainer, label: invalidFlatNumberLabel)
             
         } else if textField == buildingNameTextField {
-            setTextFieldBorderColorGreen(view: buildingTextFieldContainer)
+            setTextFieldActiveBorderColor(view: buildingTextFieldContainer)
             buildNameValid = self.checkTextFieldValid(textField: textField, view: buildingTextFieldContainer, label: invalidBuildingNameLabel)
             
             
         } else if textField == streetTextField {
-            setTextFieldBorderColorGreen(view: streetTextFieldContainer)
+            setTextFieldActiveBorderColor(view: streetTextFieldContainer)
             streetNameValid = self.checkTextFieldValid(textField: textField, view: streetTextFieldContainer, label: invalidStreetLabel)
             
         }
@@ -437,10 +488,10 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             streetNameValid = self.checkTextFieldValid(textField: textField, view: streetTextFieldContainer, label: invalidStreetLabel)
             
         }
-        //        else if textField == landmarkTextField {
-        //            landMarkValid = presenter!.checkTextFieldValid(textField: textField, view: landmarkTextFieldContainer, label: invalidLandmarkLabel)
-        //
-        //        }
+//        else if textField == landmarkTextField {
+//            landMarkValid = self.checkTextFieldValid(textField: textField, view: landmarkTextFieldContainer, label: invalidLandmarkLabel)
+//            
+//        }
     }
     
     func isValid() {
@@ -468,10 +519,10 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
         if textField.text?.count ?? 0 > 0, !hasSpecialCharacters(firstLetter: textField.text ?? "@") {
             label.isHidden = true
             if !(textField.text?.isEmpty ?? false) {
-                self.setTextFieldBorderColorGreen(view: view)
+                self.setTextFieldActiveBorderColor(view: view)
                 return true
             } else {
-                self.setTextFieldBorderColorGreen(view: view)
+                self.setTextFieldActiveBorderColor(view: view)
                 return false
             }
             
@@ -505,7 +556,7 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     }
 }
 
-//    extension EnterAddressDetailViewController: EnterAddressDetailView {
+    extension AddOrEditAddressViewController {
 //        func addressSaved(withLocation location: CLLocation) {
 //            if let toViewController = redirectTo {
 //                if toViewController == .toHome || toViewController == .toEnterAddress {
@@ -546,45 +597,45 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
 //                }
 //            }
 //        }
-//
-//        func nickNamesResponse(nickNames: [Nicknames]) {
-//            if let address = addressObj {
-//                setViewForEdit(address: address)
-//            } else {
-//                nickNamesArray = nickNames
-//            }
-//
-//            nickNameCollectionView.delegate = self
-//            nickNameCollectionView.dataSource = self
-//            saveButton.isUserInteractionEnabled = true
-//        }
-//
-//        func setViewForEdit(address: Address) {
-//            presenter?.getLocationName(lat: address.latitude ?? "", long: address.longitude ?? "")
-//            flatNoTextField.text = address.flatNo
-//            buildingNameTextField.text = address.building
-//            streetTextField.text = address.street
-//            landmarkTextField.text = address.landmark
-//
-//            flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
-//            buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
-//            streetNameValid = !(streetTextField.text?.isEmpty ?? false)
-//
-//            address.nicknames?.forEach { nickName in
-//                if address.nickname?.lowercased() == nickName.nickname?.lowercased() {
-//                    self.nickNameTextField.text = address.nickname
-//                } else {
-//                    self.nickNameTextField.text = nickName.otherNickname ?? ""
-//                }
-//            }
-//            nickNamesArray = address.nicknames ?? []
-//        }
-//
-//        func updateLocationName(place: String) {
-//            addressLabel.text = place
-//            addressObj?.locationName = place
-//        }
-//    }
+
+        func nickNamesResponse(nickNames: [Nicknames]) {
+            if let address = addressObj {
+                setViewForEdit(address: address)
+            } else {
+                nickNamesArray = nickNames
+                self.nickNameCollectionView.reloadData()
+            }
+            saveButton.isUserInteractionEnabled = true
+           
+        }
+
+        func setViewForEdit(address: Address) {
+            
+            self.input.send(.getLocationName(lat: address.latitude ?? "", long: address.longitude ?? ""))
+            flatNoTextField.text = address.flatNo
+            buildingNameTextField.text = address.building
+            streetTextField.text = address.street
+            landmarkTextField.text = address.landmark
+
+            flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
+            buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
+            streetNameValid = !(streetTextField.text?.isEmpty ?? false)
+
+            address.nicknames?.forEach { nickName in
+                if address.nickname?.lowercased() == nickName.nickname?.lowercased() {
+                    self.nickNameTextField.text = address.nickname
+                } else {
+                    self.nickNameTextField.text = nickName.otherNickname ?? ""
+                }
+            }
+            nickNamesArray = address.nicknames ?? []
+        }
+
+        func updateLocationName(place: String) {
+            addressLabel.text = place
+            addressObj?.locationName = place
+        }
+    }
 
 
 
