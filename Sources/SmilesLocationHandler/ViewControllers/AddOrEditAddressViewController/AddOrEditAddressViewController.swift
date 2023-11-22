@@ -289,7 +289,13 @@ import Combine
     }
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
-        
+//        let model = GetCitiesModel(from: )
+//        if let object = self.addressObj {
+//            model.cityLatitude = object.latitude
+//            model.cityLongitude = object.longitude
+//        }
+//       
+//        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model)
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
@@ -340,6 +346,7 @@ extension AddOrEditAddressViewController {
                     break
                 case .saveAddressDidSucceed(response: let response):
                     debugPrint(response)
+                    SmilesLocationRouter.shared.popVC()
                     break
                 case .saveAddressDidFail(error: _):
                     break
@@ -620,15 +627,22 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
             buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
             streetNameValid = !(streetTextField.text?.isEmpty ?? false)
-
+            setTextFieldActiveBorderColor(view: flatNoTextFieldContainer)
+            setTextFieldActiveBorderColor(view: buildingTextFieldContainer)
+            setTextFieldActiveBorderColor(view: streetTextFieldContainer)
+            setTextFieldActiveBorderColor(view: landmarkTextFieldContainer)
+            
             address.nicknames?.forEach { nickName in
                 if address.nickname?.lowercased() == nickName.nickname?.lowercased() {
                     self.nickNameTextField.text = address.nickname
+                    setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
                 } else {
                     self.nickNameTextField.text = nickName.otherNickname ?? ""
+                    setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
                 }
             }
             nickNamesArray = address.nicknames ?? []
+            self.nickNameCollectionView.reloadData()
         }
 
         func updateLocationName(place: String) {

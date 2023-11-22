@@ -88,12 +88,13 @@ final class SmilesManageAddressesViewController: UIViewController {
         bind(to: viewModel)
         setupTableViewCells()
         styleFontAndTextColor()
-        self.input.send(.getAllAddress)
+        
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
+        self.input.send(.getAllAddress)
     }
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
@@ -124,8 +125,16 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         cell.headingLabel.text = address.nickname
         cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
         cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
-        
+        cell.selectionStyle = .none
         return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let item = self.addressDataSource[indexPath.row]
+        if let navigationController = self.navigationController {
+            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+        }
+        
     }
     func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
         // Handle the action here based on the cell's action
@@ -140,6 +149,15 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
                 self.present(vc, animated: true)
             }
             // Perform actions based on indexPath
+        }
+    }
+    func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+        if let indexPath = self.addressesTableView.indexPath(for: cell) {
+             let item = self.addressDataSource[indexPath.row]
+            // Perform actions based on indexPath
+            if let navigationController = self.navigationController {
+                SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+            }
         }
     }
     

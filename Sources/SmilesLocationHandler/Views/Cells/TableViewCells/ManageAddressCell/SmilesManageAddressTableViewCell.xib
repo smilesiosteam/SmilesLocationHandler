@@ -76,6 +76,13 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DdV-xG-haU">
+                        <rect key="frame" x="16" y="8" width="315" height="84"/>
+                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                        <connections>
+                            <action selector="didTaDetailButton:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="dbW-Z4-wuc"/>
+                        </connections>
+                    </button>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4zp-2H-KkF">
                         <rect key="frame" x="16" y="38" width="24" height="24"/>
                         <constraints>
@@ -90,10 +97,14 @@
                     </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="DdV-xG-haU" firstAttribute="bottom" secondItem="1wc-I7-Hc0" secondAttribute="bottom" id="8Pb-Ov-nXd"/>
                     <constraint firstItem="4zp-2H-KkF" firstAttribute="centerY" secondItem="1wc-I7-Hc0" secondAttribute="centerY" id="O2r-ng-gt5"/>
+                    <constraint firstItem="DdV-xG-haU" firstAttribute="trailing" secondItem="1wc-I7-Hc0" secondAttribute="trailing" id="QLH-78-nKB"/>
+                    <constraint firstItem="DdV-xG-haU" firstAttribute="leading" secondItem="1wc-I7-Hc0" secondAttribute="leading" id="age-i5-89k"/>
                     <constraint firstItem="1wc-I7-Hc0" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="bt1-Hd-T82"/>
                     <constraint firstItem="4zp-2H-KkF" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="jqM-YD-etr"/>
                     <constraint firstAttribute="trailing" secondItem="1wc-I7-Hc0" secondAttribute="trailing" constant="16" id="mHg-I5-rm5"/>
+                    <constraint firstItem="DdV-xG-haU" firstAttribute="top" secondItem="1wc-I7-Hc0" secondAttribute="top" id="uEM-qg-Ymk"/>
                     <constraint firstAttribute="bottom" secondItem="1wc-I7-Hc0" secondAttribute="bottom" constant="8" id="w8v-D5-1nx"/>
                     <constraint firstItem="1wc-I7-Hc0" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="yXT-9h-ZWD"/>
                 </constraints>
@@ -101,6 +112,7 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="addressIcon" destination="dKw-nw-5Qy" id="qWw-CY-xRe"/>
+                <outlet property="detailButton" destination="DdV-xG-haU" id="180-RU-eZY"/>
                 <outlet property="detailLabel" destination="3Xw-yu-rlh" id="T8s-of-ZKB"/>
                 <outlet property="editButton" destination="4zp-2H-KkF" id="Jim-iE-FoL"/>
                 <outlet property="forwardButton" destination="xZr-L9-UQf" id="fP5-Bb-7al"/>

@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import SmilesUtilities
 
 public final class SmilesLocationRouter {
     
@@ -89,10 +90,12 @@ public final class SmilesLocationRouter {
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
-    func pushAddOrEditAddressViewController(with navigationController: UINavigationController) {
-        let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress)
-        vc.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(vc, animated: true)
+    func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil) {
+        if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
+            vc.addressObj = addressObject
+            vc.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(vc, animated: true)
+        }
     }
     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel) {
         

@@ -12,6 +12,7 @@ import SmilesLanguageManager
 
 protocol SmilesManageAddressTableViewCellDelegate: AnyObject {
     func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell)
+    func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell)
 }
 
 
@@ -24,6 +25,7 @@ class SmilesManageAddressTableViewCell: UITableViewCell {
     @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var forwardButton: UIButton!
     @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var detailButton: UIButton!
     @IBOutlet weak var mainViewLeading: NSLayoutConstraint!
     
     // MARK: - PROPERTIES
@@ -55,6 +57,11 @@ class SmilesManageAddressTableViewCell: UITableViewCell {
     @IBAction func didTabDeleteButton(_ sender: UIButton) {
         if let delegate = delegate {
             delegate.didTapDeleteButtonInCell(self)
+        }
+    }
+    @IBAction func didTaDetailButton(_ sender: UIButton) {
+        if let delegate = delegate {
+            delegate.didTapDetailButtonInCell(self)
         }
     }
 }
