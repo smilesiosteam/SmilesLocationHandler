@@ -10,7 +10,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LocationPinView" customModule="SmilesLocationHandler">
             <connections>
-                <outlet property="arrowView" destination="OK2-uA-U96" id="7oo-Bu-mBx"/>
+                <outlet property="mainStackView" destination="qZO-PW-FPq" id="S65-X8-KIZ"/>
                 <outlet property="mainView" destination="iN0-l3-epB" id="vgY-15-biH"/>
             </connections>
         </placeholder>
@@ -19,8 +19,8 @@
             <rect key="frame" x="0.0" y="0.0" width="1144" height="204"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="qZO-PW-FPq">
-                    <rect key="frame" x="302" y="58.999999999999993" width="540" height="67.333333333333314"/>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="qZO-PW-FPq">
+                    <rect key="frame" x="302" y="59" width="540" height="52.333333333333343"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-wl-8uR" customClass="UICustomView" customModule="SmilesUtilities">
                             <rect key="frame" x="0.0" y="0.0" width="540" height="52.333333333333336"/>
@@ -49,13 +49,6 @@
                                     <real key="value" value="10"/>
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
-                        </view>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OK2-uA-U96">
-                            <rect key="frame" x="0.0" y="52.333333333333329" width="540" height="15"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="15" id="QU3-Qe-VUn"/>
-                            </constraints>
                         </view>
                     </subviews>
                 </stackView>

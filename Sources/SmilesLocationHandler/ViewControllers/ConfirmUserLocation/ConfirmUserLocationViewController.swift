@@ -18,6 +18,7 @@ class ConfirmUserLocationViewController: UIViewController {
     // MARK: - OUTLETS -
     @IBOutlet weak var mapView: GMSMapView!
     @IBOutlet weak var locationLabel: UILabel!
+    @IBOutlet weak var currentLocationButton: UICustomButton!
     
     // MARK: - PROPERTIES -
     private var input: PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
@@ -29,9 +30,16 @@ class ConfirmUserLocationViewController: UIViewController {
     private var longitude: String = "55.27"
     private var switchToOpenStreetMap = false
     private var mapGesture = false
+    private var selectedCity: GetCitiesModel
+    private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
+        SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
+            self?.latitude = "\(selectedLocation.latitude)"
+            self?.longitude = "\(selectedLocation.longitude)"
+            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+        })
     }
     
     @IBAction func currentLocationPressed(_ sender: Any) {
@@ -58,6 +66,32 @@ class ConfirmUserLocationViewController: UIViewController {
     }
     
     @IBAction func confirmPressed(_ sender: Any) {
+        
+//        let location = SearchLocationResponseModel()
+//        location.title = locationLabel.text
+//        location.lat = Double(latitude)
+//        location.long = Double(longitude)
+//        if let cityName = selectedCity.cityName {
+//            location.selectCityName = cityName
+//        }
+//        
+//        if let delegate = delegate {
+//            delegate.getNewAddressLocation(location:location)
+//            presenter?.goBackToEditAddressView()
+//        }else{
+//            presenter?.confirmButtonTapped(location: location, isFromAddNewAddress: isFromAddNewAddress.asBoolOrFalse(), redirectTo: confirmLocationRedirection)
+//        }
+        
+    }
+    
+    // MARK: - INITIALIZERS -
+    init(selectedCity: GetCitiesModel) {
+        self.selectedCity = selectedCity
+        super.init(nibName: "ConfirmUserLocationViewController", bundle: .module)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - METHODS -
@@ -74,7 +108,11 @@ class ConfirmUserLocationViewController: UIViewController {
     private func setupViews() {
         
         bind(to: viewModel)
+        currentLocationButton.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceLeftToRight : .forceRightToLeft
+        currentLocationButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: AppCommonMethods.languageIsArabic() ? 0 : 5,
+                                                             bottom: 0, right: AppCommonMethods.languageIsArabic() ? 5 : 0)
         setupMap()
+        setupPinForLocation()
         
     }
 
@@ -132,13 +170,39 @@ class ConfirmUserLocationViewController: UIViewController {
                 print(formatAddress)
                 self.locationLabel.text = formatAddress
             }
-            marker.icon = UIImage(named: "mapPinNew")
+            marker.icon = UIImage(named: "mapPinNew", in: .module, compatibleWith: nil)
             marker.setIconSize(scaledToSize: .init(width: 40, height: 40))
             self.mapView.camera = camera
             marker.map = self.mapView
             self.mapView.selectedMarker = marker
         }
         
+    }
+    
+    private func setupPinForLocation() {
+        
+        if let latitude = selectedCity.cityLatitude, let longitude = selectedCity.cityLongitude {
+            self.latitude = "\(latitude)"
+            self.longitude = "\(longitude)"
+            showLocationMarkerOnMap(latitude: latitude, longitude: longitude)
+        } else if let location = selectedLocation {
+            latitude = "\(location.latitude)"
+            longitude = "\(location.longitude)"
+            showLocationMarkerOnMap(latitude: location.latitude, longitude: location.longitude)
+        }
+        
+        if !switchToOpenStreetMap {
+            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: latitude, longitude: longitude))
+        } else {
+            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+            input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
+        }
+        
+//        if isFromAddNewAddress.asBoolOrFalse() == true {
+//            CommonMethods.fireEvent(withTag: "\(FirebaseEventTags.NewAddressMap.rawValue)")
+//        } else {
+//            CommonMethods.fireEvent(withTag: "\(FirebaseEventTags.DetectLocationMapOpened.rawValue)")
+//        }
     }
     
 }

@@ -289,7 +289,7 @@ import Combine
     }
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC()
+        
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false

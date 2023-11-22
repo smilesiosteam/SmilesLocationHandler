@@ -15,6 +15,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ConfirmUserLocationViewController" customModuleProvider="target">
             <connections>
+                <outlet property="currentLocationButton" destination="TGk-iL-YBX" id="0pb-I8-c7j"/>
                 <outlet property="locationLabel" destination="Ww7-MT-97C" id="GE9-7D-Osl"/>
                 <outlet property="mapView" destination="oqB-Xv-v31" id="d3T-Bs-GtB"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -25,7 +26,7 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view clipsSubviews="YES" contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Af4-BO-ZOk" customClass="UICustomView" customModule="SmilesUtilities">
+                <view contentMode="scaleToFill" layoutMarginsFollowReadableWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Af4-BO-ZOk" customClass="UICustomView" customModule="SmilesUtilities">
                     <rect key="frame" x="16" y="75" width="361" height="48"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5KD-Yr-2kf">
@@ -38,7 +39,7 @@
                                         <constraint firstAttribute="width" secondItem="MRD-eV-LGJ" secondAttribute="height" multiplier="1:1" id="w3n-Tg-z6l"/>
                                     </constraints>
                                 </imageView>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Search for area..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JlL-8h-qva">
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Search for area..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JlL-8h-qva" customClass="UILocalizableLabel" customModule="SmilesUtilities">
                                     <rect key="frame" x="32" y="4.3333333333333277" width="297" height="15.666666666666664"/>
                                     <accessibility key="accessibilityConfiguration" hint="Search here"/>
                                     <fontDescription key="fontDescription" name="Lato-Regular" family="Lato" pointSize="13"/>
@@ -46,6 +47,7 @@
                                     <nil key="highlightedColor"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesTitle1"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="Search for area..."/>
                                     </userDefinedRuntimeAttributes>
                                 </label>
                             </subviews>
@@ -87,7 +89,7 @@
                             <color key="value" red="0.0" green="0.0" blue="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="calibratedRGB"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                            <real key="value" value="50"/>
+                            <real key="value" value="24"/>
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </view>
@@ -102,7 +104,6 @@
                         <constraint firstAttribute="height" constant="40" id="IuS-rh-VhS"/>
                     </constraints>
                     <inset key="contentEdgeInsets" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
-                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
                     <state key="normal" title="Button" image="current_location">
                         <color key="titleColor" red="0.45882352941176469" green="0.25882352941176467" blue="0.55686274509803924" alpha="1" colorSpace="calibratedRGB"/>
                     </state>
@@ -113,7 +114,7 @@
                             <real key="value" value="1.5"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                            <real key="value" value="24"/>
+                            <real key="value" value="20"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
                             <color key="value" red="0.45882352941176469" green="0.25882352941176467" blue="0.55686274509803924" alpha="0.40000000000000002" colorSpace="calibratedRGB"/>
@@ -173,7 +174,7 @@
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="string" keyPath="localizedTitle" value="Confirm location"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="localizedTitle" value="ConfirmLocationTextKey"/>
                                 <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesHeadline4"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
                                     <real key="value" value="24"/>
@@ -216,6 +217,12 @@
         </view>
     </objects>
     <designables>
+        <designable name="JlL-8h-qva">
+            <size key="intrinsicContentSize" width="94.333333333333329" height="15.666666666666666"/>
+        </designable>
+        <designable name="TGk-iL-YBX">
+            <size key="intrinsicContentSize" width="108" height="24"/>
+        </designable>
         <designable name="Ur8-na-gSQ">
             <size key="intrinsicContentSize" width="41.333333333333336" height="20.333333333333332"/>
         </designable>

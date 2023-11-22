@@ -14,6 +14,9 @@ enum LocationServicesRequestBuilder {
     // organise all the end points here for clarity
     case reverseGeoCodeToGetCompleteAddress
     case locationReverseGeocodingFromOSMCoordinates
+    case getAutoCompleteResultsFromOSM
+    case getLocationDetailsFromGoogle
+    case getLocationDetailsFromOSM
     
     // gave a default timeout but can be different for each.
     var requestTimeOut: Int {
@@ -27,17 +30,18 @@ enum LocationServicesRequestBuilder {
             return .GET
         case .locationReverseGeocodingFromOSMCoordinates:
             return .GET
+        case .getAutoCompleteResultsFromOSM:
+            return .GET
+        case .getLocationDetailsFromGoogle:
+            return .GET
+        case .getLocationDetailsFromOSM:
+            return .GET
         }
     }
     
     // compose the NetworkRequest
     public func createRequest(endPoint: LocationServicesEndPoints) -> NetworkRequest {
-        var headers: [String: String] = [:]
-        headers["Content-Type"] = "application/json"
-        headers["Accept"] = "application/json"
-        headers["CUSTOM_HEADER"] = "pre_prod"
-        
-        return NetworkRequest(url: getURL(endPoint: endPoint), headers: headers, reqBody: requestBody, httpMethod: httpMethod)
+        return NetworkRequest(url: getURL(endPoint: endPoint), reqBody: requestBody, httpMethod: httpMethod)
     }
     
     // encodable request body for POST
@@ -46,6 +50,12 @@ enum LocationServicesRequestBuilder {
         case .reverseGeoCodeToGetCompleteAddress:
             return nil
         case .locationReverseGeocodingFromOSMCoordinates:
+            return nil
+        case .getAutoCompleteResultsFromOSM:
+            return nil
+        case .getLocationDetailsFromGoogle:
+            return nil
+        case .getLocationDetailsFromOSM:
             return nil
         }
     }

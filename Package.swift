@@ -21,7 +21,8 @@ let package = Package(
         .package(url: "https://github.com/smilesiosteam/SmilesAnalytics.git", branch: "main"),
         .package(url: "https://github.com/smilesiosteam/SmilesBaseMainRequest.git", branch: "main"),
         .package(url: "https://github.com/smilesiosteam/SmilesLanguageManager.git", branch: "main"),
-        .package(url: "https://github.com/YAtechnologies/GoogleMaps-SP.git", .upToNextMinor(from: "7.2.0"))
+        .package(url: "https://github.com/YAtechnologies/GoogleMaps-SP.git", .upToNextMinor(from: "7.2.0")),
+        .package(url: "https://github.com/smilesiosteam/SmilesLoader.git", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -35,7 +36,9 @@ let package = Package(
                 .product(name: "AnalyticsSmiles", package: "SmilesAnalytics"),
                 .product(name: "SmilesBaseMainRequestManager", package: "SmilesBaseMainRequest"),
                 .product(name: "SmilesLanguageManager", package: "SmilesLanguageManager"),
-                .product(name: "GoogleMaps", package: "GoogleMaps-SP")
+                .product(name: "GoogleMaps", package: "GoogleMaps-SP"),
+                .product(name: "GooglePlaces", package: "GoogleMaps-SP"),
+                .product(name: "SmilesLoader", package: "SmilesLoader")
             ],
             resources: [
                 .process("Resources")
