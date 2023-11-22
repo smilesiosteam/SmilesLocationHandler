@@ -12,4 +12,6 @@ struct Constants {
         static let recentLocation = "recentLocation"
         static let googleAppKey = "GoogleAppKey"
     }
+    static var switchToOpenStreetMap: Bool = false
+    
 }

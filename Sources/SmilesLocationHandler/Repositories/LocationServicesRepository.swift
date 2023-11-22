@@ -43,7 +43,7 @@ class LocationServicesRepository: LocationServicesServiceable {
     
     func getAutoCompleteResultsFromOSM() -> AnyPublisher<[OSMSearchLocationModel], NetworkingLayer.NetworkError> {
         let endPoint = LocationServicesRequestBuilder.getAutoCompleteResultsFromOSM
-        let request = endPoint.createRequest(endPoint: self.endPoint)
+        let request = endPoint.createRequest(endPoint: self.endPoint, isAcceptLanguageEnabled: true)
         
         return self.networkRequest.request(request)
     }
@@ -56,12 +56,10 @@ class LocationServicesRepository: LocationServicesServiceable {
     }
     
     func getLocationDetailsFromOSM() -> AnyPublisher<[OSMSearchLocationModel], NetworkError> {
-        
         let endPoint = LocationServicesRequestBuilder.getLocationDetailsFromOSM
         let request = endPoint.createRequest(endPoint: self.endPoint)
         
         return self.networkRequest.request(request)
-        
     }
     
 }
