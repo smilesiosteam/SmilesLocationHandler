@@ -34,6 +34,12 @@ class GetCitiesModel: Codable {
     var cityName: String?
     var isSelected: Bool = false
 
+    init(cityId: Int? = nil, cityLatitude: Double? = nil, cityLongitude: Double? = nil, cityName: String? = nil) {
+        self.cityId = cityId
+        self.cityLatitude = cityLatitude
+        self.cityLongitude = cityLongitude
+        self.cityName = cityName
+    }
     enum CodingKeys: String, CodingKey {
         case cityId
         case cityLatitude

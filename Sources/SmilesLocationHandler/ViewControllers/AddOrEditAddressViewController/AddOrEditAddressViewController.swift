@@ -289,13 +289,13 @@ import Combine
     }
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
-//        let model = GetCitiesModel(from: )
-//        if let object = self.addressObj {
-//            model.cityLatitude = object.latitude
-//            model.cityLongitude = object.longitude
-//        }
-//       
-//        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model)
+       let model = GetCitiesModel()
+        if let object = self.addressObj {
+            model.cityName = self.addressLabel.text
+            model.cityLatitude = Double(object.latitude ?? "")
+            model.cityLongitude = Double(object.longitude ?? "")
+        }
+       SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model)
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
