@@ -16,28 +16,32 @@ public final class SmilesLocationRouter {
     
     // MARK: - Methods
     
-    public func showDetectLocationPopup(from viewController: UIViewController, controllerType: ControllerType) {
+    public func showDetectLocationPopup(from viewController: UIViewController, controllerType: ControllerType, switchToOpenStreetMap: Bool = false) {
+        
+        Constants.switchToOpenStreetMap = switchToOpenStreetMap
         let viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
         if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(viewModel)) as? SmilesLocationDetectViewController {
             setActionsForControllerType(popupViewController: detectLocationPopup, controllerType: controllerType)
             viewController.modalPresentationStyle = .overFullScreen
             viewController.present(detectLocationPopup, animated: true)
         }
+        
     }
-    public func presentSetLocationPopUp(on viewController: UIViewController) {
+    func presentSetLocationPopUp(on viewController: UIViewController) {
         
         let setLocationPopUp = SmilesLocationConfigurator.create(type: .setLocationPopUp) as! SetLocationPopupViewController
         setLocationPopUp.modalPresentationStyle = .overFullScreen
         viewController.present(setLocationPopUp, animated: true)
         
     }
+    
     func pushManageAddressesViewController(with navigationController: UINavigationController) {
         let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
-    // MARK: - Private Methods
     
+    // MARK: - Private Methods
     private func setActionsForControllerType(popupViewController: SmilesLocationDetectViewController, controllerType: ControllerType) {
         popupViewController.setDetectLocationAction {
             self.handleDetectLocationAction(for: controllerType)
@@ -80,7 +84,6 @@ public final class SmilesLocationRouter {
     }
     
     // MARK: - Navigation Methods
-    
     private func navigateToSearchLocation() {
         // Implement navigation logic to search location
     }

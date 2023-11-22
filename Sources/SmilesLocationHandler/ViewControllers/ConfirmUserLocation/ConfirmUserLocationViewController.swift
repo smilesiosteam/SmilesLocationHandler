@@ -28,7 +28,6 @@ class ConfirmUserLocationViewController: UIViewController {
     }()
     private var latitude: String = "25.20"
     private var longitude: String = "55.27"
-    private var switchToOpenStreetMap = false
     private var mapGesture = false
     private var selectedCity: GetCitiesModel
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
@@ -52,7 +51,7 @@ class ConfirmUserLocationViewController: UIViewController {
                 showLocationMarkerOnMap(latitude: lati, longitude: long)
                 latitude = String(format: "%f", lati)
                 longitude = String(format: "%f", long)
-                if !switchToOpenStreetMap {
+                if !Constants.switchToOpenStreetMap {
                     input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
                 } else {
                     let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
@@ -191,7 +190,7 @@ class ConfirmUserLocationViewController: UIViewController {
             showLocationMarkerOnMap(latitude: location.latitude, longitude: location.longitude)
         }
         
-        if !switchToOpenStreetMap {
+        if !Constants.switchToOpenStreetMap {
             input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: latitude, longitude: longitude))
         } else {
             let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
@@ -248,7 +247,7 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
         
         if gesture {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                if !self.switchToOpenStreetMap {
+                if !Constants.switchToOpenStreetMap {
                     self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
                 } else {
                     let coordinates = CLLocationCoordinate2D(latitude: self.latitude.toDouble() ?? 0, longitude: self.longitude.toDouble() ?? 0)
@@ -271,7 +270,7 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
         latitude = String(format: "%f", lat)
         longitude = String(format: "%f", long)
         
-        if !switchToOpenStreetMap {
+        if !Constants.switchToOpenStreetMap {
             input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
         } else {
             let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
@@ -286,7 +285,7 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
         latitude = String(format: "%f", lat)
         longitude = String(format: "%f", long)
         
-        if !switchToOpenStreetMap {
+        if !Constants.switchToOpenStreetMap {
             input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
         } else {
             let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)

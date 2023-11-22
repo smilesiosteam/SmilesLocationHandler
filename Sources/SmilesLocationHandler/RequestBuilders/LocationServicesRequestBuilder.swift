@@ -40,8 +40,16 @@ enum LocationServicesRequestBuilder {
     }
     
     // compose the NetworkRequest
-    public func createRequest(endPoint: LocationServicesEndPoints) -> NetworkRequest {
-        return NetworkRequest(url: getURL(endPoint: endPoint), reqBody: requestBody, httpMethod: httpMethod)
+    public func createRequest(endPoint: LocationServicesEndPoints, isAcceptLanguageEnabled: Bool = false) -> NetworkRequest {
+        
+        var headers: [String: String] = [:]
+        headers["Content-Type"] = "application/json"
+        headers["Accept"] = "application/json"
+        if isAcceptLanguageEnabled {
+            headers["Accept-Language"] = "en-US"
+        }
+        return NetworkRequest(url: getURL(endPoint: endPoint), headers: headers, reqBody: requestBody, httpMethod: httpMethod)
+        
     }
     
     // encodable request body for POST

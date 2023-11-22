@@ -27,7 +27,6 @@ class SearchLocationViewController: UIViewController {
         return SetLocationViewModel()
     }()
     private var searchTask: DispatchWorkItem?
-    private var switchToOpenStreetMap = false
     private var locationSelected: ((SearchedLocationDetails) -> Void)?
     private var searchResults = [SearchedLocationDetails]() {
         didSet {
@@ -177,7 +176,7 @@ extension SearchLocationViewController: UITextFieldDelegate {
                 DispatchQueue.global(qos: .userInteractive).async { [weak self] in
                     guard let self else { return }
                     //Use search text and perform the query
-                    self.input.send(.searchLocation(location: text, isFromGoogle: !self.switchToOpenStreetMap))
+                    self.input.send(.searchLocation(location: text, isFromGoogle: !Constants.switchToOpenStreetMap))
                 }
             }
             self.searchTask = task
@@ -228,10 +227,17 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let result = searchResults[indexPath.row]
-        if !result.addressId.isEmpty {
-            selectedResult = result
-            SmilesLoader.show()
-            input.send(.getLocationDetails(locationId: result.addressId, isFromGoogle: !switchToOpenStreetMap))
+        selectedResult = result
+        if showRecents {
+            if let selectedResult {
+                locationSelected?(selectedResult)
+                SmilesLocationRouter.shared.popVC()
+            }
+        } else {
+            if !result.addressId.isEmpty {
+                SmilesLoader.show()
+                input.send(.getLocationDetails(locationId: result.addressId, isFromGoogle: !Constants.switchToOpenStreetMap))
+            }
         }
         
     }
