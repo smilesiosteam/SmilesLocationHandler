@@ -88,6 +88,7 @@ final class SmilesManageAddressesViewController: UIViewController {
         bind(to: viewModel)
         setupTableViewCells()
         styleFontAndTextColor()
+        self.input.send(.getAllAddress)
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -122,14 +123,22 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         let address = addressDataSource [indexPath.row]
         cell.headingLabel.text = address.nickname
         cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
-        //cell.addressIcon.setImageWithUrlString(address.nickNameIcon ?? "")
+        cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
         
         return cell
     }
     func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            SmilesLocationRouter.shared.showDetectLocationPopup(from: self, controllerType: .deleteWorkAddress())
+             let item = self.addressDataSource[indexPath.row]
+            let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
+            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
+                vc.setDetectLocationAction {
+                    self.addressDataSource.remove(at: indexPath.row)
+                    self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
+                }
+                self.present(vc, animated: true)
+            }
             // Perform actions based on indexPath
         }
     }
@@ -155,7 +164,9 @@ extension SmilesManageAddressesViewController {
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
+                    self?.input.send(.getAllAddress)
                 case .removeAddressDidFail(error: _):
+                    self?.input.send(.getAllAddress)
                     break
                 }
             }.store(in: &cancellables)

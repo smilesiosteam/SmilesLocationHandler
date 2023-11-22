@@ -31,16 +31,7 @@ public final class SmilesLocationRouter {
         viewController.present(setLocationPopUp, animated: true)
         
     }
-    func pushManageAddressesViewController(with navigationController: UINavigationController) {
-        let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
-        vc.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(vc, animated: true)
-    }
-    func pushAddOrEditAddressViewController(with navigationController: UINavigationController) {
-        let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress)
-        vc.hidesBottomBarWhenPushed = true
-        navigationController.pushViewController(vc, animated: true)
-    }
+    
     // MARK: - Private Methods
     
     private func setActionsForControllerType(popupViewController: SmilesLocationDetectViewController, controllerType: ControllerType) {
@@ -56,7 +47,7 @@ public final class SmilesLocationRouter {
         switch controllerType {
         case .detectLocation:
             if let navigationController = navigationController {
-                self.pushAddOrEditAddressViewController(with: navigationController)
+                self.pushManageAddressesViewController(with: navigationController)
             }
             // Handle detect location action for DetectLocation
             break
@@ -93,7 +84,16 @@ public final class SmilesLocationRouter {
     private func navigateToDetectLocation() {
         // Implement navigation logic to detect location
     }
-    
+    func pushManageAddressesViewController(with navigationController: UINavigationController) {
+        let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
+    func pushAddOrEditAddressViewController(with navigationController: UINavigationController) {
+        let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(vc, animated: true)
+    }
     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel) {
         
         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity)) as! ConfirmUserLocationViewController
