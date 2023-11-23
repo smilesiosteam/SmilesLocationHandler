@@ -29,7 +29,7 @@ class ConfirmUserLocationViewController: UIViewController {
     private var latitude: String = "25.20"
     private var longitude: String = "55.27"
     private var mapGesture = false
-    private var selectedCity: GetCitiesModel
+    private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     
     // MARK: - ACTIONS -
@@ -84,7 +84,7 @@ class ConfirmUserLocationViewController: UIViewController {
     }
     
     // MARK: - INITIALIZERS -
-    init(selectedCity: GetCitiesModel) {
+    init(selectedCity: GetCitiesModel?) {
         self.selectedCity = selectedCity
         super.init(nibName: "ConfirmUserLocationViewController", bundle: .module)
     }
@@ -180,7 +180,7 @@ class ConfirmUserLocationViewController: UIViewController {
     
     private func setupPinForLocation() {
         
-        if let latitude = selectedCity.cityLatitude, let longitude = selectedCity.cityLongitude {
+        if let latitude = selectedCity?.cityLatitude, let longitude = selectedCity?.cityLongitude {
             self.latitude = "\(latitude)"
             self.longitude = "\(longitude)"
             showLocationMarkerOnMap(latitude: latitude, longitude: longitude)

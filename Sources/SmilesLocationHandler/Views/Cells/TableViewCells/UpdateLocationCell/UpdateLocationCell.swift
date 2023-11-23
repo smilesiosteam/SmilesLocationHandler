@@ -53,6 +53,15 @@ class UpdateLocationCell: UITableViewCell {
         self.detailLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
+    func configureCell(with address: Address?) {
+        if let address = address {
+            self.headingLabel.text = address.nickname
+            self.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
+            self.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
+        
+        }
+        
+    }
     // MARK: - IBActions
     @IBAction func didTabDeleteButton(_ sender: UIButton) {
         if let delegate = delegate {
