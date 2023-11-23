@@ -129,7 +129,7 @@
                                         <constraint firstAttribute="height" constant="24" id="S8A-4y-gep"/>
                                     </constraints>
                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                    <state key="normal" image="unchecked_address_radio"/>
+                                    <state key="normal" image="manage_address_chevron"/>
                                     <connections>
                                         <action selector="didTabCurrentLocationButton:" destination="-1" eventType="touchUpInside" id="2cc-Uv-oB7"/>
                                     </connections>
@@ -189,7 +189,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G2o-HP-6jW">
-                            <rect key="frame" x="102.66666666666666" y="0.0" width="24" height="24"/>
+                            <rect key="frame" x="102.66666666666667" y="0.0" width="24" height="24"/>
                             <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                             <state key="normal" image="add_address_icon">
                                 <color key="titleColor" red="0.45882352939999999" green="0.25882352939999997" blue="0.5568627451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -296,8 +296,8 @@
     </designables>
     <resources>
         <image name="add_address_icon" width="24" height="24"/>
+        <image name="manage_address_chevron" width="30" height="30"/>
         <image name="search_location_icon" width="24" height="24"/>
-        <image name="unchecked_address_radio" width="30" height="30"/>
         <image name="use_my_location_icon" width="24" height="24"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

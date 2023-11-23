@@ -59,7 +59,8 @@ final class UpdateLocationViewController: UIViewController {
         /// Back Button Show
         let backButton: UIButton = UIButton(type: .custom)
         // btnBack.backgroundColor = UIColor(red: 226.0 / 255.0, green: 226.0 / 255.0, blue: 226.0 / 255.0, alpha: 1.0)
-        let image = UIImage(named: AppCommonMethods.languageIsArabic() ? "BackArrow_black_Ar" : "BackArrow_black")?.withRenderingMode(.alwaysTemplate).withTintColor(.black)
+        let image = UIImage(named: "back_circle", in: .module, compatibleWith: nil)
+        
         
         backButton.setImage(image, for: .normal)
         backButton.addTarget(self, action: #selector(self.onClickBack), for: .touchUpInside)
@@ -133,9 +134,7 @@ final class UpdateLocationViewController: UIViewController {
         
     }
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
-        self.selectedIndex = -1
-        self.currentLocationRadioButton.setImage(UIImage(named: "checked_address_radio", in: .module, compatibleWith: nil), for: .normal)
-        self.addressesTableView.reloadData()
+        
     }
 }
 
