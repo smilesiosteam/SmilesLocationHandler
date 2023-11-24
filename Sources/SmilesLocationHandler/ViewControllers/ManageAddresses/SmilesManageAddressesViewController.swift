@@ -97,6 +97,10 @@ final class SmilesManageAddressesViewController: UIViewController {
         updateUI()
         self.input.send(.getAllAddress)
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+    }
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
         if (isEditingEnabled) {

@@ -36,7 +36,7 @@ public final class SmilesLocationRouter {
         
     }
     
-    func pushManageAddressesViewController(with navigationController: UINavigationController) {
+   public func pushManageAddressesViewController(with navigationController: UINavigationController) {
         let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
