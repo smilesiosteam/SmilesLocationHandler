@@ -9,6 +9,7 @@ import UIKit
 import SmilesUtilities
 import SmilesLanguageManager
 import Combine
+import SmilesLoader
 
 final class UpdateLocationViewController: UIViewController {
     
@@ -106,6 +107,7 @@ final class UpdateLocationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
+        SmilesLoader.show(on: self.view)
         self.input.send(.getAllAddress)
     }
     // MARK: - IBActions
@@ -171,6 +173,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
+                    SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
@@ -199,12 +202,14 @@ extension UpdateLocationViewController {
             .sink { [weak self] event in
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response)
                     if let address = response.addresses {
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }
                 case .fetchAllAddressDidFail(error: let error):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
