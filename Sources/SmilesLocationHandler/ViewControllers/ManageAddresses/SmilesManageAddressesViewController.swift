@@ -9,6 +9,7 @@ import UIKit
 import SmilesUtilities
 import SmilesLanguageManager
 import Combine
+import SmilesLoader
 
 final class SmilesManageAddressesViewController: UIViewController {
     
@@ -36,6 +37,7 @@ final class SmilesManageAddressesViewController: UIViewController {
     private func setUpNavigationBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         let appearance = UINavigationBarAppearance()
+        appearance.shadowColor = .clear
         appearance.backgroundColor = .white
         self.navigationItem.standardAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
@@ -94,7 +96,12 @@ final class SmilesManageAddressesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
+        SmilesLoader.show(on: self.view)
         self.input.send(.getAllAddress)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
@@ -130,11 +137,6 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let item = self.addressDataSource[indexPath.row]
-        if let navigationController = self.navigationController {
-            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
-        }
-        
     }
     func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
         // Handle the action here based on the cell's action
@@ -144,6 +146,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
+                    SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
@@ -173,12 +176,14 @@ extension SmilesManageAddressesViewController {
             .sink { [weak self] event in
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response)
                     if let address = response.addresses {
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }
                 case .fetchAllAddressDidFail(error: let error):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)

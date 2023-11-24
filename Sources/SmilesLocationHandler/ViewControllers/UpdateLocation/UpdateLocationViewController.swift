@@ -9,13 +9,19 @@ import UIKit
 import SmilesUtilities
 import SmilesLanguageManager
 import Combine
+import SmilesLoader
 
 final class UpdateLocationViewController: UIViewController {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
     @IBOutlet weak var editButton: UIButton!
+    @IBOutlet weak var currentLocationRadioButton: UIButton!
     @IBOutlet weak var savedAddressedLabel: UILabel!
+    @IBOutlet weak var addNewAddressLabel: UILabel!
+    @IBOutlet weak var useMycurrentLocationLabel: UILabel!
+    @IBOutlet weak var currentLocationLabel: UILabel!
+    @IBOutlet weak var currentLocationContainer: UIView!
     
     // MARK: - Properties
     var selectedIndex = 0
@@ -37,6 +43,7 @@ final class UpdateLocationViewController: UIViewController {
     private func setUpNavigationBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         let appearance = UINavigationBarAppearance()
+        appearance.shadowColor = .clear
         appearance.backgroundColor = .white
         self.navigationItem.standardAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
@@ -53,7 +60,8 @@ final class UpdateLocationViewController: UIViewController {
         /// Back Button Show
         let backButton: UIButton = UIButton(type: .custom)
         // btnBack.backgroundColor = UIColor(red: 226.0 / 255.0, green: 226.0 / 255.0, blue: 226.0 / 255.0, alpha: 1.0)
-        let image = UIImage(named: AppCommonMethods.languageIsArabic() ? "BackArrow_black_Ar" : "BackArrow_black")?.withRenderingMode(.alwaysTemplate).withTintColor(.black)
+        let image = UIImage(named: "back_circle", in: .module, compatibleWith: nil)
+        
         
         backButton.setImage(image, for: .normal)
         backButton.addTarget(self, action: #selector(self.onClickBack), for: .touchUpInside)
@@ -69,11 +77,15 @@ final class UpdateLocationViewController: UIViewController {
         
         self.savedAddressedLabel.fontTextStyle = .smilesHeadline3
         self.editButton.fontTextStyle = .smilesHeadline4
-        
+        self.addNewAddressLabel.fontTextStyle = .smilesHeadline4
+        self.useMycurrentLocationLabel.fontTextStyle = .smilesHeadline4
+        self.currentLocationLabel.fontTextStyle = .smilesBody3
         self.savedAddressedLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
     private func updateUI() {
+        self.useMycurrentLocationLabel.text = "UseCurrentLocationTitle".localizedString
+        self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
     }
@@ -95,6 +107,7 @@ final class UpdateLocationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
+        SmilesLoader.show(on: self.view)
         self.input.send(.getAllAddress)
     }
     // MARK: - IBActions
@@ -108,7 +121,25 @@ final class UpdateLocationViewController: UIViewController {
         }
         self.addressesTableView.reloadData()
     }
+    @IBAction func didTabSearchButton(_ sender: UIButton) {
+        SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
+//            self?.latitude = "\(selectedLocation.latitude)"
+//            self?.longitude = "\(selectedLocation.longitude)"
+//            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+        })
+    }
+    @IBAction func didTabAddAddressButton(_ sender: UIButton) {
+        if let navigationController = navigationController {
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil)
+            
+        }
+        
+    }
+    @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
+        
+    }
 }
+
 
 // MARK: - UITableView Delegate & DataSource -
 extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
@@ -122,10 +153,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         cell.editButton.isHidden = !isEditingEnabled
         cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
         cell.delegate = self
-        let address = addressDataSource [indexPath.row]
-        cell.headingLabel.text = address.nickname
-        cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
-        cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
+        cell.configureCell(with: addressDataSource[indexPath.row])
         cell.selectionStyle = .none
         if (selectedIndex == indexPath.row) {
             cell.mainView.borderColor = .appRevampPurpleMainColor
@@ -136,14 +164,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         }
         return cell
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        let item = self.addressDataSource[indexPath.row]
-        if let navigationController = self.navigationController {
-            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
-        }
-        
-    }
+    
     func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
@@ -152,6 +173,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
+                    SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
@@ -161,11 +183,10 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     }
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
-             let item = self.addressDataSource[indexPath.row]
-            // Perform actions based on indexPath
-            if let navigationController = self.navigationController {
-                //SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
-            }
+            self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
+            _ = self.addressDataSource[indexPath.row]
+            self.selectedIndex = indexPath.row
+            self.addressesTableView.reloadData()
         }
     }
     
@@ -181,12 +202,14 @@ extension UpdateLocationViewController {
             .sink { [weak self] event in
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response)
                     if let address = response.addresses {
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }
                 case .fetchAllAddressDidFail(error: let error):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)

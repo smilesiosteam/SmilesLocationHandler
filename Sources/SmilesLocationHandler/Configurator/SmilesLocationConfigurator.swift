@@ -16,7 +16,7 @@ struct SmilesLocationConfigurator {
         case setLocationPopUp
         case manageAddresses
         case addOrEditAddress
-        case confirmUserLocation(selectedCity: GetCitiesModel)
+        case confirmUserLocation(selectedCity: GetCitiesModel?)
         case searchLocation(locationSelected: ((SearchedLocationDetails) -> Void))
         case updateLocation
     }

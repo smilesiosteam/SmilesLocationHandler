@@ -134,6 +134,7 @@ import Combine
     private func setUpNavigationBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         let appearance = UINavigationBarAppearance()
+        appearance.shadowColor = .clear
         appearance.backgroundColor = .white
         self.navigationItem.standardAppearance = appearance
         self.navigationItem.scrollEdgeAppearance = appearance
