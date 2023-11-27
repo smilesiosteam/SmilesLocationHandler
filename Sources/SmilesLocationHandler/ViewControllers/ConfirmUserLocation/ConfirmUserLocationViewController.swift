@@ -32,6 +32,8 @@ class ConfirmUserLocationViewController: UIViewController {
     private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     
+    var locationHandler: ((CLLocation) -> Void)?
+    
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
         SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
@@ -40,6 +42,13 @@ class ConfirmUserLocationViewController: UIViewController {
             self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
         })
     }
+    
+    
+        func getLocation(_ location: CLLocation) {
+            // Pass the location data back to the closure
+            locationHandler?(location)
+            dismiss(animated: true, completion: nil)
+        }
     
     @IBAction func currentLocationPressed(_ sender: Any) {
         
@@ -80,6 +89,15 @@ class ConfirmUserLocationViewController: UIViewController {
 //        }else{
 //            presenter?.confirmButtonTapped(location: location, isFromAddNewAddress: isFromAddNewAddress.asBoolOrFalse(), redirectTo: confirmLocationRedirection)
 //        }
+        
+        
+            let lat = self.mapView.myLocation?.coordinate.latitude
+            let lng = self.mapView.myLocation?.coordinate.longitude
+            
+            if let lati = lat, let long = lng {
+                let location = CLLocation(latitude: lati, longitude: long)
+                getLocation(location)
+            }
         
     }
     
