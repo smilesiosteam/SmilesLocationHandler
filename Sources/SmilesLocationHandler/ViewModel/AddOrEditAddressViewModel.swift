@@ -31,6 +31,7 @@ class AddOrEditAddressViewModel: NSObject {
         case fetchLocationNameDidSucceed(response: String)
         case fetchLocationNameDidFail(error: Error?)
         
+        
     }
     
     // MARK: -- Variables
@@ -89,6 +90,10 @@ extension AddOrEditAddressViewModel {
                  case .removeAddressDidSucceed(response: _):
                      break
                  case .removeAddressDidFail(error: _):
+                     break
+                 case .saveDefaultAddressDidSucceed(response: _):
+                     break
+                 case .saveDefaultAddressDidFail(error: _):
                      break
                  }
              }.store(in: &cancellables)

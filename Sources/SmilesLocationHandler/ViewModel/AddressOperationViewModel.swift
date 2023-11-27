@@ -20,6 +20,7 @@ class AddressOperationViewModel: NSObject {
         case saveAddress(address: Address?)
         case getAllAddress
         case removeAddress(address_id: Int?)
+        case saveDefaultAddress(_ location: SearchLocationResponseModel)
     }
     
     enum Output {
@@ -34,6 +35,9 @@ class AddressOperationViewModel: NSObject {
         
         case saveAddressDidSucceed(response: SaveAddressResponseModel)
         case saveAddressDidFail(error: Error?)
+        
+        case saveDefaultAddressDidSucceed(response: RemoveAddressResponseModel)
+        case saveDefaultAddressDidFail(error: Error?)
         
     }
     
@@ -61,6 +65,8 @@ extension AddressOperationViewModel {
 
             case .removeAddress(address_id: let address_id):
                 self?.removeAddress(address_id: address_id)
+            case .saveDefaultAddress(let location):
+                self?.saveDefaultAddress(location: location)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -177,6 +183,35 @@ extension AddressOperationViewModel {
                 }
             } receiveValue: { [weak self] response in
                 self?.output.send(.removeAddressDidSucceed(response: response))
+            }
+            .store(in: &cancellables)
+    }
+    private func saveDefaultAddress(location: SearchLocationResponseModel) {
+        
+        let request = RemoveAddressRequestModel()
+        if let userInfo = LocationStateSaver.getLocationInfo() {
+            let requestUserInfo = SmilesUserInfo()
+            requestUserInfo.mambaId = userInfo.mambaId
+            request.userInfo = requestUserInfo
+        }
+        request.addressId = Int(location.addressId ?? "")
+        
+        let service = EditOrAddAddressServicesRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
+            endPoint: AddOrEditAddressEndPoints.saveDefaultAddress
+        )
+        
+        service.saveDefaultAddresse(request: request)
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(let error):
+                    self?.output.send(.saveDefaultAddressDidFail(error: error))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                self?.output.send(.saveDefaultAddressDidSucceed(response: response))
             }
             .store(in: &cancellables)
     }

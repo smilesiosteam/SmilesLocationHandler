@@ -11,6 +11,7 @@ import NetworkingLayer
 enum AddOrEditAddressEndPoints: String {
     case getLocationsNickName
     case saveAddress
+    case saveDefaultAddress
     case getAllAddresses
     case removeAddress
 }
@@ -26,6 +27,8 @@ extension AddOrEditAddressEndPoints {
             return EndPoints.getAllAdressesEndpoint
         case .removeAddress:
             return EndPoints.removeAddressEndpoint
+        case .saveDefaultAddress:
+            return EndPoints.saveDefaultAddressEndpoint
         }
     }
 }

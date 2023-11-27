@@ -14,9 +14,11 @@ protocol EditOrAddAddressServicesServiceable {
     func saveAddress(request: SaveAddressRequestModel) -> AnyPublisher<SaveAddressResponseModel, NetworkError>
     func getAllAddresses(request: RegisterLocationRequest) -> AnyPublisher<GetAllAddressesResponse, NetworkError>
     func removeAddresse(request: RemoveAddressRequestModel) -> AnyPublisher<RemoveAddressResponseModel, NetworkError>
+    func saveDefaultAddresse(request: RemoveAddressRequestModel) -> AnyPublisher<RemoveAddressResponseModel, NetworkError>
 }
 
 class EditOrAddAddressServicesRepository: EditOrAddAddressServicesServiceable {
+        
     
     private var networkRequest: Requestable
     private var baseUrl: String
@@ -57,4 +59,11 @@ class EditOrAddAddressServicesRepository: EditOrAddAddressServicesServiceable {
         
         return self.networkRequest.request(request)
     }
+    func saveDefaultAddresse(request: RemoveAddressRequestModel) -> AnyPublisher<RemoveAddressResponseModel, NetworkingLayer.NetworkError> {
+        let endPoint = AddOrEditAddressRequestBuilder.removeAddress(request: request)
+        let request = endPoint.createRequest(baseUrl: self.baseUrl , endPoint: self.endPoint)
+        
+        return self.networkRequest.request(request)
+    }
+
 }

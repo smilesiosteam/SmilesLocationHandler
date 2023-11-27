@@ -17,6 +17,7 @@ class ManageAddressViewModel: NSObject {
     enum Input {
         case getAllAddress
         case removeAddress(address_id: Int?)
+        case saveDefaultAddress(location: SearchLocationResponseModel)
         
     }
     
@@ -26,6 +27,9 @@ class ManageAddressViewModel: NSObject {
         
         case removeAddressDidSucceed(response: RemoveAddressResponseModel)
         case removeAddressDidFail(error: Error?)
+        
+        case saveDefaultAddressDidSucceed(response: RemoveAddressResponseModel)
+        case saveDefaultAddressDidFail(error: Error?)
         
     }
     
@@ -51,6 +55,9 @@ extension ManageAddressViewModel {
             case .removeAddress(address_id: let id):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.removeAddress(address_id: id))
+            case .saveDefaultAddress(location: let location):
+                self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
+                self?.addressOperationUseCaseInput.send(.saveDefaultAddress(location))
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -83,6 +90,10 @@ extension ManageAddressViewModel {
                      break
                  case .saveAddressDidFail(error: _):
                      break
+                 case .saveDefaultAddressDidSucceed(response: let response):
+                     self?.output.send(.saveDefaultAddressDidSucceed(response: response))
+                 case .saveDefaultAddressDidFail(error: let error):
+                     self?.output.send(.saveDefaultAddressDidFail(error: error))
                  }
              }.store(in: &cancellables)
     }
