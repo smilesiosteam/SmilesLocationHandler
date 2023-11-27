@@ -131,13 +131,17 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     @IBAction func didTabAddAddressButton(_ sender: UIButton) {
         if let navigationController = navigationController {
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil)
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
+                
+            }
             
         }
         
     }
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
-        
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
+            
+        }
     }
     @IBAction func didTabConfirmLocation(_ sender: UIButton) {
         if let address = selectedAddress {

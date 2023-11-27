@@ -13,6 +13,11 @@ import GoogleMaps
 import Combine
 import CoreLocation
 
+enum ConfirmLocatiuonSourceScreen {
+    case addAddressViewController
+    case editAddressViewController
+}
+
 class ConfirmUserLocationViewController: UIViewController {
 
     // MARK: - OUTLETS -
@@ -32,7 +37,8 @@ class ConfirmUserLocationViewController: UIViewController {
     private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     
-    var locationHandler: ((CLLocation) -> Void)?
+    var locationHandler: ((SearchLocationResponseModel) -> Void)?
+    var sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
@@ -44,7 +50,7 @@ class ConfirmUserLocationViewController: UIViewController {
     }
     
     
-        func getLocation(_ location: CLLocation) {
+        func getLocation(_ location: SearchLocationResponseModel) {
             // Pass the location data back to the closure
             locationHandler?(location)
             dismiss(animated: true, completion: nil)
@@ -90,15 +96,20 @@ class ConfirmUserLocationViewController: UIViewController {
 //            presenter?.confirmButtonTapped(location: location, isFromAddNewAddress: isFromAddNewAddress.asBoolOrFalse(), redirectTo: confirmLocationRedirection)
 //        }
         
-        
-            let lat = self.mapView.myLocation?.coordinate.latitude
-            let lng = self.mapView.myLocation?.coordinate.longitude
-            
-            if let lati = lat, let long = lng {
-                let location = CLLocation(latitude: lati, longitude: long)
-                getLocation(location)
-            }
-        
+        let location = SearchLocationResponseModel()
+        location.title = locationLabel.text
+        location.lat = Double(latitude)
+        location.long = Double(longitude)
+        if let city = selectedCity {
+            location.selectCityName = city.cityName.asStringOrEmpty()
+        }
+        switch sourceScreen {
+        case .addAddressViewController:
+            moveToAddAddress(with: location)
+        case .editAddressViewController:
+            locationHandler?(location)
+            SmilesLocationRouter.shared.popVC()
+        }
     }
     
     // MARK: - INITIALIZERS -
@@ -163,7 +174,11 @@ class ConfirmUserLocationViewController: UIViewController {
         mapView.isMyLocationEnabled = true
         
     }
-    
+    private func moveToAddAddress(with selectedLocation: SearchLocationResponseModel) {
+        if let navigationController = navigationController {
+            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: nil, selectedLocation: selectedLocation)
+        }
+    }
     private func showLocationMarkerOnMap(latitude: Double, longitude: Double, formattedAddress: String? = nil) {
         
         DispatchQueue.main.async {

@@ -296,7 +296,9 @@ import Combine
             model.cityLatitude = Double(object.latitude ?? "")
             model.cityLongitude = Double(object.longitude ?? "")
         }
-       SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model)
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController) { location in
+            self.getNewAddressLocation(location: location)
+        }
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
