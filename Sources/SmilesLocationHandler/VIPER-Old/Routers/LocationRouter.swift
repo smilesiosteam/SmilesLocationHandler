@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 31/05/2023.
 //
@@ -27,6 +27,7 @@ public enum LocationRouter: URLRequestConvertible {
     case osmLocationForwardGeocoding(address: String, format: OSMResponseType, limit: Int, addressDetails: Bool)
     case locationReverseGeocodingFromOSMId(osmId: String, format: OSMResponseType)
     case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
+    case getUserLocation(request: RegisterLocationRequest)
     
     
     public var methods: Alamofire.HTTPMethod {
@@ -58,6 +59,8 @@ public enum LocationRouter: URLRequestConvertible {
         case .locationReverseGeocodingFromOSMId:
             return .get
         case .locationReverseGeocodingFromOSMCoordinates:
+            return .get
+        case .getUserLocation:
             return .get
             
         }
@@ -124,13 +127,32 @@ public enum LocationRouter: URLRequestConvertible {
             
         case .getPolyLine:
             return nil
+            
         case .locationReverseGeocodingFromOSMId:
             return nil
+            
         case .locationReverseGeocodingFromOSMCoordinates:
             return nil
+            
         case .osmLocationForwardGeocoding:
             return nil
 
+        case .getUserLocation(let request):
+            var baseRequestDict = SmilesBaseMainRequestManager.shared.getConfigsAsDictionary()
+            var userInfo = baseRequestDict["userInfo"] as? [String:Any]
+            userInfo?["latitude"] = request.userInfo?.latitude
+            userInfo?["longitude"] = request.userInfo?.longitude
+            
+            if AppCommonMethods.isGuestUser {
+                userInfo?["cityName"] = ""
+                userInfo?["locationId"] = ""
+                userInfo?["location"] = ""
+                userInfo?["cityId"] = ""
+            }
+            
+            baseRequestDict["userInfo"] = userInfo
+            return request.asDictionary(dictionary: baseRequestDict)
+            
         }
     }
     
@@ -157,6 +179,9 @@ public enum LocationRouter: URLRequestConvertible {
             
         case .removeAddress:
             relativePath = EndPoints.removeAddressEndpoint
+            
+        case .getUserLocation:
+            relativePath = "addressBook/v1/get-user-location"
             
         case .autoComplete(let request):
             
