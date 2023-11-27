@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 30/05/2023.
 //
@@ -156,6 +156,62 @@ public class LocationBaseServices {
         }
     }
     
+    
+    public func getUserLocation(_ location: CLLocation?, completionHandler: @escaping (_ response: RegisterLocationResponse) -> (), failureBlock: @escaping (_ error: ErrorCodeConfiguration?) -> ()) {
+        
+        let registerRequest = RegisterLocationRequest()
+        registerRequest.userInfo = AppUserInfo()
+        if !AppCommonMethods.isGuestUser {
+            if let lat = location?.coordinate.latitude, let lon = location?.coordinate.longitude {
+                registerRequest.userInfo?.latitude = String(lat)
+                registerRequest.userInfo?.longitude = String(lon)
+            } else {
+                registerRequest.userInfo?.latitude = ""
+                registerRequest.userInfo?.longitude = ""
+            }
+        } else {
+            if let lat = location?.coordinate.latitude, let lon = location?.coordinate.longitude {
+                registerRequest.userInfo?.latitude = String(lat)
+                registerRequest.userInfo?.longitude = String(lon)
+            } else {
+                registerRequest.userInfo?.latitude = "25.194985"
+                registerRequest.userInfo?.longitude = "55.278414"
+            }
+        }
+        
+    
+        getUserLocationRequest(request: registerRequest, completionHandler: { response in
+            print(response)
+            completionHandler(response)
+        }) { error in
+            print(error ?? "")
+            failureBlock(error)
+        }
+    }
+    
+    
+    
+    private func getUserLocationRequest(request: RegisterLocationRequest, completionHandler: @escaping (_ response: RegisterLocationResponse) -> (), failureBlock: @escaping (_ error: ErrorCodeConfiguration?) -> ()) {
+        let registerUserLocationRequest = LocationRouter.getUserLocation(request: request)
+        
+        networkManager.executeRequest(for: RegisterLocationResponse.self, registerUserLocationRequest, successBlock: { response in
+            
+            switch response {
+            case let .success(result):
+                completionHandler(result)
+                
+            case let .failure(error):
+                let errorModel = ErrorCodeConfiguration()
+                errorModel.errorCode = (error as NSError).code
+                errorModel.errorDescriptionEn = error.localizedDescription
+                errorModel.errorDescriptionAr = error.localizedDescription
+                failureBlock(errorModel)
+            }
+            
+        }) { error in
+            failureBlock(error)
+        }
+    }
     
     public  func startUpdatingLocation(){
         LocationManager.shared.getLocation { (location, error) in

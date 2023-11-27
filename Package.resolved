@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "bc268c28fb170f494de9e9927c371b8342979ece",
-        "version" : "5.7.1"
+        "revision" : "3dc6a42c7727c49bf26508e29b0a0b35f9c7e1ad",
+        "version" : "5.8.1"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "eee9ad754926c40a0f7e73f152357d37b119b7fa",
-        "version" : "1.7.1"
+        "revision" : "db51c407d3be4a051484a141bf0bff36c43d3b1e",
+        "version" : "1.8.0"
       }
     },
     {
@@ -33,7 +33,16 @@
       "location" : "https://github.com/smilesiosteam/NetworkingLayer.git",
       "state" : {
         "branch" : "main",
-        "revision" : "48c34bc08fa85f5d76d031bbd3078236577506b9"
+        "revision" : "369fba0725cfc997b14c5bbea03b609d2162b630"
+      }
+    },
+    {
+      "identity" : "nvactivityindicatorview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ninjaprox/NVActivityIndicatorView.git",
+      "state" : {
+        "revision" : "bcb52371f2259254bac6690f92bb474a61768c47",
+        "version" : "5.1.1"
       }
     },
     {
@@ -50,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage.git",
       "state" : {
-        "revision" : "633996a807442ec28df9d33b0f88ce57a0e2fdbf",
-        "version" : "5.17.0"
+        "revision" : "1b9a2e902cbde5fdf362faa0f4fd76ea74d74305",
+        "version" : "5.18.5"
       }
     },
     {
@@ -69,7 +78,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesAnalytics.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e956827dd6ad06a4da00bb99f3c754928fdab0c2"
+        "revision" : "881cea6ede78ac5f8452c91653354c437f5429a4"
       }
     },
     {
@@ -78,7 +87,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesBaseMainRequest.git",
       "state" : {
         "branch" : "main",
-        "revision" : "306ab0bb0ba9433427dc91cf35ac24bf31d23ed7"
+        "revision" : "a8275beebe22d78e75e5fb6ca6420f808249977a"
       }
     },
     {
@@ -87,7 +96,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesEasyTipView.git",
       "state" : {
         "branch" : "main",
-        "revision" : "c321c738dbd135a8a68f5d09dcaee00220183d50"
+        "revision" : "8466cfafde2e79ceb957a4bd49cee4278fe20986"
       }
     },
     {
@@ -96,7 +105,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesFontsManager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "1a7068cb5a728cb7761aceb44d1c1ab2e88eba74"
+        "revision" : "08f10b60a92cf507339595161289eabd55c9ab10"
       }
     },
     {
@@ -105,7 +114,16 @@
       "location" : "https://github.com/smilesiosteam/SmilesLanguageManager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "c28ecadeb4df3785ba082363895b3d0248a9903a"
+        "revision" : "d70bc6f7a910dd4e7dcae9224b4988500cd1006e"
+      }
+    },
+    {
+      "identity" : "smilesloader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smilesiosteam/SmilesLoader.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9f8681ad99ae15d022d691f94617e18e156f1ab8"
       }
     },
     {
@@ -132,7 +150,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesUtilities.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d06a25cdb0bdf0c82ab46c9530ed41b76976a2b1"
+        "revision" : "5912b2771215bbd74688e82f6ef049c68ac3de89"
       }
     }
   ],

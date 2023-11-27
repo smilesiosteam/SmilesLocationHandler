@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 30/05/2023.
 //
@@ -68,6 +68,15 @@ import SmilesBaseMainRequestManager
             return true
         }
     }
+    
+    @objc public func checkIfLatLongIsNil() -> Bool {
+        if let loc = LocationStateSaver.getLocationInfo()?.location,!loc.isEmpty {
+            return false
+        } else {
+            return true
+        }
+    }
+    
     
     @objc public func checkIfMambaIdIsNil() -> Bool {
         if let _ = LocationStateSaver.getLocationInfo()?.mambaId {

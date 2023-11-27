@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 30/05/2023.
 //
@@ -19,6 +19,7 @@ class LocationsViewModel: NSObject {
         case getPlaceFromLocation(isUpdated:Bool)
         case updateUserLocation(userInfo: NSDictionary?, request: RegisterLocationRequest?)
         case registerUserLocation(location: CLLocation?)
+        case getUserLocation(location: CLLocation?)
     }
     
     enum Output {
@@ -30,6 +31,9 @@ class LocationsViewModel: NSObject {
         
         case registerUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
         case registerUserLocationDidFail(error: Error)
+        
+        case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
+        case getUserLocationDidFail(error: Error)
         
     }
     
@@ -55,6 +59,8 @@ extension LocationsViewModel {
             case .registerUserLocation(location: let location):
                 self?.registerUserLocation(location)
                 
+            case .getUserLocation(location: let location):
+                self?.getUserLocation(location)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -83,8 +89,6 @@ extension LocationsViewModel {
         }
     }
     
-    
-    
     func updateUserLocation(userInfo: NSDictionary?, request: RegisterLocationRequest?){
         if let userInfo  = userInfo{
             if let locationModel = userInfo["location"] as? SearchLocationResponseModel {
@@ -105,7 +109,6 @@ extension LocationsViewModel {
         }else{
             output.send(.updateUserLocationDidFail(error:NetworkError.noResponse("model is not as search")))
         }
-        
     }
     
     private func callUpdateLocationService(_ userLocationInfo: RegisterLocationRequest) {
@@ -117,8 +120,6 @@ extension LocationsViewModel {
     }
     
     
-    
-    
     func registerUserLocation(_ location: CLLocation?) {
         
         locationService.registerLocation(location) { [weak self] response in
@@ -126,6 +127,17 @@ extension LocationsViewModel {
         } failureBlock: { [weak self] error in
             self?.fireEvent?("location_registered_fail")
             self?.output.send(.registerUserLocationDidFail(error:NetworkError.noResponse("location_registered_fail")))
+        }
+    }
+    
+    
+    func getUserLocation(_ location: CLLocation?) {
+        
+        locationService.getUserLocation(location) { [weak self] response in
+            self?.output.send(.getUserLocationDidSucceed(response: response,location: location))
+        } failureBlock: { [weak self] error in
+            self?.fireEvent?("location_registered_fail")
+            self?.output.send(.getUserLocationDidFail(error:NetworkError.noResponse("location_registered_fail")))
         }
         
     }

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 30/05/2023.
 //
@@ -12,6 +12,7 @@ import SmilesUtilities
 
 public protocol LocationUpdateProtocol: AnyObject {
     func locationDidUpdateToLocation(location: CLLocation?, placemark: CLPlacemark?)
+    func locationIsAllowedByUser(isAllowed:Bool)
 }
 
 public final class LocationManager: NSObject {
@@ -66,6 +67,8 @@ public final class LocationManager: NSObject {
     }
     
     public func destroyLocationManager() {
+        self.delegate = nil
+        locationManager?.stopUpdatingLocation()
         locationManager?.delegate = nil
         locationManager = nil
         lastLocation = nil
@@ -347,6 +350,7 @@ extension LocationManager: CLLocationManagerDelegate {
             
         case .authorizedWhenInUse,.authorizedAlways:
             self.locationManager?.startUpdatingLocation()
+            self.delegate?.locationIsAllowedByUser(isAllowed: true)
             
         case .denied:
             let deniedError = NSError(
@@ -363,6 +367,8 @@ extension LocationManager: CLLocationManagerDelegate {
                 didComplete(location: nil,error: deniedError)
             }
             
+            self.delegate?.locationIsAllowedByUser(isAllowed: false)
+            
         case .restricted:
             if reverseGeocoding {
                 didComplete(location: nil,error: NSError(
@@ -376,6 +382,7 @@ extension LocationManager: CLLocationManagerDelegate {
                     userInfo: nil))
             }
             
+            self.delegate?.locationIsAllowedByUser(isAllowed: false)
         case .notDetermined:
             self.locationManager?.requestLocation()
             
@@ -387,6 +394,7 @@ extension LocationManager: CLLocationManagerDelegate {
                 [NSLocalizedDescriptionKey:LocationErrors.unknown.rawValue,
                  NSLocalizedFailureReasonErrorKey:LocationErrors.unknown.rawValue,
                  NSLocalizedRecoverySuggestionErrorKey:LocationErrors.unknown.rawValue]))
+            self.delegate?.locationIsAllowedByUser(isAllowed: false)
         }
     }
     
