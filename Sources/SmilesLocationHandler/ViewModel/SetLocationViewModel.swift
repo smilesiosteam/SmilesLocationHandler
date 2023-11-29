@@ -273,6 +273,7 @@ extension SetLocationViewModel {
                     self?.output.send(.fetchLocationDetailsDidSucceed(response: locationDetails))
                 case .fetchLocationDetailsDidFail(let error):
                     self?.output.send(.fetchLocationDetailsDidFail(error: error))
+                default: break
                 }
             }.store(in: &cancellables)
     }

@@ -16,6 +16,7 @@ enum LocationServicesEndPoints {
     case getAutoCompleteResultsFromOSM(location: String, format: OSMResponseType, limit: Int, addressDetails: Bool)
     case getLocationDetailsFromGoogle(placeId: String, key: String)
     case getLocationDetailsFromOSM(osmId: String, format: OSMResponseType)
+    case getPolyline(origion: CLLocationCoordinate2D, destination: CLLocationCoordinate2D, wayPoints: CLLocationCoordinate2D?, key: String)
     
     struct LocationServicesBaseUrl {
         static let googleMaps = "https://maps.googleapis.com/"
@@ -37,6 +38,14 @@ extension LocationServicesEndPoints {
             return LocationServicesBaseUrl.googleMaps + "maps/api/place/details/json?placeid=\(placeId)&key=\(key)"
         case .getLocationDetailsFromOSM(let osmId, let format):
             return LocationServicesBaseUrl.openStreetMap + "lookup?osm_ids=\(osmId)&format=\(format)"
+        case .getPolyline(origion: let origion, destination: let destination, wayPoints: let wayPoints, let key):
+            let origionString = String(format: "%f,%f", origion.latitude, origion.longitude)
+            let destinationString = String(format: "%f,%f", destination.latitude, destination.longitude)
+            var urlString = LocationServicesBaseUrl.googleMaps + "maps/api/directions/json?origin=\(origionString)&destination=\(destinationString)&sensor=false&mode=driving&key=\(key)"
+            if let wayPoints {
+                urlString.append("&" + String(format: "%f,%f", wayPoints.latitude, wayPoints.longitude))
+            }
+            return urlString
         }
     }
 }

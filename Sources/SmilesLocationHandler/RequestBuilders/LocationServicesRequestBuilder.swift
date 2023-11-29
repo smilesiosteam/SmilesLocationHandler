@@ -17,6 +17,7 @@ enum LocationServicesRequestBuilder {
     case getAutoCompleteResultsFromOSM
     case getLocationDetailsFromGoogle
     case getLocationDetailsFromOSM
+    case getPolyLine
     
     // gave a default timeout but can be different for each.
     var requestTimeOut: Int {
@@ -35,6 +36,8 @@ enum LocationServicesRequestBuilder {
         case .getLocationDetailsFromGoogle:
             return .GET
         case .getLocationDetailsFromOSM:
+            return .GET
+        case .getPolyLine:
             return .GET
         }
     }
@@ -55,15 +58,7 @@ enum LocationServicesRequestBuilder {
     // encodable request body for POST
     var requestBody: Encodable? {
         switch self {
-        case .reverseGeoCodeToGetCompleteAddress:
-            return nil
-        case .locationReverseGeocodingFromOSMCoordinates:
-            return nil
-        case .getAutoCompleteResultsFromOSM:
-            return nil
-        case .getLocationDetailsFromGoogle:
-            return nil
-        case .getLocationDetailsFromOSM:
+        default:
             return nil
         }
     }

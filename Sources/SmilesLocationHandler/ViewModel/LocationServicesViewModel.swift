@@ -12,17 +12,18 @@ import SmilesUtilities
 import CoreLocation
 import GooglePlaces
 
-class LocationServicesViewModel: NSObject {
+public class LocationServicesViewModel: NSObject {
     
     // MARK: - INPUT. View event methods
-    enum Input {
+    public enum Input {
         case reverseGeoCodeToGetCompleteAddress(latitude: String, longitude: String)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
         case searchLocation(text: String, isFromGoogle: Bool)
         case getLocationDetails(locationId: String, isFromGoogle: Bool)
+        case getPolyLine(origion: CLLocationCoordinate2D, destination: CLLocationCoordinate2D, wayPoints: CLLocationCoordinate2D?)
     }
     
-    enum Output {
+    public enum Output {
         case fetchAddressFromCoordinatesDidSucceed(response: SWGoogleAddressResponse)
         case fetchAddressFromCoordinatesDidFail(error: Error?)
         
@@ -34,6 +35,9 @@ class LocationServicesViewModel: NSObject {
         
         case fetchLocationDetailsDidSucceed(locationDetails: SearchedLocationDetails)
         case fetchLocationDetailsDidFail(error: Error?)
+        
+        case getPolylineDidSucceed(response: PolylineResponseModel)
+        case getPolylineDidFail(error: Error?)
     }
     
     // MARK: -- Variables
@@ -45,7 +49,7 @@ class LocationServicesViewModel: NSObject {
 // MARK: - INPUT. View event methods
 extension LocationServicesViewModel {
     
-    func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
+    public func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
         output = PassthroughSubject<Output, Never>()
         input.sink { [weak self] event in
             switch event {
@@ -65,6 +69,8 @@ extension LocationServicesViewModel {
                 } else {
                     self?.getLocationDetailsFromOSM(locationId: locationId)
                 }
+            case .getPolyLine(let origion, let destination, let wayPoints):
+                self?.getPolyline(origion: origion, destination: destination, wayPoints: wayPoints)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -229,6 +235,34 @@ extension LocationServicesViewModel {
                     let locationDetails = SearchedLocationDetails(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, formattedAddress: address)
                     self?.output.send(.fetchLocationDetailsDidSucceed(locationDetails: locationDetails))
                 }
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func getPolyline(origion: CLLocationCoordinate2D, destination: CLLocationCoordinate2D, wayPoints: CLLocationCoordinate2D?) {
+        
+        guard let key = Bundle.main.object(forInfoDictionaryKey: Constants.Keys.googleAppKey) as? String else {
+            output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
+            return
+        }
+        
+        let service = LocationServicesRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            endPoint: .getPolyline(origion: origion, destination: destination, wayPoints: wayPoints, key: key)
+        )
+        
+        service.getPolyline()
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(let error):
+                    self?.output.send(.getPolylineDidFail(error: error))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                self?.output.send(.getPolylineDidSucceed(response: response))
             }
             .store(in: &cancellables)
         

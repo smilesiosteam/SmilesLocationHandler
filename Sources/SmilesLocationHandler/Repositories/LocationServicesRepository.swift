@@ -15,6 +15,7 @@ protocol LocationServicesServiceable {
     func getAutoCompleteResultsFromOSM() -> AnyPublisher<[OSMSearchLocationModel], NetworkError>
     func getLocationDetailsFromGoogle() -> AnyPublisher<SWAutoCompleteDetailsResponseModel, NetworkError>
     func getLocationDetailsFromOSM() -> AnyPublisher<[OSMSearchLocationModel], NetworkError>
+    func getPolyline() -> AnyPublisher<PolylineResponseModel, NetworkError>
 }
 
 class LocationServicesRepository: LocationServicesServiceable {
@@ -57,6 +58,13 @@ class LocationServicesRepository: LocationServicesServiceable {
     
     func getLocationDetailsFromOSM() -> AnyPublisher<[OSMSearchLocationModel], NetworkError> {
         let endPoint = LocationServicesRequestBuilder.getLocationDetailsFromOSM
+        let request = endPoint.createRequest(endPoint: self.endPoint)
+        
+        return self.networkRequest.request(request)
+    }
+    
+    func getPolyline() -> AnyPublisher<PolylineResponseModel, NetworkError> {
+        let endPoint = LocationServicesRequestBuilder.getPolyLine
         let request = endPoint.createRequest(endPoint: self.endPoint)
         
         return self.networkRequest.request(request)

@@ -8,7 +8,7 @@
 import Foundation
 import NetworkingLayer
 
-class OSMAddressModel: BaseMainResponse {
+public class OSMAddressModel: BaseMainResponse {
     // MARK: - Model Keys
     
     enum CodingKeys: String, CodingKey {
@@ -25,19 +25,19 @@ class OSMAddressModel: BaseMainResponse {
     
     // MARK: - Model Variables
     
-    var residential: String?
-    var state: String?
-    var country: String?
-    var road: String?
-    var suburb: String?
-    var city: String?
-    var neighbourhood: String?
-    var building: String?
-    var stateDistrict: String?
+    public var residential: String?
+    public var state: String?
+    public var country: String?
+    public var road: String?
+    public var suburb: String?
+    public var city: String?
+    public var neighbourhood: String?
+    public var building: String?
+    public var stateDistrict: String?
     
     // MARK: - Model mapping
     
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         residential = try values.decodeIfPresent(String.self, forKey: .residential)
         state = try values.decodeIfPresent(String.self, forKey: .state)

@@ -9,7 +9,7 @@ import Foundation
 import NetworkingLayer
 import CoreLocation
 
-class OSMSearchLocationModel: BaseMainResponse {
+public class OSMSearchLocationModel: BaseMainResponse {
     // MARK: - Model Keys
     
     enum CodingKeys: String, CodingKey {
@@ -23,16 +23,16 @@ class OSMSearchLocationModel: BaseMainResponse {
     
     // MARK: - Model Variables
     
-    var latitude: String?
-    var longitude: String?
-    var displayName: String?
-    var address: OSMAddressModel?
-    var osmType: String?
-    var osmId: Int64?
+    public var latitude: String?
+    public var longitude: String?
+    public var displayName: String?
+    public var address: OSMAddressModel?
+    public var osmType: String?
+    public var osmId: Int64?
     
     // MARK: - Model mapping
     
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         latitude = try values.decodeIfPresent(String.self, forKey: .latitude)
         longitude = try values.decodeIfPresent(String.self, forKey: .longitude)
@@ -46,18 +46,18 @@ class OSMSearchLocationModel: BaseMainResponse {
     
     // MARK: - Model helper methods
     
-    func getOSMType() -> OSMLocationType? {
+    public func getOSMType() -> OSMLocationType? {
         return OSMLocationType(rawValue: self.osmType.asStringOrEmpty())
     }
     
-    func getFormattedTitle() -> String {
+    public func getFormattedTitle() -> String {
         let separatedComponents = self.displayName?.components(separatedBy: ", ")
         let formattedTitle = "\(separatedComponents?[safe: 0] ?? ""), \(separatedComponents?[safe: 1] ?? "")"
         
         return formattedTitle
     }
     
-    func getLocation() -> CLLocation? {
+    public func getLocation() -> CLLocation? {
         return CLLocation(latitude: self.latitude?.toDouble() ?? 0, longitude: self.longitude?.toDouble() ?? 0)
     }
 }
