@@ -11,7 +11,7 @@ import SmilesLanguageManager
 import Combine
 import SmilesLoader
 
-final class SmilesManageAddressesViewController: UIViewController {
+final class SmilesManageAddressesViewController: UIViewController, Toastable {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
@@ -187,9 +187,17 @@ extension SmilesManageAddressesViewController {
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
+                    var model = ToastModel()
+                    model.title = "address_has_been_deleted".localizedString
+                    model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
+                    self?.showToast(model: model)
                     self?.input.send(.getAllAddress)
                 case .removeAddressDidFail(error: _):
                     self?.input.send(.getAllAddress)
+                    break
+                case .saveDefaultAddressDidSucceed(response: _):
+                    break
+                case .saveDefaultAddressDidFail(error: _):
                     break
                 }
             }.store(in: &cancellables)

@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import CoreLocation
 
 struct SmilesLocationConfigurator {
     
@@ -16,7 +17,7 @@ struct SmilesLocationConfigurator {
         case setLocationPopUp
         case manageAddresses
         case addOrEditAddress
-        case confirmUserLocation(selectedCity: GetCitiesModel?)
+        case confirmUserLocation(selectedCity: GetCitiesModel?, locationHandler: ((SearchLocationResponseModel) -> Void)?)
         case searchLocation(locationSelected: ((SearchedLocationDetails) -> Void))
         case updateLocation
     }
@@ -30,8 +31,9 @@ struct SmilesLocationConfigurator {
             return vc
         case .manageAddresses:
             return SmilesManageAddressesViewController()
-        case .confirmUserLocation(let selectedCity):
+        case .confirmUserLocation(let selectedCity, let locationHandler):
             let vc = ConfirmUserLocationViewController(selectedCity: selectedCity)
+            vc.locationHandler = locationHandler
             return vc
         case .searchLocation(let locationSelected):
             let vc = SearchLocationViewController(locationSelected: locationSelected)

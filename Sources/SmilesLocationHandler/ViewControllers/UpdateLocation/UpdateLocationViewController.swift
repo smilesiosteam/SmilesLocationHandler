@@ -11,7 +11,7 @@ import SmilesLanguageManager
 import Combine
 import SmilesLoader
 
-final class UpdateLocationViewController: UIViewController {
+final class UpdateLocationViewController: UIViewController, Toastable {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
@@ -27,6 +27,7 @@ final class UpdateLocationViewController: UIViewController {
     var selectedIndex = 0
     var isEditingEnabled: Bool = false
     var addressDataSource = [Address]()
+    var selectedAddress: Address?
     private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private lazy var viewModel: ManageAddressViewModel = {
@@ -130,13 +131,28 @@ final class UpdateLocationViewController: UIViewController {
     }
     @IBAction func didTabAddAddressButton(_ sender: UIButton) {
         if let navigationController = navigationController {
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil)
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
+                
+            }
             
         }
         
     }
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
-        
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
+            
+        }
+    }
+    @IBAction func didTabConfirmLocation(_ sender: UIButton) {
+        if let address = selectedAddress {
+            let location = SearchLocationResponseModel()
+            location.title = address.locationName
+            location.lat = Double(address.latitude ?? "")
+            location.long = Double(address.longitude ?? "")
+            location.addressId = address.addressId ?? ""
+            SmilesLoader.show(on: self.view)
+            self.input.send(.saveDefaultAddress(location: location))
+        }
     }
 }
 
@@ -184,7 +200,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
             self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
-            _ = self.addressDataSource[indexPath.row]
+            self.selectedAddress = self.addressDataSource[indexPath.row]
             self.selectedIndex = indexPath.row
             self.addressesTableView.reloadData()
         }
@@ -213,10 +229,20 @@ extension UpdateLocationViewController {
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
+                    var model = ToastModel()
+                    model.title = "address_has_been_deleted".localizedString
+                    model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
+                    self?.showToast(model: model)
                     self?.input.send(.getAllAddress)
                 case .removeAddressDidFail(error: _):
                     self?.input.send(.getAllAddress)
                     break
+                case .saveDefaultAddressDidSucceed(response: let response):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    debugPrint(response)
+                case .saveDefaultAddressDidFail(error: let error):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    debugPrint(error?.localizedDescription ?? "")
                 }
             }.store(in: &cancellables)
     }

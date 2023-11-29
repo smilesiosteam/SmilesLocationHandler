@@ -296,7 +296,9 @@ import Combine
             model.cityLatitude = Double(object.latitude ?? "")
             model.cityLongitude = Double(object.longitude ?? "")
         }
-       SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model)
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController) { location in
+            self.getNewAddressLocation(location: location)
+        }
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
@@ -653,30 +655,20 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     }
 
 
+// MARK: - Call Back from confirm Location
+    extension AddOrEditAddressViewController {
+        func getNewAddressLocation(location: SearchLocationResponseModel?) {
 
-//    extension AddOrEditAddressViewController : ConfirmUserLocationViewControllerProtocol {
-//        func getNewAddressLocation(location: SearchLocationResponseModel?) {
-//
-//            if let addressloc = location?.title {
-//                addressLabel.text = addressloc
-//
-//                let addressObj = Address()
-//                addressObj.latitude =  "\(location?.lat ?? 0)"
-//                addressObj.longitude = "\(location?.long ?? 0)"
-//                self.addressObj = addressObj
-//
-//                presenter?.getUpdatedLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? ""))
-//    //
-//    //            addressObj?.locationName = addressloc
-//            }
-//        }
-//
-//
-//        @IBAction func changeButtonClicked(_ sender : Any){
-//            presenter?.changeButtonClicked()
-//        }
-//
-//
-//    }
+            if let addressloc = location?.title {
+                addressLabel.text = addressloc
+
+                let addressObj = Address()
+                addressObj.latitude =  "\(location?.lat ?? 0)"
+                addressObj.longitude = "\(location?.long ?? 0)"
+                self.addressObj = addressObj
+                self.input.send(.getLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? "")))
+            }
+        }
+    }
 
 

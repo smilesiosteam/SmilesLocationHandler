@@ -16,6 +16,7 @@ enum AddOrEditAddressRequestBuilder {
     case saveAddress(request: SaveAddressRequestModel)
     case getAllAddresses(request: RegisterLocationRequest)
     case removeAddress(request: RemoveAddressRequestModel)
+    case saveDefaultAddress(request: RemoveAddressRequestModel)
     
     // gave a default timeout but can be different for each.
     var requestTimeOut: Int {
@@ -32,6 +33,8 @@ enum AddOrEditAddressRequestBuilder {
         case .getAllAddresses:
             return .POST
         case .removeAddress:
+            return .POST
+        case .saveDefaultAddress:
             return .POST
         }
     }
@@ -56,6 +59,8 @@ enum AddOrEditAddressRequestBuilder {
         case .getAllAddresses(request: let request):
             return request
         case .removeAddress(request: let request):
+            return request
+        case .saveDefaultAddress(request: let request):
             return request
         }
     }

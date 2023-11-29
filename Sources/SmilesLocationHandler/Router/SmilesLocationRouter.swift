@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import SmilesUtilities
+import CoreLocation
 
 public final class SmilesLocationRouter {
     
@@ -93,9 +94,12 @@ public final class SmilesLocationRouter {
         // Implement navigation logic to detect location
     }
     
-    func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil) {
+    func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil) {
         if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
             vc.addressObj = addressObject
+            if let location = selectedLocation {
+                vc.selectedLocation = selectedLocation
+            }
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)
         }
@@ -106,9 +110,10 @@ public final class SmilesLocationRouter {
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
-    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?) {
+    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, locationHandler: ((SearchLocationResponseModel) -> Void)?) {
         
-        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity)) as! ConfirmUserLocationViewController
+        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, locationHandler: locationHandler)) as! ConfirmUserLocationViewController
+        vc.sourceScreen = sourceScreen
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         

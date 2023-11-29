@@ -38,7 +38,9 @@ class SetLocationPopupViewController: UIViewController {
     @IBAction func continuePressed(_ sender: Any) {
         dismiss(animated: true) { [weak self] in
             if let selectedCity = self?.citiesResponse?.cities?.first(where: { $0.isSelected }) {
-                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: selectedCity)
+                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: selectedCity, locationHandler: { _ in
+                    
+                })
             }
         }
     }
