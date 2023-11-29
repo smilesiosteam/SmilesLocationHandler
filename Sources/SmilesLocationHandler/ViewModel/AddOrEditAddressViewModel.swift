@@ -38,6 +38,8 @@ class AddOrEditAddressViewModel: NSObject {
     private var output: PassthroughSubject<Output, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private let addressOperationViewModel = AddressOperationViewModel()
+    private var setLocationViewModel = SetLocationViewModel()
+    private var setLocationInput: PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
     
     // MARK: - ViewModels -
     private var addressOperationUseCaseInput: PassthroughSubject<AddressOperationViewModel.Input,Never> = .init()
@@ -54,7 +56,8 @@ extension AddOrEditAddressViewModel {
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.getLocationsNickName)
             case .getLocationName(let lat, let long):
-                self?.getLocationName(lat: lat, long: long)
+                self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
+                self?.setLocationInput.send(.getLocationName(coordinates:CLLocation(latitude: Double(lat) ?? 0.0, longitude: Double(long) ?? 0.0)))
             case .saveAddress(let address):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.saveAddress(address: address))
@@ -99,12 +102,19 @@ extension AddOrEditAddressViewModel {
              }.store(in: &cancellables)
     }
     
-    private func getLocationName(lat: String, long: String) {
-        let location = CLLocation(latitude: Double(lat) ?? 0, longitude: Double(long) ?? 0)
-        let  locationService = LocationBaseServices()
-             locationService.getPlaceFromLocation(location) { place in
-                 self.output.send(.fetchLocationNameDidSucceed(response: place))
-        }
+    private func bind(to setLocationViewModel: SetLocationViewModel) {
+        setLocationInput = PassthroughSubject<SetLocationViewModel.Input, Never>()
+        let output = setLocationViewModel.transform(input: setLocationInput.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .fetchLocationNameDidSucceed(let name):
+                    self?.output.send(.fetchLocationNameDidSucceed(response: name))
+                case .fetchLocationNameDidFail(let error):
+                    self?.output.send(.fetchLocationNameDidFail(error: error))
+                default: break
+                }
+            }.store(in: &cancellables)
     }
        
 }

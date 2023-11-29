@@ -8,11 +8,11 @@
 import Foundation
 import NetworkingLayer
 
-class SWGoogleAddressResponse : BaseMainResponse {
+public class SWGoogleAddressResponse : BaseMainResponse {
     
-    var plusCode : SWGooglePlusCode?
-    var results : [SWGoogleResult]?
-    var status : String?
+    public var plusCode : SWGooglePlusCode?
+    public var results : [SWGoogleResult]?
+    public var status : String?
     
     enum CodingKeys: String, CodingKey {
         case plusCode = "plus_code"
@@ -20,7 +20,7 @@ class SWGoogleAddressResponse : BaseMainResponse {
         case status = "status"
     }
     
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         plusCode = try SWGooglePlusCode(from: decoder)
         results = try values.decodeIfPresent([SWGoogleResult].self, forKey: .results)

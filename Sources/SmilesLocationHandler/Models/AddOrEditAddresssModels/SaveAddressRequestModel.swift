@@ -21,7 +21,6 @@ class SaveAddressRequestModel: SmilesBaseMainRequest {
 
     init(userInfo: AppUserInfo? = nil, address: Address? = nil) {
         super.init()
-        
         self.userInformation = userInfo
         self.address = address
     }
@@ -39,7 +38,7 @@ class SaveAddressRequestModel: SmilesBaseMainRequest {
 
    
 
-    func asDictionary(dictionary: [String: Any]) -> [String: Any] {
+    public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
         let encoder = DictionaryEncoder()
         guard let encoded = try? encoder.encode(self) as [String: Any] else {
             return [:]

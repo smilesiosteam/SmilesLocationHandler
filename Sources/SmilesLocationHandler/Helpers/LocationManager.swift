@@ -109,6 +109,10 @@ public final class LocationManager: NSObject {
         lastLocation = nil
     }
     
+    public func startUpdatingLocation() {
+        getLocation { (_, _) in }
+    }
+    
     //MARK:- Public Methods
     
     /// Check if location is enabled on device or not
