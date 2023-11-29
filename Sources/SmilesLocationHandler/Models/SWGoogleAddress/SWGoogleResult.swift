@@ -5,13 +5,13 @@
 //  Created by Abdul Rehman Amjad on 17/11/2023.
 //
 
-class SWGoogleResult : Codable {
+public class SWGoogleResult : Codable {
 
-    let addressComponents : [SWGoogleAddressComponent]?
-    let formattedAddress : String?
-    let geometry : SWGoogleGeometry?
-    let placeId : String?
-    let types : [String]?
+    public let addressComponents : [SWGoogleAddressComponent]?
+    public let formattedAddress : String?
+    public let geometry : SWGoogleGeometry?
+    public let placeId : String?
+    public let types : [String]?
 
 
     enum CodingKeys: String, CodingKey {
@@ -21,7 +21,7 @@ class SWGoogleResult : Codable {
         case placeId = "place_id"
         case types = "types"
     }
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         addressComponents = try values.decodeIfPresent([SWGoogleAddressComponent].self, forKey: .addressComponents)
         formattedAddress = try values.decodeIfPresent(String.self, forKey: .formattedAddress)

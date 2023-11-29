@@ -7,14 +7,14 @@
 
 import Foundation
 
-class SearchedLocationDetails: Codable {
+public class SearchedLocationDetails: Codable {
     
-    let addressId: String
-    let title: String
-    let subTitle: String
-    var latitude: Double
-    var longitude: Double
-    var formattedAddress: String?
+    public let addressId: String
+    public let title: String
+    public let subTitle: String
+    public var latitude: Double
+    public var longitude: Double
+    public var formattedAddress: String?
     
     enum CodingKeys: CodingKey {
         case addressId
@@ -25,7 +25,7 @@ class SearchedLocationDetails: Codable {
         case formattedAddress
     }
     
-    init(addressId: String = "", title: String = "", subTitle: String = "", latitude: Double = 0, longitude: Double = 0, formattedAddress: String? = nil) {
+    public init(addressId: String = "", title: String = "", subTitle: String = "", latitude: Double = 0, longitude: Double = 0, formattedAddress: String? = nil) {
         self.addressId = addressId
         self.title = title
         self.subTitle = subTitle

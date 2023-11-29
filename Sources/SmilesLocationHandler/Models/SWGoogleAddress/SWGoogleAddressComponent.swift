@@ -7,11 +7,11 @@
 
 import Foundation
 
-class SWGoogleAddressComponent : Codable {
+public class SWGoogleAddressComponent : Codable {
 
-    let longName : String?
-    let shortName : String?
-    let types : [String]?
+    public let longName : String?
+    public let shortName : String?
+    public let types : [String]?
 
 
     enum CodingKeys: String, CodingKey {
@@ -19,7 +19,7 @@ class SWGoogleAddressComponent : Codable {
         case shortName = "short_name"
         case types = "types"
     }
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         longName = try values.decodeIfPresent(String.self, forKey: .longName)
         shortName = try values.decodeIfPresent(String.self, forKey: .shortName)

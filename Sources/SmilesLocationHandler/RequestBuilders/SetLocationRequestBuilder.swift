@@ -13,6 +13,9 @@ enum SetLocationRequestBuilder {
     
     // organise all the end points here for clarity
     case getCities(request: GetCitiesRequest)
+    case updateLocation(request: RegisterLocationRequest)
+    case registerLocation(request: RegisterLocationRequest)
+    case getUserLocation(request: RegisterLocationRequest)
     
     // gave a default timeout but can be different for each.
     var requestTimeOut: Int {
@@ -24,6 +27,12 @@ enum SetLocationRequestBuilder {
         switch self {
         case .getCities:
             return .POST
+        case .updateLocation:
+            return .POST
+        case .registerLocation:
+            return .POST
+        case .getUserLocation:
+            return .GET
         }
     }
     
@@ -41,6 +50,12 @@ enum SetLocationRequestBuilder {
     var requestBody: Encodable? {
         switch self {
         case .getCities(let request):
+            return request
+        case .updateLocation(let request):
+            return request
+        case .registerLocation(let request):
+            return request
+        case .getUserLocation(let request):
             return request
         }
     }

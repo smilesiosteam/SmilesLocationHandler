@@ -7,12 +7,12 @@
 
 import Foundation
 
-class SWGoogleGeometry : Codable {
+public class SWGoogleGeometry : Codable {
 
-    let bounds : SWGoogleBound?
-    let location : SWGoogleNortheast?
-    let locationType : String?
-    let viewport : SWGoogleBound?
+    public let bounds : SWGoogleBound?
+    public let location : SWGoogleNortheast?
+    public let locationType : String?
+    public let viewport : SWGoogleBound?
 
 
     enum CodingKeys: String, CodingKey {
@@ -21,7 +21,7 @@ class SWGoogleGeometry : Codable {
         case locationType = "location_type"
         case viewport
     }
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         bounds = try SWGoogleBound(from: decoder)
         location = try SWGoogleNortheast(from: decoder)

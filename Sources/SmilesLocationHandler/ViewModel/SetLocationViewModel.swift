@@ -10,19 +10,24 @@ import Combine
 import NetworkingLayer
 import SmilesUtilities
 import CoreLocation
+import SmilesBaseMainRequestManager
 
-class SetLocationViewModel: NSObject {
+public class SetLocationViewModel: NSObject {
     
     // MARK: - INPUT. View event methods
-    enum Input {
+    public enum Input {
         case getCities
         case reverseGeocodeLatitudeAndLongitudeForAddress(latitude: String, longitude: String)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
         case searchLocation(location: String, isFromGoogle: Bool)
         case getLocationDetails(locationId: String, isFromGoogle: Bool)
+        case registerUserLocation(location: CLLocation?)
+        case updateUserLocation(location: CLLocation, withUserInfo: Bool)
+        case getUserLocation(location: CLLocation? = nil)
+        case getLocationName(coordinates: CLLocation, withSubLocality: Bool = false)
     }
     
-    enum Output {
+    public enum Output {
         case fetchCitiesDidSucceed(response: GetCitiesResponse)
         case fetchCitiesDidFail(error: Error)
         
@@ -37,6 +42,18 @@ class SetLocationViewModel: NSObject {
         
         case fetchLocationDetailsDidSucceed(response: SearchedLocationDetails)
         case fetchLocationDetailsDidFail(error: Error?)
+        
+        case registerUserLocationDidSucceed(response: RegisterLocationResponse, location: CLLocation?)
+        case registerUserLocationDidFail(error: Error)
+        
+        case updateUserLocationDidSucceed(response : RegisterLocationResponse)
+        case updateUserLocationDidFail(error: Error)
+        
+        case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
+        case getUserLocationDidFail(error: Error)
+        
+        case fetchLocationNameDidSucceed(response: String)
+        case fetchLocationNameDidFail(error: Error? = nil)
     }
     
     // MARK: -- Variables
@@ -51,7 +68,7 @@ class SetLocationViewModel: NSObject {
 // MARK: - INPUT. View event methods
 extension SetLocationViewModel {
     
-    func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
+    public func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
         output = PassthroughSubject<Output, Never>()
         input.sink { [weak self] event in
             switch event {
@@ -69,6 +86,14 @@ extension SetLocationViewModel {
             case .getLocationDetails(let locationId, let isFromGoogle):
                 self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
                 self?.locationServicesInput.send(.getLocationDetails(locationId: locationId, isFromGoogle: isFromGoogle))
+            case .registerUserLocation(let location):
+                self?.registerUserLocation(location)
+            case .updateUserLocation(let location, let withUserInfo):
+                self?.updateUserLocation(location, withUserInfo: withUserInfo)
+            case .getUserLocation(let location):
+                self?.getUserLocation(location)
+            case .getLocationName(let coordinates, let withSubLocality):
+                self?.getLocationName(from: coordinates, withSubLocality: withSubLocality)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -100,6 +125,125 @@ extension SetLocationViewModel {
                 self?.output.send(.fetchCitiesDidSucceed(response: response))
             }
             .store(in: &cancellables)
+    }
+    
+    private func registerUserLocation(_ location: CLLocation?) {
+        
+        let request = setupRegisterLocationRequest(location: location)
+        
+        let service = SetLocationRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            baseUrl: AppCommonMethods.serviceBaseUrl,
+            endPoint: .registerLocation
+        )
+        
+        service.registerUserLocationService(request: request)
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(_):
+                    self?.output.send(.registerUserLocationDidFail(error:NetworkError.noResponse("location_registered_fail")))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                self?.output.send(.registerUserLocationDidSucceed(response: response, location: location))
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func updateUserLocation(_ location: CLLocation, withUserInfo: Bool) {
+        
+        let request = RegisterLocationRequest()
+        request.isGuestUser = AppCommonMethods.isGuestUser
+        request.userInfo = withUserInfo ? SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo : AppUserInfo()
+        if AppCommonMethods.isGuestUser {
+            request.userInfo = AppUserInfo()
+        }
+        request.userInfo?.latitude = String(location.coordinate.latitude)
+        request.userInfo?.longitude = String(location.coordinate.longitude)
+        
+        let service = SetLocationRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            baseUrl: AppCommonMethods.serviceBaseUrl,
+            endPoint: .updateUserLocation
+        )
+        
+        service.updateUserLocationService(request: request)
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(_):
+                    self?.output.send(.updateUserLocationDidFail(error:NetworkError.noResponse("no response")))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                self?.output.send(.updateUserLocationDidSucceed(response: response))
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func getUserLocation(_ location: CLLocation?) {
+        
+        let request = setupRegisterLocationRequest(location: location)
+        
+        let service = SetLocationRepository(
+            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
+            baseUrl: AppCommonMethods.serviceBaseUrl,
+            endPoint: .getUserLocation
+        )
+        
+        service.getUserLocationService(request: request)
+            .sink { [weak self] completion in
+                debugPrint(completion)
+                switch completion {
+                case .failure(_):
+                    self?.output.send(.getUserLocationDidFail(error:NetworkError.noResponse("location_registered_fail")))
+                case .finished:
+                    debugPrint("nothing much to do here")
+                }
+            } receiveValue: { [weak self] response in
+                self?.output.send(.getUserLocationDidSucceed(response: response,location: location))
+            }
+            .store(in: &cancellables)
+        
+    }
+    
+    private func setupRegisterLocationRequest(location: CLLocation?) -> RegisterLocationRequest {
+        
+        let registerRequest = RegisterLocationRequest()
+        registerRequest.isGuestUser = AppCommonMethods.isGuestUser
+        registerRequest.userInfo = AppCommonMethods.isGuestUser ? AppUserInfo() : SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo
+        var latitude = AppCommonMethods.isGuestUser ? "25.194985" : ""
+        var longitude = AppCommonMethods.isGuestUser ? "55.278414" : ""
+        if let location {
+            latitude = String(location.coordinate.latitude)
+            longitude = String(location.coordinate.longitude)
+        }
+        registerRequest.userInfo?.latitude = latitude
+        registerRequest.userInfo?.longitude = longitude
+        return registerRequest
+        
+    }
+    
+    private func getLocationName(from location: CLLocation, withSubLocality: Bool){
+        
+        LocationManager.shared.reverseGeocoding = false
+        LocationManager.shared.getReverseGeoCodedLocation(location: location) { [weak self] (location, placemark, error) in
+            if let place = placemark {
+                if !withSubLocality {
+                    LocationStateSaver.getLocationInfo()?.cityName = place.locality.asStringOrEmpty()
+                }
+                let subLocality = withSubLocality ? place.subLocality.asStringOrEmpty() : (LocationStateSaver.getLocationInfo()?.location ?? "")
+                self?.output.send(.fetchLocationNameDidSucceed(response: subLocality + ", " + place.locality.asStringOrEmpty()))
+            } else{
+                self?.output.send(.fetchLocationNameDidFail())
+            }
+        }
+        
     }
     
 }

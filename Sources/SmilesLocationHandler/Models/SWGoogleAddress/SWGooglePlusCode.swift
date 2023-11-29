@@ -8,10 +8,10 @@
 import Foundation
 import NetworkingLayer
 
-class SWGooglePlusCode : BaseMainResponse {
+public class SWGooglePlusCode : BaseMainResponse {
 
-    var compoundCode : String?
-    var globalCode : String?
+    public var compoundCode : String?
+    public var globalCode : String?
 
 
     enum CodingKeys: String, CodingKey {

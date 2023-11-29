@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum OSMLocationType: String {
+public enum OSMLocationType: String {
     case node = "node"
     case way = "way"
     case relation = "relation"

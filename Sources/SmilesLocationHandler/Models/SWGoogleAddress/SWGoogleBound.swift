@@ -7,17 +7,17 @@
 
 import Foundation
 
-class SWGoogleBound : Codable {
+public class SWGoogleBound : Codable {
 
-    let northeast : SWGoogleNortheast?
-    let southwest : SWGoogleNortheast?
+    public let northeast : SWGoogleNortheast?
+    public let southwest : SWGoogleNortheast?
 
 
     enum CodingKeys: String, CodingKey {
         case northeast
         case southwest
     }
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let _ = try decoder.container(keyedBy: CodingKeys.self)
         northeast = try SWGoogleNortheast(from: decoder)
         southwest = try SWGoogleNortheast(from: decoder)

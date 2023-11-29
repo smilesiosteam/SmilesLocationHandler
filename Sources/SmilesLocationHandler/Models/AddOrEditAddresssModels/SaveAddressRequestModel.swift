@@ -8,9 +8,9 @@
 import Foundation
 import SmilesUtilities
 
-class SaveAddressRequestModel: Codable {
-    var userInfo: SmilesUserInfo?
-    var address: Address?
+public class SaveAddressRequestModel: Codable {
+    public var userInfo: SmilesUserInfo?
+    public var address: Address?
 
     enum CodingKeys: String, CodingKey {
         case userInfo
@@ -19,13 +19,13 @@ class SaveAddressRequestModel: Codable {
 
     init() {}
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         userInfo = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInfo)
         address = try values.decodeIfPresent(Address.self, forKey: .address)
     }
 
-    func asDictionary(dictionary: [String: Any]) -> [String: Any] {
+    public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
         let encoder = DictionaryEncoder()
         guard let encoded = try? encoder.encode(self) as [String: Any] else {
             return [:]

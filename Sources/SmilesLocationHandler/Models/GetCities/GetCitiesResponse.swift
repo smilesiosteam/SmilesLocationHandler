@@ -8,9 +8,9 @@
 import UIKit
 import NetworkingLayer
 
-class GetCitiesResponse: BaseMainResponse {
+public class GetCitiesResponse: BaseMainResponse {
     
-    var cities: [GetCitiesModel]?
+    public var cities: [GetCitiesModel]?
 
     enum CodingKeys: String, CodingKey {
         case cities
@@ -26,15 +26,15 @@ class GetCitiesResponse: BaseMainResponse {
     
 }
 
-class GetCitiesModel: Codable {
+public class GetCitiesModel: Codable {
     
-    var cityId: Int?
-    var cityLatitude: Double?
-    var cityLongitude: Double?
-    var cityName: String?
-    var isSelected: Bool = false
+    public var cityId: Int?
+    public var cityLatitude: Double?
+    public var cityLongitude: Double?
+    public var cityName: String?
+    public var isSelected: Bool = false
 
-    init(cityId: Int? = nil, cityLatitude: Double? = nil, cityLongitude: Double? = nil, cityName: String? = nil) {
+    public init(cityId: Int? = nil, cityLatitude: Double? = nil, cityLongitude: Double? = nil, cityName: String? = nil) {
         self.cityId = cityId
         self.cityLatitude = cityLatitude
         self.cityLongitude = cityLongitude
@@ -47,7 +47,7 @@ class GetCitiesModel: Codable {
         case cityName
     }
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         cityId = try values.decodeIfPresent(Int.self, forKey: .cityId)
         cityLatitude = try values.decodeIfPresent(Double.self, forKey: .cityLatitude)
