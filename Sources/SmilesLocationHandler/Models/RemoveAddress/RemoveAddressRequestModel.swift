@@ -6,22 +6,35 @@
 //
 
 import SmilesUtilities
+import SmilesBaseMainRequestManager
 
-public class RemoveAddressRequestModel: Codable {
-    public var userInfo: SmilesUserInfo?
-    public var addressId: Int?
+public class RemoveAddressRequestModel: SmilesBaseMainRequest {
+    public var userInformation: SmilesUserInfo? = nil
+    public var addressId: Int? = nil
 
     enum CodingKeys: String, CodingKey {
-        case userInfo
+        case userInformation = "userInfo"
         case addressId
     }
 
-    public init() {}
+    public init(userInformation: SmilesUserInfo? = nil, addressId: Int? = nil) {
+        super.init()
+        self.userInformation = userInformation
+        self.addressId = addressId
+    }
 
     public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        userInfo = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInfo)
+        userInformation = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInformation)
         addressId = try values.decodeIfPresent(Int.self, forKey: .addressId)
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(addressId, forKey: .addressId)
+        try container.encodeIfPresent(userInformation, forKey: .userInformation)
     }
 
     public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
@@ -34,19 +47,27 @@ public class RemoveAddressRequestModel: Codable {
 }
 
 public class SmilesUserInfo: Codable {
-    public var mambaId: String?
-    public var locationId: String?
+    public var mambaId: String? = nil
+    public var locationId: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case mambaId
         case locationId
     }
 
-    public init() {}
-
-    public required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        mambaId = try values.decodeIfPresent(String.self, forKey: .mambaId)
-        locationId = try values.decodeIfPresent(String.self, forKey: .locationId)
+    public init(mambaId: String? = nil, locationId: String? = nil) {
+        
+        self.mambaId = mambaId
+        self.locationId = locationId
     }
+    required public init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+    public  func encode(to encoder: Encoder) throws {
+        
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(mambaId, forKey: .mambaId)
+        try container.encodeIfPresent(locationId, forKey: .locationId)
+    }
+    
 }

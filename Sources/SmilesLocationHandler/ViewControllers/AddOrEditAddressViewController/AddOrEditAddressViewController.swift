@@ -309,11 +309,13 @@ import Combine
         } else {
             address.addressId = nil
         }
+        
         address.nickname = selectedNickName?.lowercased().contains("other".lowercased()) ?? false ? nickNameTextField.text : selectedNickName
         address.street = streetTextField.text
         address.building = buildingNameTextField.text
         address.flatNo = flatNoTextField.text
         address.landmark = landmarkTextField.text
+        
         if let addressob = addressObj {
             address.latitude = addressob.latitude
             address.longitude = addressob.longitude
@@ -323,6 +325,7 @@ import Combine
             address.longitude = String(selectedLocation?.long ?? 0)
             address.locationName = selectedLocation?.title
         }
+        
         self.input.send(.saveAddress(address: address))
         
     }

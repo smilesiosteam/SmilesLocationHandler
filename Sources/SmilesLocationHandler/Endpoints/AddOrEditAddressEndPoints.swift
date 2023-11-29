@@ -20,15 +20,15 @@ extension AddOrEditAddressEndPoints {
     var serviceEndPoints: String {
         switch self {
         case .getLocationsNickName:
-            return EndPoints.saveAddressEndpoint
+            return "addressBook/v1/save-update-address"
         case .saveAddress:
-            return EndPoints.saveAddressEndpoint
+            return "addressBook/v1/save-update-address"
         case .getAllAddresses:
-            return EndPoints.getAllAdressesEndpoint
+            return "addressBook/v1/get-all-addresses"
         case .removeAddress:
-            return EndPoints.removeAddressEndpoint
+            return "addressBook/v1/remove-address"
         case .saveDefaultAddress:
-            return EndPoints.saveDefaultAddressEndpoint
+            return "addressBook/v1/save-default-address"
         }
     }
 }
