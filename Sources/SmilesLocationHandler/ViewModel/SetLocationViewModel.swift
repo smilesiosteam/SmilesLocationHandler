@@ -24,7 +24,7 @@ public class SetLocationViewModel: NSObject {
         case registerUserLocation(location: CLLocation?)
         case updateUserLocation(location: CLLocation, withUserInfo: Bool)
         case getUserLocation(location: CLLocation? = nil)
-        case getLocationName(coordinates: CLLocation, withSubLocality: Bool = false)
+        case getLocationName(coordinates: CLLocation)
     }
     
     public enum Output {
@@ -92,8 +92,8 @@ extension SetLocationViewModel {
                 self?.updateUserLocation(location, withUserInfo: withUserInfo)
             case .getUserLocation(let location):
                 self?.getUserLocation(location)
-            case .getLocationName(let coordinates, let withSubLocality):
-                self?.getLocationName(from: coordinates, withSubLocality: withSubLocality)
+            case .getLocationName(let coordinates):
+                self?.getLocationName(from: coordinates)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -223,22 +223,21 @@ extension SetLocationViewModel {
             latitude = String(location.coordinate.latitude)
             longitude = String(location.coordinate.longitude)
         }
+        if registerRequest.userInfo == nil {
+            registerRequest.userInfo = AppUserInfo()
+        }
         registerRequest.userInfo?.latitude = latitude
         registerRequest.userInfo?.longitude = longitude
         return registerRequest
         
     }
     
-    private func getLocationName(from location: CLLocation, withSubLocality: Bool){
+    private func getLocationName(from location: CLLocation){
         
         LocationManager.shared.reverseGeocoding = false
         LocationManager.shared.getReverseGeoCodedLocation(location: location) { [weak self] (location, placemark, error) in
             if let place = placemark {
-                if !withSubLocality {
-                    LocationStateSaver.getLocationInfo()?.cityName = place.locality.asStringOrEmpty()
-                }
-                let subLocality = withSubLocality ? place.subLocality.asStringOrEmpty() : (LocationStateSaver.getLocationInfo()?.location ?? "")
-                self?.output.send(.fetchLocationNameDidSucceed(response: subLocality + ", " + place.locality.asStringOrEmpty()))
+                self?.output.send(.fetchLocationNameDidSucceed(response: place.subLocality.asStringOrEmpty() + ", " + place.locality.asStringOrEmpty()))
             } else{
                 self?.output.send(.fetchLocationNameDidFail())
             }
