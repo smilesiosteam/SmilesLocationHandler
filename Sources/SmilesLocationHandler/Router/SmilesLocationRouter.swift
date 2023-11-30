@@ -126,6 +126,12 @@ public final class SmilesLocationRouter {
         
     }
     
+    public func pushUpdateLocationVC() {
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation) as! UpdateLocationViewController
+        vc.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     func popVC() {
         navigationController?.popViewController(animated: true)
     }

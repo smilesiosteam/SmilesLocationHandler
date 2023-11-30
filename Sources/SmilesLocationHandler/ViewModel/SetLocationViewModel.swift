@@ -216,18 +216,18 @@ extension SetLocationViewModel {
         
         let registerRequest = RegisterLocationRequest()
         registerRequest.isGuestUser = AppCommonMethods.isGuestUser
-        registerRequest.userInfo = AppCommonMethods.isGuestUser ? AppUserInfo() : SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo
+        registerRequest.locationInfo = AppCommonMethods.isGuestUser ? AppUserInfo() : SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo
         var latitude = AppCommonMethods.isGuestUser ? "25.194985" : ""
         var longitude = AppCommonMethods.isGuestUser ? "55.278414" : ""
         if let location {
             latitude = String(location.coordinate.latitude)
             longitude = String(location.coordinate.longitude)
         }
-        if registerRequest.userInfo == nil {
-            registerRequest.userInfo = AppUserInfo()
+        if registerRequest.locationInfo == nil {
+            registerRequest.locationInfo = AppUserInfo()
         }
-        registerRequest.userInfo?.latitude = latitude
-        registerRequest.userInfo?.longitude = longitude
+        registerRequest.locationInfo?.latitude = latitude
+        registerRequest.locationInfo?.longitude = longitude
         return registerRequest
         
     }

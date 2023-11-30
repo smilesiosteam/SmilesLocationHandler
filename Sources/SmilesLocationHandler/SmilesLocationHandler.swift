@@ -194,6 +194,7 @@ extension SmilesLocationHandler {
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationRegistered)
             LocationStateSaver.saveLocationInfo(userInfo)
+            self.locationsUseCaseInput.send(.getPlaceFromLocation(isUpdated: true))
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         }
         
