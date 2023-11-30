@@ -9,7 +9,7 @@ import Foundation
 import SmilesUtilities
 import SmilesBaseMainRequestManager
 
-class SaveAddressRequestModel: SmilesBaseMainRequest {
+public class SaveAddressRequestModel: SmilesBaseMainRequest {
     
     var userInformation: AppUserInfo? = nil
     var address: Address? = nil
@@ -29,7 +29,7 @@ class SaveAddressRequestModel: SmilesBaseMainRequest {
         fatalError("init(from:) has not been implemented")
     }
     
-    override func encode(to encoder: Encoder) throws {
+    public override func encode(to encoder: Encoder) throws {
         try super.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(address, forKey: .address)
