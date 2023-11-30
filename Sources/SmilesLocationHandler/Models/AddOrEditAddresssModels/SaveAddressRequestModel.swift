@@ -7,23 +7,36 @@
 
 import Foundation
 import SmilesUtilities
+import SmilesBaseMainRequestManager
 
-public class SaveAddressRequestModel: Codable {
-    public var userInfo: SmilesUserInfo?
-    public var address: Address?
+public class SaveAddressRequestModel: SmilesBaseMainRequest {
+    
+    var userInformation: AppUserInfo? = nil
+    var address: Address? = nil
 
     enum CodingKeys: String, CodingKey {
-        case userInfo
+        case userInformation = "userInfo"
         case address
     }
 
-    init() {}
-
-    public required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        userInfo = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInfo)
-        address = try values.decodeIfPresent(Address.self, forKey: .address)
+    init(userInfo: AppUserInfo? = nil, address: Address? = nil) {
+        super.init()
+        self.userInformation = userInfo
+        self.address = address
     }
+    
+    required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(address, forKey: .address)
+        try container.encodeIfPresent(userInformation, forKey: .userInformation)
+    }
+
+   
 
     public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
         let encoder = DictionaryEncoder()

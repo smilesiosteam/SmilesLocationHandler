@@ -57,7 +57,7 @@ extension AddOrEditAddressViewModel {
                 self?.addressOperationUseCaseInput.send(.getLocationsNickName)
             case .getLocationName(let lat, let long):
                 self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
-                self?.getLocationName(lat: lat, long: long)
+                self?.setLocationInput.send(.getLocationName(coordinates:CLLocation(latitude: Double(lat) ?? 0.0, longitude: Double(long) ?? 0.0)))
             case .saveAddress(let address):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.saveAddress(address: address))
@@ -115,11 +115,6 @@ extension AddOrEditAddressViewModel {
                 default: break
                 }
             }.store(in: &cancellables)
-    }
-    
-    private func getLocationName(lat: String, long: String) {
-        let location = CLLocation(latitude: Double(lat) ?? 0, longitude: Double(long) ?? 0)
-        setLocationInput.send(.getLocationName(coordinates: location))
     }
        
 }

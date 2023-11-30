@@ -81,7 +81,7 @@ extension AddressOperationViewModel {
         let request = SaveAddressRequestModel()
         request.address = nil
         if let userInfo = LocationStateSaver.getLocationInfo() {
-            let requestUserInfo = SmilesUserInfo()
+            let requestUserInfo = AppUserInfo()
             requestUserInfo.mambaId = userInfo.mambaId
             requestUserInfo.locationId = userInfo.locationId
             request.userInfo = requestUserInfo
@@ -104,20 +104,24 @@ extension AddressOperationViewModel {
             }
             .store(in: &cancellables)
     }
+    
     private func saveAddress(address: Address?) {
-        let request = SaveAddressRequestModel()
-        
+       
+        let appuserInfo = AppUserInfo()
         if let userInfo = LocationStateSaver.getLocationInfo() {
-            let requestUserInfo = SmilesUserInfo()
-            requestUserInfo.mambaId = userInfo.mambaId
-            requestUserInfo.locationId = userInfo.locationId
-            request.userInfo = requestUserInfo
+            appuserInfo.mambaId = userInfo.mambaId
+            appuserInfo.locationId = userInfo.locationId
+            appuserInfo.latitude = address?.latitude
+            appuserInfo.longitude = address?.longitude
+            
         }
-        request.address = address
+        let request = SaveAddressRequestModel(userInfo: appuserInfo,address: address)
+        
         let service = EditOrAddAddressServicesRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
             endPoint: AddOrEditAddressEndPoints.saveAddress
         )
+       
         service.saveAddress(request: request)
             .sink { [weak self] completion in
                 debugPrint(completion)
@@ -132,6 +136,7 @@ extension AddressOperationViewModel {
             }
             .store(in: &cancellables)
     }
+    
     private func getAllAddress(isGuestUser: Bool = false) {
         let request = RegisterLocationRequest()
         request.isGuestUser = isGuestUser
@@ -164,7 +169,7 @@ extension AddressOperationViewModel {
         if let userInfo = LocationStateSaver.getLocationInfo() {
             let requestUserInfo = SmilesUserInfo()
             requestUserInfo.mambaId = userInfo.mambaId
-            request.userInfo = requestUserInfo
+            request.userInformation = requestUserInfo
         }
         
         let service = EditOrAddAddressServicesRepository(
@@ -186,13 +191,14 @@ extension AddressOperationViewModel {
             }
             .store(in: &cancellables)
     }
+    
     private func saveDefaultAddress(location: SearchLocationResponseModel) {
         
         let request = RemoveAddressRequestModel()
         if let userInfo = LocationStateSaver.getLocationInfo() {
             let requestUserInfo = SmilesUserInfo()
             requestUserInfo.mambaId = userInfo.mambaId
-            request.userInfo = requestUserInfo
+            request.userInformation = requestUserInfo
         }
         request.addressId = Int(location.addressId ?? "")
         
