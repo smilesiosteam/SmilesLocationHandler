@@ -105,11 +105,12 @@ public final class SmilesLocationRouter {
         }
     }
 
-    func pushUpdateLocationViewController(with navigationController: UINavigationController) {
-        let vc = SmilesLocationConfigurator.create(type: .updateLocation)
+    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil) {
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate))
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
+    
     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, locationHandler: ((SearchLocationResponseModel) -> Void)?) {
         
         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, locationHandler: locationHandler)) as! ConfirmUserLocationViewController
@@ -124,12 +125,6 @@ public final class SmilesLocationRouter {
         let vc = SmilesLocationConfigurator.create(type: .searchLocation(locationSelected: locationSelected)) as! SearchLocationViewController
         navigationController?.pushViewController(vc, animated: true)
         
-    }
-    
-    public func pushUpdateLocationVC() {
-        let vc = SmilesLocationConfigurator.create(type: .updateLocation) as! UpdateLocationViewController
-        vc.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(vc, animated: true)
     }
     
     func popVC() {

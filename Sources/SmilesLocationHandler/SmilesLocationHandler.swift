@@ -213,9 +213,7 @@ extension SmilesLocationHandler {
             } else{
                 fireEvent?(Constants.AnalyticsEvent.locationRegistered)
                 LocationStateSaver.saveLocationInfo(userInfo)
-                locationName = userInfo.location ?? "---"
-                locationNickName = userInfo.nickName ?? "---"
-                self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+                self.locationsUseCaseInput.send(.getPlaceFromLocation(isUpdated: true))
             }
         }
         

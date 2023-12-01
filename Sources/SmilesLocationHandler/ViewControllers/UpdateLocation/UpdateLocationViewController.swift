@@ -33,9 +33,11 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private lazy var viewModel: ManageAddressViewModel = {
         return ManageAddressViewModel()
     }()
+    private weak var delegate: UpdateUserLocationDelegate?
     // MARK: - Methods
-    init() {
+    init(delegate: UpdateUserLocationDelegate? = nil) {
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
+        self.delegate = delegate
     }
     
     required init?(coder: NSCoder) {
@@ -229,7 +231,7 @@ extension UpdateLocationViewController {
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
-                    var model = ToastModel()
+                    let model = ToastModel()
                     model.title = "address_has_been_deleted".localizedString
                     model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
                     self?.showToast(model: model)

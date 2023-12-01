@@ -19,7 +19,8 @@ struct SmilesLocationConfigurator {
         case addOrEditAddress
         case confirmUserLocation(selectedCity: GetCitiesModel?, locationHandler: ((SearchLocationResponseModel) -> Void)?)
         case searchLocation(locationSelected: ((SearchedLocationDetails) -> Void))
-        case updateLocation
+        case updateLocation(delegate: UpdateUserLocationDelegate?)
+        
     }
     
     static func create(type: ConfiguratorType) -> UIViewController {
@@ -41,8 +42,8 @@ struct SmilesLocationConfigurator {
         case .addOrEditAddress:
             let vc = AddOrEditAddressViewController()
             return vc
-        case .updateLocation:
-            let vc = UpdateLocationViewController()
+        case .updateLocation(let delegate):
+            let vc = UpdateLocationViewController(delegate: delegate)
             return vc
         }
     }
