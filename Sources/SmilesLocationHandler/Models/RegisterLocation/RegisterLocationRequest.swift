@@ -11,9 +11,9 @@ import SmilesBaseMainRequestManager
 
 public class RegisterLocationRequest: SmilesBaseMainRequest {
     
-    public var locationInfo: AppUserInfo?
-    public var menuItemType: String?
-    public var isGuestUser: Bool?
+    public var locationInfo: AppUserInfo? = nil
+    public var menuItemType: String? = nil
+    public var isGuestUser: Bool? = nil
 
     enum CodingKeys: String, CodingKey {
         case userInfo
@@ -21,8 +21,16 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         case isGuestUser
     }
     
-    public override init() {
+
+   public init(locationInfo: AppUserInfo? = nil, menuItemType: String? = nil, isGuestUser: Bool = false) {
         super.init()
+        self.locationInfo = locationInfo
+        self.menuItemType = menuItemType
+        self.isGuestUser = isGuestUser
+    }
+    
+    required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
     }
     
     override public func encode(to encoder: Encoder) throws {
@@ -31,13 +39,6 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         try container.encodeIfPresent(self.menuItemType, forKey: .menuItemType)
         try container.encodeIfPresent(self.isGuestUser, forKey: .isGuestUser)
         try container.encodeIfPresent(self.locationInfo, forKey: .userInfo)
-    }
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        menuItemType = try values.decodeIfPresent(String.self, forKey: .menuItemType)
-        isGuestUser = try values.decodeIfPresent(Bool.self, forKey: .isGuestUser)
     }
     
     public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
