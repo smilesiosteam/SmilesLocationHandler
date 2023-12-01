@@ -206,6 +206,8 @@ extension SetLocationViewModel {
                     debugPrint("nothing much to do here")
                 }
             } receiveValue: { [weak self] response in
+                response.userInfo?.locationId = LocationStateSaver.getLocationInfo()?.locationId
+                response.userInfo?.mambaId = LocationStateSaver.getLocationInfo()?.mambaId
                 self?.output.send(.getUserLocationDidSucceed(response: response,location: location))
             }
             .store(in: &cancellables)
