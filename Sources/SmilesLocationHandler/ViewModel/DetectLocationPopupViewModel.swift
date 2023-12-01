@@ -20,7 +20,7 @@ import Foundation
 
 
 
-public enum ControllerType {
+public enum LocationPopUpType {
     case detectLocation
     case automaticallyDetectLocation
     case deleteWorkAddress(message: String? = nil)
@@ -29,7 +29,7 @@ public enum ControllerType {
 
 final class DetectLocationPopupViewModelFactory {
     
-    static func createViewModel(for controller: ControllerType) -> DetectLocationPopupViewModel {
+    static func createViewModel(for controller: LocationPopUpType) -> DetectLocationPopupViewModel {
         switch controller {
         case .detectLocation:
             return createViewModelForDetectLocation()

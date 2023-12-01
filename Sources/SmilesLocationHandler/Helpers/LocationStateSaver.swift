@@ -93,4 +93,9 @@ import SmilesBaseMainRequestManager
             return nil
         }
     }
+    
+    @objc public func isLocationEnabled() -> Bool {
+        return SmilesLocationHandler.isLocationEnabled
+    }
+    
 }

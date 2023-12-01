@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 30/05/2023.
 //
@@ -11,7 +11,7 @@ import SmilesBaseMainRequestManager
 
 public class RegisterLocationRequest: SmilesBaseMainRequest {
     
-    public var userInformation: AppUserInfo? = nil
+    public var locationInfo: AppUserInfo? = nil
     public var menuItemType: String? = nil
     public var isGuestUser: Bool? = nil
 
@@ -21,9 +21,10 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         case isGuestUser
     }
     
-   public init(userInformation: AppUserInfo? = nil, menuItemType: String? = nil, isGuestUser: Bool = false) {
+
+   public init(locationInfo: AppUserInfo? = nil, menuItemType: String? = nil, isGuestUser: Bool = false) {
         super.init()
-        self.userInformation = userInformation
+        self.locationInfo = locationInfo
         self.menuItemType = menuItemType
         self.isGuestUser = isGuestUser
     }
@@ -32,12 +33,12 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         fatalError("init(from:) has not been implemented")
     }
     
-    public override func encode(to encoder: Encoder) throws {
+    override public func encode(to encoder: Encoder) throws {
         try super.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(menuItemType, forKey: .menuItemType)
-        try container.encodeIfPresent(userInformation, forKey: .userInfo)
-        try container.encodeIfPresent(isGuestUser, forKey: .isGuestUser)
+        try container.encodeIfPresent(self.menuItemType, forKey: .menuItemType)
+        try container.encodeIfPresent(self.isGuestUser, forKey: .isGuestUser)
+        try container.encodeIfPresent(self.locationInfo, forKey: .userInfo)
     }
     
     public func asDictionary(dictionary: [String: Any]) -> [String: Any] {
@@ -47,4 +48,5 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         }
         return encoded.mergeDictionaries(dictionary: dictionary)
     }
+    
 }

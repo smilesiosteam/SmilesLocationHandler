@@ -32,7 +32,7 @@ enum SetLocationRequestBuilder {
         case .registerLocation:
             return .POST
         case .getUserLocation:
-            return .GET
+            return .POST
         }
     }
     
