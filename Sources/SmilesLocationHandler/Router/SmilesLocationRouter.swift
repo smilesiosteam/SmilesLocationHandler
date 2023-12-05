@@ -98,7 +98,7 @@ public final class SmilesLocationRouter {
         if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
             vc.addressObj = addressObject
             if let location = selectedLocation {
-                vc.selectedLocation = selectedLocation
+                vc.selectedLocation = location
             }
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)

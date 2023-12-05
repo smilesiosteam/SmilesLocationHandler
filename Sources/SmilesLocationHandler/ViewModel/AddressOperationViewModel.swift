@@ -19,7 +19,7 @@ class AddressOperationViewModel: NSObject {
         case getLocationsNickName
         case saveAddress(address: Address?)
         case getAllAddress
-        case removeAddress(address_id: Int?)
+        case removeAddress(address_id: String?)
         case saveDefaultAddress(_ location: SearchLocationResponseModel)
     }
     
@@ -107,15 +107,7 @@ extension AddressOperationViewModel {
     
     private func saveAddress(address: Address?) {
        
-        let appuserInfo = AppUserInfo()
-        if let userInfo = LocationStateSaver.getLocationInfo() {
-            appuserInfo.mambaId = userInfo.mambaId
-            appuserInfo.locationId = userInfo.locationId
-            appuserInfo.latitude = address?.latitude
-            appuserInfo.longitude = address?.longitude
-            
-        }
-        let request = SaveAddressRequestModel(userInfo: appuserInfo,address: address)
+        let request = SaveAddressRequestModel(userInfo: LocationStateSaver.getLocationInfo(),address: address)
         
         let service = EditOrAddAddressServicesRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
@@ -163,7 +155,7 @@ extension AddressOperationViewModel {
             .store(in: &cancellables)
     }
     
-    private func removeAddress(address_id: Int?) {
+    private func removeAddress(address_id: String?) {
         let request = RemoveAddressRequestModel()
         request.addressId = address_id
         if let userInfo = LocationStateSaver.getLocationInfo() {
@@ -200,7 +192,7 @@ extension AddressOperationViewModel {
             requestUserInfo.mambaId = userInfo.mambaId
             request.userInformation = requestUserInfo
         }
-        request.addressId = Int(location.addressId ?? "")
+        request.addressId = (location.addressId ?? "")
         
         let service = EditOrAddAddressServicesRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,

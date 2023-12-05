@@ -130,10 +130,32 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         cell.delegate = self
         let address = addressDataSource [indexPath.row]
         cell.headingLabel.text = address.nickname
-        cell.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
+        let flatNo = address.flatNo.asStringOrEmpty()
+        let building = address.building.asStringOrEmpty()
+        let street = address.street.asStringOrEmpty()
+        let locationName = address.locationName.asStringOrEmpty()
+        
+        cell.detailLabel.text  =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
         cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
         cell.selectionStyle = .none
         return cell
+    }
+    func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
+        let components = [flatNo, building, street, locationName]
+        var addressString = ""
+
+        for component in components {
+            if let comp = component, !comp.isEmpty {
+                addressString += "\(comp), "
+            }
+        }
+
+        // Remove trailing comma and space if present
+        if addressString.hasSuffix(", ") {
+            addressString.removeLast(2)
+        }
+
+        return addressString
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
@@ -147,7 +169,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
                     SmilesLoader.show(on: self.view)
-                    self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
+                    self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
             }
@@ -187,7 +209,7 @@ extension SmilesManageAddressesViewController {
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
-                    var model = ToastModel()
+                    let model = ToastModel()
                     model.title = "address_has_been_deleted".localizedString
                     model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
                     self?.showToast(model: model)
@@ -195,10 +217,9 @@ extension SmilesManageAddressesViewController {
                 case .removeAddressDidFail(error: _):
                     self?.input.send(.getAllAddress)
                     break
-                case .saveDefaultAddressDidSucceed(response: _):
-                    break
-                case .saveDefaultAddressDidFail(error: _):
-                    break
+                default:
+                   break
+                
                 }
             }.store(in: &cancellables)
     }
