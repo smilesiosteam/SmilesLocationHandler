@@ -218,7 +218,10 @@ import Combine
         }
         
        // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
-       
+        if let title = selectedLocation?.title {
+            self.addressLabel.text = title
+        }
+        
        
         deliveryToLabel.text = "deliver_address".localizedString
         villaFlatNoLabel.text = "VillaFlatno".localizedString

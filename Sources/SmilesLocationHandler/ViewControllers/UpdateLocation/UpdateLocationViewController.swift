@@ -253,8 +253,10 @@ extension UpdateLocationViewController {
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
                 case .getUserLocationDidSucceed(response: let response, location: let location):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response, location)
                 case .getUserLocationDidFail(error: let error):
+                    SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error)
                 }
             }.store(in: &cancellables)
