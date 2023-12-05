@@ -10,14 +10,14 @@ import SmilesBaseMainRequestManager
 
 public class RemoveAddressRequestModel: SmilesBaseMainRequest {
     public var userInformation: SmilesUserInfo? = nil
-    public var addressId: Int? = nil
+    public var addressId: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case userInformation = "userInfo"
         case addressId
     }
 
-    public init(userInformation: SmilesUserInfo? = nil, addressId: Int? = nil) {
+    public init(userInformation: SmilesUserInfo? = nil, addressId: String? = nil) {
         super.init()
         self.userInformation = userInformation
         self.addressId = addressId
@@ -27,7 +27,7 @@ public class RemoveAddressRequestModel: SmilesBaseMainRequest {
         try super.init(from: decoder)
         let values = try decoder.container(keyedBy: CodingKeys.self)
         userInformation = try values.decodeIfPresent(SmilesUserInfo.self, forKey: .userInformation)
-        addressId = try values.decodeIfPresent(Int.self, forKey: .addressId)
+        addressId = try values.decodeIfPresent(String.self, forKey: .addressId)
     }
     
     public override func encode(to encoder: Encoder) throws {

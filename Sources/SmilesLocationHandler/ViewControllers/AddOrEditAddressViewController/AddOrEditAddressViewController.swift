@@ -217,7 +217,7 @@ import Combine
             }
         }
         
-        self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
+       // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
        
        
         deliveryToLabel.text = "deliver_address".localizedString
@@ -297,7 +297,12 @@ import Combine
             model.cityLongitude = Double(object.longitude ?? "")
         }
         SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController) { location in
-            self.getNewAddressLocation(location: location)
+            self.addressLabel.text = location.title
+            let addressObj = Address()
+            addressObj.latitude =  "\(location.lat ?? 0)"
+            addressObj.longitude = "\(location.long ?? 0)"
+            self.addressObj = addressObj
+           // self.getNewAddressLocation(location: location)
         }
     }
     @IBAction func saveButtonClicked(_ sender: Any) {
@@ -624,12 +629,18 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
 
         func setViewForEdit(address: Address) {
             
-            self.input.send(.getLocationName(lat: address.latitude ?? "", long: address.longitude ?? ""))
             flatNoTextField.text = address.flatNo
             buildingNameTextField.text = address.building
             streetTextField.text = address.street
             landmarkTextField.text = address.landmark
+            
+            let flatNo = address.flatNo.asStringOrEmpty()
+            let building = address.building.asStringOrEmpty()
+            let street = address.street.asStringOrEmpty()
+            let locationName = address.locationName.asStringOrEmpty()
 
+            self.addressLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
+            
             flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
             buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
             streetNameValid = !(streetTextField.text?.isEmpty ?? false)
@@ -655,6 +666,24 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             addressLabel.text = place
             addressObj?.locationName = place
         }
+        func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
+            let components = [flatNo, building, street, locationName]
+            var addressString = ""
+
+            for component in components {
+                if let comp = component, !comp.isEmpty {
+                    addressString += "\(comp), "
+                }
+            }
+
+            // Remove trailing comma and space if present
+            if addressString.hasSuffix(", ") {
+                addressString.removeLast(2)
+            }
+
+            return addressString
+        }
+
     }
 
 
@@ -665,11 +694,11 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             if let addressloc = location?.title {
                 addressLabel.text = addressloc
 
-                let addressObj = Address()
-                addressObj.latitude =  "\(location?.lat ?? 0)"
-                addressObj.longitude = "\(location?.long ?? 0)"
-                self.addressObj = addressObj
-                self.input.send(.getLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? "")))
+//                let addressObj = Address()
+//                addressObj.latitude =  "\(location?.lat ?? 0)"
+//                addressObj.longitude = "\(location?.long ?? 0)"
+//                self.addressObj = addressObj
+//                self.input.send(.getLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? "")))
             }
         }
     }

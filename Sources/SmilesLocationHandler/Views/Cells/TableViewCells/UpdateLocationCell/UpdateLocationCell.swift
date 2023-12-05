@@ -56,11 +56,34 @@ class UpdateLocationCell: UITableViewCell {
     func configureCell(with address: Address?) {
         if let address = address {
             self.headingLabel.text = address.nickname
-            self.detailLabel.text = String(format: "%@ %@, %@, %@, %@ ", address.flatNo.asStringOrEmpty(), "".localizedString.lowercased(), address.building.asStringOrEmpty(), address.street.asStringOrEmpty(), " \(address.locationName.asStringOrEmpty())")
+            
+            let flatNo = address.flatNo.asStringOrEmpty()
+            let building = address.building.asStringOrEmpty()
+            let street = address.street.asStringOrEmpty()
+            let locationName = address.locationName.asStringOrEmpty()
+
+            self.detailLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
             self.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
         
         }
         
+    }
+    func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
+        let components = [flatNo, building, street, locationName]
+        var addressString = ""
+
+        for component in components {
+            if let comp = component, !comp.isEmpty {
+                addressString += "\(comp), "
+            }
+        }
+
+        // Remove trailing comma and space if present
+        if addressString.hasSuffix(", ") {
+            addressString.removeLast(2)
+        }
+
+        return addressString
     }
     // MARK: - IBActions
     @IBAction func didTabDeleteButton(_ sender: UIButton) {

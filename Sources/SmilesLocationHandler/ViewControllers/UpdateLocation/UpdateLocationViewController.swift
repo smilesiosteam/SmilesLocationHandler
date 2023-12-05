@@ -10,6 +10,7 @@ import SmilesUtilities
 import SmilesLanguageManager
 import Combine
 import SmilesLoader
+import CoreLocation
 
 final class UpdateLocationViewController: UIViewController, Toastable {
     
@@ -22,9 +23,10 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     @IBOutlet weak var useMycurrentLocationLabel: UILabel!
     @IBOutlet weak var currentLocationLabel: UILabel!
     @IBOutlet weak var currentLocationContainer: UIView!
+    @IBOutlet weak var confirmLocationButton: UIButton!
     
     // MARK: - Properties
-    var selectedIndex = 0
+    var selectedIndex = -1
     var isEditingEnabled: Bool = false
     var addressDataSource = [Address]()
     var selectedAddress: Address?
@@ -79,6 +81,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private func styleFontAndTextColor() {
         
         self.savedAddressedLabel.fontTextStyle = .smilesHeadline3
+        self.confirmLocationButton.fontTextStyle = .smilesHeadline4
         self.editButton.fontTextStyle = .smilesHeadline4
         self.addNewAddressLabel.fontTextStyle = .smilesHeadline4
         self.useMycurrentLocationLabel.fontTextStyle = .smilesHeadline4
@@ -87,10 +90,19 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         
     }
     private func updateUI() {
+        self.confirmLocationButton.setTitle("confirm_address".localizedString, for: .normal)
         self.useMycurrentLocationLabel.text = "UseCurrentLocationTitle".localizedString
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
+        if SmilesLocationHandler.isLocationEnabled {
+            self.currentLocationContainer.isHidden = false
+            if let userInfo = LocationStateSaver.getLocationInfo() {
+                self.useMycurrentLocationLabel.text = userInfo.nickName
+                self.currentLocationLabel.text = userInfo.location
+            }
+        }
+        
     }
     func setupTableViewCells() {
         addressesTableView.registerCellFromNib(UpdateLocationCell.self, withIdentifier: String(describing: UpdateLocationCell.self), bundle: .module)
@@ -126,9 +138,9 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     @IBAction func didTabSearchButton(_ sender: UIButton) {
         SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
-//            self?.latitude = "\(selectedLocation.latitude)"
-//            self?.longitude = "\(selectedLocation.longitude)"
-//            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+            //            self?.latitude = "\(selectedLocation.latitude)"
+            //            self?.longitude = "\(selectedLocation.longitude)"
+            //            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
         })
     }
     @IBAction func didTabAddAddressButton(_ sender: UIButton) {
@@ -146,14 +158,9 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
     }
     @IBAction func didTabConfirmLocation(_ sender: UIButton) {
-        if let address = selectedAddress {
-            let location = SearchLocationResponseModel()
-            location.title = address.locationName
-            location.lat = Double(address.latitude ?? "")
-            location.long = Double(address.longitude ?? "")
-            location.addressId = address.addressId ?? ""
+        if let address = selectedAddress, let lat = Double(address.latitude ?? ""), let long = Double(address.longitude ?? "") {
             SmilesLoader.show(on: self.view)
-            self.input.send(.saveDefaultAddress(location: location))
+            self.input.send(.getUserLocation(location: CLLocation(latitude:lat , longitude: long)))
         }
     }
 }
@@ -186,13 +193,13 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
-             let item = self.addressDataSource[indexPath.row]
+            let item = self.addressDataSource[indexPath.row]
             let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
                     SmilesLoader.show(on: self.view)
-                    self.input.send(.removeAddress(address_id: Int(item.addressId ?? "")))
+                    self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
             }
@@ -245,6 +252,10 @@ extension UpdateLocationViewController {
                 case .saveDefaultAddressDidFail(error: let error):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
+                case .getUserLocationDidSucceed(response: let response, location: let location):
+                    debugPrint(response, location)
+                case .getUserLocationDidFail(error: let error):
+                    debugPrint(error)
                 }
             }.store(in: &cancellables)
     }

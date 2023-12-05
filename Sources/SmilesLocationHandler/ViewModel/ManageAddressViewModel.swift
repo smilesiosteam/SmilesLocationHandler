@@ -16,8 +16,9 @@ class ManageAddressViewModel: NSObject {
     // MARK: - INPUT. View event methods
     enum Input {
         case getAllAddress
-        case removeAddress(address_id: Int?)
+        case removeAddress(address_id: String?)
         case saveDefaultAddress(location: SearchLocationResponseModel)
+        case getUserLocation(location: CLLocation?)
         
     }
     
@@ -31,12 +32,17 @@ class ManageAddressViewModel: NSObject {
         case saveDefaultAddressDidSucceed(response: RemoveAddressResponseModel)
         case saveDefaultAddressDidFail(error: Error?)
         
+        case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
+        case getUserLocationDidFail(error: Error)
+        
     }
     
     // MARK: -- Variables
     private var output: PassthroughSubject<Output, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private let addressOperationViewModel = AddressOperationViewModel()
+    private var setLocationInput :PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
+    private var setLocationViewModel = SetLocationViewModel()
     
     // MARK: - ViewModels -
     private var addressOperationUseCaseInput: PassthroughSubject<AddressOperationViewModel.Input,Never> = .init()
@@ -58,6 +64,9 @@ extension ManageAddressViewModel {
             case .saveDefaultAddress(location: let location):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.saveDefaultAddress(location))
+            case .getUserLocation(location: let location):
+                self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
+                self?.setLocationInput.send(.getUserLocation(location: location))
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -96,5 +105,20 @@ extension ManageAddressViewModel {
                      self?.output.send(.saveDefaultAddressDidFail(error: error))
                  }
              }.store(in: &cancellables)
+    }
+    
+    func bind(to setLocationViewModel: SetLocationViewModel) {
+        setLocationInput = PassthroughSubject<SetLocationViewModel.Input, Never>()
+        let output = setLocationViewModel.transform(input: setLocationInput.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .getUserLocationDidSucceed(let response, let location):
+                    self?.output.send(.getUserLocationDidSucceed(response: response, location: location))
+                case .getUserLocationDidFail(let error):
+                    self?.output.send(.getUserLocationDidFail(error: error))
+                default: break
+                }
+            }.store(in: &cancellables)
     }
 }
