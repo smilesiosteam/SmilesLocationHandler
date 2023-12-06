@@ -252,9 +252,12 @@ extension UpdateLocationViewController {
                 case .saveDefaultAddressDidFail(error: let error):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
-                case .getUserLocationDidSucceed(response: let response, location: let location):
+                case .getUserLocationDidSucceed(response: let response, location: _):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(response, location)
+                    if let userInfo = response.userInfo {
+                        LocationStateSaver.saveLocationInfo(userInfo)
+                        self?.delegate?.locationUpdatedSuccessfully()
+                    }
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error)

@@ -11,6 +11,20 @@ import SmilesFontsManager
 import SmilesUtilities
 import Combine
 
+
+enum SmilesConfirmLocationRedirection {
+    case toFoodOrder
+    case toAddNewAddress
+    case toHome
+    case toBack
+    case toRestaurantDetail
+    case toFoodCart
+    case toEnterAddress
+    case toEditAddress
+    case toCategoryContainer
+    case toCollectionDetails
+}
+
  class AddOrEditAddressViewController: UIViewController {
     
     // MARK: - IBOutlets
@@ -122,6 +136,7 @@ import Combine
     private lazy var viewModel: AddOrEditAddressViewModel = {
         return AddOrEditAddressViewModel()
     }()
+     var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
     init() {
@@ -215,6 +230,7 @@ import Combine
                 clearButton.setImage(UIImage(named:"button_icon_only_dismiss_gray"), for: .normal)
                 clearButton.setImage(UIImage(named:"button_icon_only_dismiss_gray"), for: .highlighted)
             }
+            txtField.textAlignment  = AppCommonMethods.languageIsArabic() ? .right : .left
         }
         
        // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
@@ -577,8 +593,8 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     }
 }
 
-    extension AddOrEditAddressViewController {
-//        func addressSaved(withLocation location: CLLocation) {
+//    extension AddOrEditAddressViewController {
+//        func redirectUserAfterConfirmLocation() {
 //            if let toViewController = redirectTo {
 //                if toViewController == .toHome || toViewController == .toEnterAddress {
 //                    presenter?.moveToHome(opensFrom: toViewController)
