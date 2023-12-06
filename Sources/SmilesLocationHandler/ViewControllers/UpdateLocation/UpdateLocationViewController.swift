@@ -259,7 +259,7 @@ extension UpdateLocationViewController {
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo)
+                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
                         self?.delegate?.locationUpdatedSuccessfully()
                     }
                 case .getUserLocationDidFail(error: let error):
