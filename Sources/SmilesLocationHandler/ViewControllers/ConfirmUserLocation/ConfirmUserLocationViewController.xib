@@ -40,7 +40,7 @@
                                     </constraints>
                                 </imageView>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Search for area..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JlL-8h-qva" customClass="UILocalizableLabel" customModule="SmilesUtilities">
-                                    <rect key="frame" x="32" y="4.3333333333333295" width="297" height="15.333333333333336"/>
+                                    <rect key="frame" x="32" y="4.3333333333333277" width="297" height="15.666666666666664"/>
                                     <accessibility key="accessibilityConfiguration" hint="Search here"/>
                                     <fontDescription key="fontDescription" name="Lato-Regular" family="Lato" pointSize="13"/>
                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -218,7 +218,7 @@
     </objects>
     <designables>
         <designable name="JlL-8h-qva">
-            <size key="intrinsicContentSize" width="99.666666666666671" height="15.333333333333334"/>
+            <size key="intrinsicContentSize" width="94.333333333333329" height="15.666666666666666"/>
         </designable>
         <designable name="TGk-iL-YBX">
             <size key="intrinsicContentSize" width="108" height="24"/>

@@ -95,6 +95,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
+        self.confirmLocationButton.isUserInteractionEnabled = false
+        self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(0.5)
         if SmilesLocationHandler.isLocationEnabled {
             self.currentLocationContainer.isHidden = false
             if let userInfo = LocationStateSaver.getLocationInfo() {
@@ -209,6 +211,8 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
             self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
+            self.confirmLocationButton.isUserInteractionEnabled = true
+            self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
             self.selectedAddress = self.addressDataSource[indexPath.row]
             self.selectedIndex = indexPath.row
             self.addressesTableView.reloadData()
@@ -252,9 +256,12 @@ extension UpdateLocationViewController {
                 case .saveDefaultAddressDidFail(error: let error):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error?.localizedDescription ?? "")
-                case .getUserLocationDidSucceed(response: let response, location: let location):
+                case .getUserLocationDidSucceed(response: let response, location: _):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(response, location)
+                    if let userInfo = response.userInfo {
+                        LocationStateSaver.saveLocationInfo(userInfo)
+                        self?.delegate?.locationUpdatedSuccessfully()
+                    }
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(error)

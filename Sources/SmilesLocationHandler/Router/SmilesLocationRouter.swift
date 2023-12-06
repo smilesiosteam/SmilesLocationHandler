@@ -10,7 +10,8 @@ import UIKit
 import SmilesUtilities
 import CoreLocation
 
-public final class SmilesLocationRouter {
+@objcMembers
+ public final class SmilesLocationRouter: NSObject {
     
     // MARK: - Singleton Instance
     public var navigationController: UINavigationController?
@@ -98,6 +99,7 @@ public final class SmilesLocationRouter {
         if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
             vc.addressObj = addressObject
             if let location = selectedLocation {
+                vc.redirectTo = .toUpdateLocation
                 vc.selectedLocation = location
             }
             vc.hidesBottomBarWhenPushed = true

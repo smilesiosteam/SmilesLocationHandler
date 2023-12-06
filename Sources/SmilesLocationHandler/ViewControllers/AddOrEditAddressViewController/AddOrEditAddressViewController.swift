@@ -11,6 +11,20 @@ import SmilesFontsManager
 import SmilesUtilities
 import Combine
 
+
+enum SmilesConfirmLocationRedirection {
+    case toUpdateLocation
+    case toAddNewAddress
+    case toHome
+    case toBack
+    case toRestaurantDetail
+    case toFoodCart
+    case toEnterAddress
+    case toEditAddress
+    case toCategoryContainer
+    case toCollectionDetails
+}
+
  class AddOrEditAddressViewController: UIViewController {
     
     // MARK: - IBOutlets
@@ -122,6 +136,7 @@ import Combine
     private lazy var viewModel: AddOrEditAddressViewModel = {
         return AddOrEditAddressViewModel()
     }()
+     var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
     init() {
@@ -215,6 +230,7 @@ import Combine
                 clearButton.setImage(UIImage(named:"button_icon_only_dismiss_gray"), for: .normal)
                 clearButton.setImage(UIImage(named:"button_icon_only_dismiss_gray"), for: .highlighted)
             }
+            txtField.textAlignment  = AppCommonMethods.languageIsArabic() ? .right : .left
         }
         
        // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
@@ -360,7 +376,7 @@ extension AddOrEditAddressViewController {
                     break
                 case .saveAddressDidSucceed(response: let response):
                     debugPrint(response)
-                    SmilesLocationRouter.shared.popVC()
+                    self?.redirectUserAfterConfirmLocation()
                     break
                 case .saveAddressDidFail(error: _):
                     break
@@ -577,47 +593,27 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     }
 }
 
-    extension AddOrEditAddressViewController {
-//        func addressSaved(withLocation location: CLLocation) {
-//            if let toViewController = redirectTo {
-//                if toViewController == .toHome || toViewController == .toEnterAddress {
-//                    presenter?.moveToHome(opensFrom: toViewController)
-//                } else {
-//                    if let controllers = navigationController?.viewControllers {
-//                        for controller in controllers {
-//                            if toViewController == .toRestaurantDetail {
-//                                if controller.isKind(of: RestaurantDetailRevampViewController.self) {
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toRestaurantDetail {
-//                                if controller.isKind(of: RestaurantHomeViewController.self) {
-//                                    if let selectedVC = controller as? RestaurantHomeViewController {
-//                                        selectedVC.selectedLocation = location
-//                                    }
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toFoodOrder {
-//                                if controller.isKind(of: FoodOrderHomeViewController.self) {
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toFoodCart {
-//                                if controller.isKind(of: FoodCartViewController.self) {
-//                                    //                        if let selectedVC = controller as? FoodCartViewController {
-//                                    //                            //selectedVC.selectedLocation = location
-//                                    //                        }
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                }
-//            }
-//        }
+extension AddOrEditAddressViewController {
+    
+    func redirectUserAfterConfirmLocation() {
+        if let toViewController = redirectTo {
+            if let controllers = navigationController?.viewControllers {
+                for controller in controllers {
+                    if toViewController == .toUpdateLocation {
+                        if controller.isKind(of: UpdateLocationViewController.self) {
+                            self.navigationController?.popToViewController(controller, animated: true)
+                            break
+                        }
+                    } else  {
+                        SmilesLocationRouter.shared.popVC()
+                        break
+                    }
+                }
+            }
+        } else {
+            SmilesLocationRouter.shared.popVC()
+        }
+    }
 
         func nickNamesResponse(nickNames: [Nicknames]) {
             if let address = addressObj {
