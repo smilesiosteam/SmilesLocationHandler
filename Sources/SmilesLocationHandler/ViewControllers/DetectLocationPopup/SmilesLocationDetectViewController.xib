@@ -157,10 +157,10 @@
     </objects>
     <designables>
         <designable name="7jw-I3-Ce3">
-            <size key="intrinsicContentSize" width="115" height="32"/>
+            <size key="intrinsicContentSize" width="112" height="31"/>
         </designable>
         <designable name="ZCd-L5-vp4">
-            <size key="intrinsicContentSize" width="114" height="32"/>
+            <size key="intrinsicContentSize" width="109" height="31"/>
         </designable>
     </designables>
     <resources>

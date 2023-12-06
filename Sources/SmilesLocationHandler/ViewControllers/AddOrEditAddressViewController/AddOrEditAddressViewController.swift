@@ -320,6 +320,10 @@ enum SmilesConfirmLocationRedirection {
             let addressObj = Address()
             addressObj.latitude =  "\(location.lat ?? 0)"
             addressObj.longitude = "\(location.long ?? 0)"
+            if let addressid = self.addressObj?.addressId {
+                addressObj.addressId = addressid
+            }
+            
             self.addressObj = addressObj
            // self.getNewAddressLocation(location: location)
         }
