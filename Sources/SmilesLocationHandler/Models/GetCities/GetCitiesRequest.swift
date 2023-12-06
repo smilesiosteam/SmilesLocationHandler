@@ -7,8 +7,9 @@
 
 import Foundation
 import SmilesUtilities
+import SmilesBaseMainRequestManager
 
-class GetCitiesRequest: Codable {
+class GetCitiesRequest: SmilesBaseMainRequest {
 
     var isGuestUser: Bool?
 
@@ -17,12 +18,18 @@ class GetCitiesRequest: Codable {
     }
     
     init(isGuestUser: Bool) {
+        super.init()
         self.isGuestUser = isGuestUser
     }
-
+    
     required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        isGuestUser = try values.decodeIfPresent(Bool.self, forKey: .isGuestUser)
+        fatalError("init(from:) has not been implemented")
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(isGuestUser, forKey: .isGuestUser)
     }
 
 }

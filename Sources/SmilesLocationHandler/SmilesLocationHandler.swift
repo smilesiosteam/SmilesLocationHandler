@@ -41,8 +41,8 @@ public class SmilesLocationHandler {
         self.controllerType = controllerType
         self.isFirstLaunch = isFirstLaunch
         self.smilesLocationHandlerDelegate = delegate
-        LocationManager.shared.delegate = self
         self.bind(to: self.locationsViewModel)
+        LocationManager.shared.delegate = self
         LocationManager.shared.startUpdatingLocation()
     }
     
@@ -89,31 +89,29 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         
         debugPrint("locationIsAllowedByUser \(isAllowed)")
         SmilesLocationHandler.isLocationEnabled = isAllowed
-        if isAllowed {
-            LocationManager.shared.destroyLocationManager()
-            switch self.controllerType{
-            case .fromBAU:
-                if isFirstLaunch{
-                    getUserCurrentLocation()
-                }else{
-                    if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
-                        locationName = loc
-                        locationNickName = location.nickName ?? "---"
-                        self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
-                    }else{
-                        setupSetLocationString()
-                    }
+        LocationManager.shared.destroyLocationManager()
+        switch self.controllerType{
+        case .fromBAU:
+            if isFirstLaunch {
+                getUserCurrentLocation()
+            } else {
+                if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
+                    locationName = loc
+                    locationNickName = location.nickName ?? "---"
+                    self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+                } else {
+                    setupSetLocationString()
                 }
-            case .fromFood, .fromVertical:
-                if let location = LocationStateSaver.getLocationInfo() {
-                    if let _ = location.locationId {
-                        debugPrint("call update service for mamba")
-                        updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
-                    } else {
-                        guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
-                              let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
-                        self.locationsUseCaseInput.send(.registerUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                    }
+            }
+        case .fromFood, .fromVertical:
+            if let location = LocationStateSaver.getLocationInfo() {
+                if let _ = location.locationId {
+                    debugPrint("call update service for mamba")
+                    updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
+                } else {
+                    guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
+                          let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
+                    self.locationsUseCaseInput.send(.registerUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
                 }
             }
         }
