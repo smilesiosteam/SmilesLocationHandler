@@ -10,7 +10,8 @@ import UIKit
 import SmilesUtilities
 import CoreLocation
 
-public final class SmilesLocationRouter {
+@objcMembers
+ public final class SmilesLocationRouter: NSObject {
     
     // MARK: - Singleton Instance
     public var navigationController: UINavigationController?
