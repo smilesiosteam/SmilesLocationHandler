@@ -230,8 +230,16 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
         selectedResult = result
         if showRecents {
             if let selectedResult {
-                locationSelected?(selectedResult)
-                SmilesLocationRouter.shared.popVC()
+                let model = GetCitiesModel()
+                model.cityName = selectedResult.formattedAddress
+                model.cityLatitude = Double(selectedResult.latitude)
+                model.cityLongitude = Double(selectedResult.longitude)
+                
+                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .searchLocation) { location in
+                    
+                }
+                //locationSelected?(selectedResult)
+                //SmilesLocationRouter.shared.popVC()
             }
         } else {
             if !result.addressId.isEmpty {
@@ -262,8 +270,16 @@ extension SearchLocationViewController {
         selectedResult?.formattedAddress = locationDetails.formattedAddress
         saveLocationData()
         if let selectedResult {
-            locationSelected?(selectedResult)
-            SmilesLocationRouter.shared.popVC()
+            let model = GetCitiesModel()
+            model.cityName = selectedResult.formattedAddress
+            model.cityLatitude = Double(selectedResult.latitude)
+            model.cityLongitude = Double(selectedResult.longitude)
+            
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .searchLocation) { location in
+                
+            }
+//            locationSelected?(selectedResult)
+//            SmilesLocationRouter.shared.popVC()
         }
         
     }

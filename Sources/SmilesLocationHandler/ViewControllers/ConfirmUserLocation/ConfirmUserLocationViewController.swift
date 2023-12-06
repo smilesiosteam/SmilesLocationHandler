@@ -16,6 +16,7 @@ import CoreLocation
 enum ConfirmLocatiuonSourceScreen {
     case addAddressViewController
     case editAddressViewController
+    case searchLocation
 }
 
 class ConfirmUserLocationViewController: UIViewController {
@@ -104,7 +105,7 @@ class ConfirmUserLocationViewController: UIViewController {
             location.selectCityName = city.cityName.asStringOrEmpty()
         }
         switch sourceScreen {
-        case .addAddressViewController:
+        case .addAddressViewController,.searchLocation:
             moveToAddAddress(with: location)
         case .editAddressViewController:
             locationHandler?(location)

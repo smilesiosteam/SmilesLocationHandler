@@ -200,6 +200,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
+                    self.addressesTableView.reloadData()
                     SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
