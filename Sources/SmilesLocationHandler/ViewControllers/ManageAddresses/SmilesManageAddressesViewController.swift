@@ -75,6 +75,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
         
     }
     private func updateUI() {
+        self.editButton.isHidden = true
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
     }
@@ -201,6 +202,7 @@ extension SmilesManageAddressesViewController {
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response)
                     if let address = response.addresses {
+                        self?.editButton.isHidden = false
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }
