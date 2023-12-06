@@ -99,6 +99,7 @@ import CoreLocation
         if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
             vc.addressObj = addressObject
             if let location = selectedLocation {
+                vc.redirectTo = .toUpdateLocation
                 vc.selectedLocation = location
             }
             vc.hidesBottomBarWhenPushed = true

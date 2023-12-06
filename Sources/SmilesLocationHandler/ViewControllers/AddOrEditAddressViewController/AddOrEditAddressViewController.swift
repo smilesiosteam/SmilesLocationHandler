@@ -13,7 +13,7 @@ import Combine
 
 
 enum SmilesConfirmLocationRedirection {
-    case toFoodOrder
+    case toUpdateLocation
     case toAddNewAddress
     case toHome
     case toBack
@@ -376,7 +376,7 @@ extension AddOrEditAddressViewController {
                     break
                 case .saveAddressDidSucceed(response: let response):
                     debugPrint(response)
-                    SmilesLocationRouter.shared.popVC()
+                    self?.redirectUserAfterConfirmLocation()
                     break
                 case .saveAddressDidFail(error: _):
                     break
@@ -593,47 +593,27 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
     }
 }
 
-//    extension AddOrEditAddressViewController {
-//        func redirectUserAfterConfirmLocation() {
-//            if let toViewController = redirectTo {
-//                if toViewController == .toHome || toViewController == .toEnterAddress {
-//                    presenter?.moveToHome(opensFrom: toViewController)
-//                } else {
-//                    if let controllers = navigationController?.viewControllers {
-//                        for controller in controllers {
-//                            if toViewController == .toRestaurantDetail {
-//                                if controller.isKind(of: RestaurantDetailRevampViewController.self) {
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toRestaurantDetail {
-//                                if controller.isKind(of: RestaurantHomeViewController.self) {
-//                                    if let selectedVC = controller as? RestaurantHomeViewController {
-//                                        selectedVC.selectedLocation = location
-//                                    }
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toFoodOrder {
-//                                if controller.isKind(of: FoodOrderHomeViewController.self) {
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            } else if toViewController == .toFoodCart {
-//                                if controller.isKind(of: FoodCartViewController.self) {
-//                                    //                        if let selectedVC = controller as? FoodCartViewController {
-//                                    //                            //selectedVC.selectedLocation = location
-//                                    //                        }
-//                                    self.navigationController?.popToViewController(controller, animated: true)
-//                                    break
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                }
-//            }
-//        }
+extension AddOrEditAddressViewController {
+    
+    func redirectUserAfterConfirmLocation() {
+        if let toViewController = redirectTo {
+            if let controllers = navigationController?.viewControllers {
+                for controller in controllers {
+                    if toViewController == .toUpdateLocation {
+                        if controller.isKind(of: UpdateLocationViewController.self) {
+                            self.navigationController?.popToViewController(controller, animated: true)
+                            break
+                        }
+                    } else  {
+                        SmilesLocationRouter.shared.popVC()
+                        break
+                    }
+                }
+            }
+        } else {
+            SmilesLocationRouter.shared.popVC()
+        }
+    }
 
         func nickNamesResponse(nickNames: [Nicknames]) {
             if let address = addressObj {
