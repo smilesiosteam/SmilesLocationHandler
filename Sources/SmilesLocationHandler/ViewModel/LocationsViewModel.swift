@@ -14,7 +14,7 @@ class LocationsViewModel: NSObject {
     
     // MARK: - INPUT. View event methods
     enum Input {
-        case getPlaceFromLocation(isUpdated:Bool)
+        case getPlaceFromLocation
         case updateUserLocation(location: CLLocation, withUserInfo: Bool)
         case registerUserLocation(location: CLLocation?)
         case getUserLocation(location: CLLocation?)

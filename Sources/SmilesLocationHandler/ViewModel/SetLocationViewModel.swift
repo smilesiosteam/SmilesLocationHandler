@@ -228,8 +228,12 @@ extension SetLocationViewModel {
         if registerRequest.locationInfo == nil {
             registerRequest.locationInfo = AppUserInfo()
         }
-        registerRequest.locationInfo?.latitude = latitude
-        registerRequest.locationInfo?.longitude = longitude
+        if !latitude.isEmpty, !longitude.isEmpty {
+            registerRequest.locationInfo?.latitude = latitude
+            registerRequest.locationInfo?.longitude = longitude
+        } else {
+            registerRequest.locationInfo = nil
+        }
         return registerRequest
         
     }

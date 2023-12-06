@@ -181,8 +181,12 @@ extension SmilesLocationHandler {
     private func updateUserLocationSucceeded(response : RegisterLocationResponse) {
         
         fireEvent?(Constants.AnalyticsEvent.locationUpdated)
-        LocationStateSaver.saveLocationInfo(response.userInfo)
-        self.locationsUseCaseInput.send(.getPlaceFromLocation(isUpdated: true))
+        LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
+        if let userInfo = LocationStateSaver.getLocationInfo() {
+            locationName = userInfo.location ?? ""
+            locationNickName = userInfo.nickName ?? "---"
+            self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+        }
         self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         
     }
@@ -191,8 +195,12 @@ extension SmilesLocationHandler {
         
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationRegistered)
-            LocationStateSaver.saveLocationInfo(userInfo)
-            self.locationsUseCaseInput.send(.getPlaceFromLocation(isUpdated: true))
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
+            if let userInfo = LocationStateSaver.getLocationInfo() {
+                locationName = userInfo.location ?? ""
+                locationNickName = userInfo.nickName ?? "---"
+                self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+            }
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         }
         
@@ -210,8 +218,10 @@ extension SmilesLocationHandler {
                 self.locationsUseCaseInput.send(.registerUserLocation(location: location))
             } else{
                 fireEvent?(Constants.AnalyticsEvent.locationRegistered)
-                LocationStateSaver.saveLocationInfo(userInfo)
-                self.locationsUseCaseInput.send(.getPlaceFromLocation(isUpdated: true))
+                LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                locationName = userInfo.location ?? ""
+                locationNickName = userInfo.nickName ?? "---"
+                self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
             }
         }
         

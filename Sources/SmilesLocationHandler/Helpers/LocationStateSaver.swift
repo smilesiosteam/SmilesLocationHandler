@@ -11,9 +11,14 @@ import SmilesBaseMainRequestManager
 
 @objc public class LocationStateSaver: NSObject {
     
-    public static func saveLocationInfo(_ userLocation: AppUserInfo?) {
+    public static func saveLocationInfo(_ userLocation: AppUserInfo?, isFromMamba: Bool) {
         if let userLoc = userLocation {
-            UserDefaults.standard.set(try! PropertyListEncoder().encode(userLoc), forKey: UserDefaultKeys.locationSaver)
+            let previousInfo = getLocationInfo()
+            if isFromMamba {
+                previousInfo?.locationId = userLoc.locationId
+                previousInfo?.mambaId = userLoc.mambaId
+            }
+            UserDefaults.standard.set(try! PropertyListEncoder().encode(isFromMamba ? previousInfo : userLoc), forKey: UserDefaultKeys.locationSaver)
             SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = userLoc
         }
     }
