@@ -181,7 +181,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
              let item = self.addressDataSource[indexPath.row]
             // Perform actions based on indexPath
             if let navigationController = self.navigationController {
-                SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+                SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item, delegate: nil)
             }
         }
     }

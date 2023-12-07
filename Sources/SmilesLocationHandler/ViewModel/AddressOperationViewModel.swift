@@ -20,7 +20,6 @@ class AddressOperationViewModel: NSObject {
         case saveAddress(address: Address?)
         case getAllAddress
         case removeAddress(address_id: String?)
-        case saveDefaultAddress(_ location: SearchLocationResponseModel)
     }
     
     enum Output {
@@ -35,10 +34,6 @@ class AddressOperationViewModel: NSObject {
         
         case saveAddressDidSucceed(response: SaveAddressResponseModel)
         case saveAddressDidFail(error: Error?)
-        
-        case saveDefaultAddressDidSucceed(response: RemoveAddressResponseModel)
-        case saveDefaultAddressDidFail(error: Error?)
-        
     }
     
     // MARK: -- Variables
@@ -65,8 +60,6 @@ extension AddressOperationViewModel {
 
             case .removeAddress(address_id: let address_id):
                 self?.removeAddress(address_id: address_id)
-            case .saveDefaultAddress(let location):
-                self?.saveDefaultAddress(location: location)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -86,9 +79,9 @@ extension AddressOperationViewModel {
             requestUserInfo.locationId = userInfo.locationId
             request.userInfo = requestUserInfo
         }
-        let service = EditOrAddAddressServicesRepository(
+        let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
-            endPoint: AddOrEditAddressEndPoints.getLocationsNickName
+            endPoint: ManageAddressEndPoints.getLocationsNickName
         )
         service.fetchLocatuionsNickNames(request: request)
             .sink { [weak self] completion in
@@ -109,9 +102,9 @@ extension AddressOperationViewModel {
        
         let request = SaveAddressRequestModel(userInfo: LocationStateSaver.getLocationInfo(),address: address)
         
-        let service = EditOrAddAddressServicesRepository(
+        let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
-            endPoint: AddOrEditAddressEndPoints.saveAddress
+            endPoint: ManageAddressEndPoints.saveAddress
         )
        
         service.saveAddress(request: request)
@@ -135,9 +128,9 @@ extension AddressOperationViewModel {
         if let userInfo = LocationStateSaver.getLocationInfo() {
             request.userInfo = userInfo
         }
-        let service = EditOrAddAddressServicesRepository(
+        let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
-            endPoint: AddOrEditAddressEndPoints.getAllAddresses
+            endPoint: ManageAddressEndPoints.getAllAddresses
         )
         
         service.getAllAddresses(request: request)
@@ -164,9 +157,9 @@ extension AddressOperationViewModel {
             request.userInformation = requestUserInfo
         }
         
-        let service = EditOrAddAddressServicesRepository(
+        let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
-            endPoint: AddOrEditAddressEndPoints.removeAddress
+            endPoint: ManageAddressEndPoints.removeAddress
         )
         
         service.removeAddresse(request: request)
@@ -180,36 +173,6 @@ extension AddressOperationViewModel {
                 }
             } receiveValue: { [weak self] response in
                 self?.output.send(.removeAddressDidSucceed(response: response))
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func saveDefaultAddress(location: SearchLocationResponseModel) {
-        
-        let request = RemoveAddressRequestModel()
-        if let userInfo = LocationStateSaver.getLocationInfo() {
-            let requestUserInfo = SmilesUserInfo()
-            requestUserInfo.mambaId = userInfo.mambaId
-            request.userInformation = requestUserInfo
-        }
-        request.addressId = (location.addressId ?? "")
-        
-        let service = EditOrAddAddressServicesRepository(
-            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
-            endPoint: AddOrEditAddressEndPoints.saveDefaultAddress
-        )
-        
-        service.saveDefaultAddresse(request: request)
-            .sink { [weak self] completion in
-                debugPrint(completion)
-                switch completion {
-                case .failure(let error):
-                    self?.output.send(.saveDefaultAddressDidFail(error: error))
-                case .finished:
-                    debugPrint("nothing much to do here")
-                }
-            } receiveValue: { [weak self] response in
-                self?.output.send(.saveDefaultAddressDidSucceed(response: response))
             }
             .store(in: &cancellables)
     }

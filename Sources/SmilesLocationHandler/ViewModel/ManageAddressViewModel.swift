@@ -17,9 +17,8 @@ class ManageAddressViewModel: NSObject {
     enum Input {
         case getAllAddress
         case removeAddress(address_id: String?)
-        case saveDefaultAddress(location: SearchLocationResponseModel)
         case getUserLocation(location: CLLocation?)
-        
+        case saveAddress(address: Address?)
     }
     
     enum Output {
@@ -29,23 +28,22 @@ class ManageAddressViewModel: NSObject {
         case removeAddressDidSucceed(response: RemoveAddressResponseModel)
         case removeAddressDidFail(error: Error?)
         
-        case saveDefaultAddressDidSucceed(response: RemoveAddressResponseModel)
-        case saveDefaultAddressDidFail(error: Error?)
-        
         case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
         case getUserLocationDidFail(error: Error)
         
+        case saveAddressDidSucceed(response: SaveAddressResponseModel)
+        case saveAddressDidFail(error: Error?)
     }
     
     // MARK: -- Variables
     private var output: PassthroughSubject<Output, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
-    private let addressOperationViewModel = AddressOperationViewModel()
-    private var setLocationInput :PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
-    private var setLocationViewModel = SetLocationViewModel()
     
     // MARK: - ViewModels -
+    private let addressOperationViewModel = AddressOperationViewModel()
     private var addressOperationUseCaseInput: PassthroughSubject<AddressOperationViewModel.Input,Never> = .init()
+    private var setLocationViewModel = SetLocationViewModel()
+    private var setLocationInput: PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
 }
 
 // MARK: - INPUT. View event methods
@@ -61,12 +59,12 @@ extension ManageAddressViewModel {
             case .removeAddress(address_id: let id):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.removeAddress(address_id: id))
-            case .saveDefaultAddress(location: let location):
-                self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
-                self?.addressOperationUseCaseInput.send(.saveDefaultAddress(location))
             case .getUserLocation(location: let location):
                 self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
                 self?.setLocationInput.send(.getUserLocation(location: location))
+            case .saveAddress(let address):
+                self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
+                self?.addressOperationUseCaseInput.send(.saveAddress(address: address))
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -91,18 +89,11 @@ extension ManageAddressViewModel {
                      self?.output.send(.removeAddressDidSucceed(response: response))
                  case .removeAddressDidFail(error: let error):
                      self?.output.send(.removeAddressDidFail(error: error))
-                 case .fetchLocationsNickNameDidSucceed(response: _):
-                     break
-                 case .fetchLocationsNickNameDidFail(error: _):
-                     break
-                 case .saveAddressDidSucceed(response: _):
-                     break
-                 case .saveAddressDidFail(error: _):
-                     break
-                 case .saveDefaultAddressDidSucceed(response: let response):
-                     self?.output.send(.saveDefaultAddressDidSucceed(response: response))
-                 case .saveDefaultAddressDidFail(error: let error):
-                     self?.output.send(.saveDefaultAddressDidFail(error: error))
+                 case .saveAddressDidSucceed(response: let response):
+                     self?.output.send(.saveAddressDidSucceed(response: response))
+                 case .saveAddressDidFail(error: let error):
+                     self?.output.send(.saveAddressDidFail(error: error))
+                 default: break
                  }
              }.store(in: &cancellables)
     }

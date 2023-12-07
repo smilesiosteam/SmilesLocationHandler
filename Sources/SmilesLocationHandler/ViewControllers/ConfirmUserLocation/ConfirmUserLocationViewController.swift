@@ -36,9 +36,8 @@ class ConfirmUserLocationViewController: UIViewController {
     private var mapGesture = false
     private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
-    
-    var locationHandler: ((SearchLocationResponseModel) -> Void)?
-    var sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController
+    private weak var delegate: ConfirmLocationDelegate?
+    private var sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
@@ -48,13 +47,6 @@ class ConfirmUserLocationViewController: UIViewController {
             self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
         })
     }
-    
-    
-        func getLocation(_ location: SearchLocationResponseModel) {
-            // Pass the location data back to the closure
-            locationHandler?(location)
-            dismiss(animated: true, completion: nil)
-        }
     
     @IBAction func currentLocationPressed(_ sender: Any) {
         
@@ -81,21 +73,6 @@ class ConfirmUserLocationViewController: UIViewController {
     
     @IBAction func confirmPressed(_ sender: Any) {
         
-//        let location = SearchLocationResponseModel()
-//        location.title = locationLabel.text
-//        location.lat = Double(latitude)
-//        location.long = Double(longitude)
-//        if let cityName = selectedCity.cityName {
-//            location.selectCityName = cityName
-//        }
-//        
-//        if let delegate = delegate {
-//            delegate.getNewAddressLocation(location:location)
-//            presenter?.goBackToEditAddressView()
-//        }else{
-//            presenter?.confirmButtonTapped(location: location, isFromAddNewAddress: isFromAddNewAddress.asBoolOrFalse(), redirectTo: confirmLocationRedirection)
-//        }
-        
         let location = SearchLocationResponseModel()
         location.title = locationLabel.text
         location.lat = Double(latitude)
@@ -107,14 +84,17 @@ class ConfirmUserLocationViewController: UIViewController {
         case .addAddressViewController:
             moveToAddAddress(with: location)
         case .editAddressViewController:
-            locationHandler?(location)
+            delegate?.locationPicked(location: location)
             SmilesLocationRouter.shared.popVC()
         }
+        
     }
     
     // MARK: - INITIALIZERS -
-    init(selectedCity: GetCitiesModel?) {
+    init(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen, delegate: ConfirmLocationDelegate?) {
         self.selectedCity = selectedCity
+        self.sourceScreen = sourceScreen
+        self.delegate = delegate
         super.init(nibName: "ConfirmUserLocationViewController", bundle: .module)
     }
     
@@ -174,11 +154,13 @@ class ConfirmUserLocationViewController: UIViewController {
         mapView.isMyLocationEnabled = true
         
     }
+    
     private func moveToAddAddress(with selectedLocation: SearchLocationResponseModel) {
         if let navigationController = navigationController {
-            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: nil, selectedLocation: selectedLocation)
+            SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: nil, selectedLocation: selectedLocation, delegate: delegate)
         }
     }
+    
     private func showLocationMarkerOnMap(latitude: Double, longitude: Double, formattedAddress: String? = nil) {
         
         DispatchQueue.main.async {

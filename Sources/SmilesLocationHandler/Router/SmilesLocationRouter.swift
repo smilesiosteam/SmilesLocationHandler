@@ -95,13 +95,8 @@ import CoreLocation
         // Implement navigation logic to detect location
     }
     
-    func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil) {
-        if  let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress) as? AddOrEditAddressViewController {
-            vc.addressObj = addressObject
-            if let location = selectedLocation {
-                vc.redirectTo = .toUpdateLocation
-                vc.selectedLocation = location
-            }
+     func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate?) {
+        if let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress(addressObject: addressObject, selectedLocation: selectedLocation, delegate: delegate)) as? AddOrEditAddressViewController {
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)
         }
@@ -113,10 +108,9 @@ import CoreLocation
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, locationHandler: ((SearchLocationResponseModel) -> Void)?) {
+     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, delegate: ConfirmLocationDelegate?) {
         
-        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, locationHandler: locationHandler)) as! ConfirmUserLocationViewController
-        vc.sourceScreen = sourceScreen
+         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)) as! ConfirmUserLocationViewController
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         

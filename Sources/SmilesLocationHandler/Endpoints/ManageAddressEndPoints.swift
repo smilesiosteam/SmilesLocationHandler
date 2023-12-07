@@ -8,15 +8,14 @@
 import Foundation
 import NetworkingLayer
 
-enum AddOrEditAddressEndPoints: String {
+enum ManageAddressEndPoints: String {
     case getLocationsNickName
     case saveAddress
-    case saveDefaultAddress
     case getAllAddresses
     case removeAddress
 }
 
-extension AddOrEditAddressEndPoints {
+extension ManageAddressEndPoints {
     var serviceEndPoints: String {
         switch self {
         case .getLocationsNickName:
@@ -27,8 +26,6 @@ extension AddOrEditAddressEndPoints {
             return "addressBook/v1/get-all-addresses"
         case .removeAddress:
             return "addressBook/v1/remove-address"
-        case .saveDefaultAddress:
-            return "addressBook/v1/save-default-address"
         }
     }
 }
