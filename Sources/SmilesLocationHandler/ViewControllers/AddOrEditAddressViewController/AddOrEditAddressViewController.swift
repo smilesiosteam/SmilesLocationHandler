@@ -226,8 +226,8 @@ class AddOrEditAddressViewController: UIViewController {
         btnChange.fontTextStyle = .smilesTitle2
         nickNameView.isHidden = true
         for txtField in textFieldCollection {
-            txtField.font = .montserratMediumFont(size: 15)
-            txtField.textColor = .appDarkGrayColor
+            txtField.fontTextStyle = .smilesHeadline4
+            txtField.textColor = .black
             txtField.placeHolderTextColor = .placeholderTextFiedColor
             txtField.delegate = self
             txtField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
@@ -324,7 +324,6 @@ class AddOrEditAddressViewController: UIViewController {
             model.cityLongitude = long
         }
         SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
-        
     }
     
     @IBAction func saveButtonClicked(_ sender: Any) {

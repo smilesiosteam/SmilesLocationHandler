@@ -94,6 +94,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     private func updateUI() {
+        self.editButton.isHidden = true
         self.confirmLocationButton.setTitle("confirm_address".localizedString, for: .normal)
         self.useMycurrentLocationLabel.text = "UseCurrentLocationTitle".localizedString
         self.addNewAddressLabel.text = "add_new_address".localizedString
@@ -209,6 +210,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
+                    self.addressesTableView.reloadData()
                     SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
@@ -243,6 +245,7 @@ extension UpdateLocationViewController {
                     SmilesLoader.dismiss(from: self?.view ?? UIView())
                     debugPrint(response)
                     if let address = response.addresses {
+                        self?.editButton.isHidden = false
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }
