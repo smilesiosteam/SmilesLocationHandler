@@ -324,6 +324,7 @@ class AddOrEditAddressViewController: UIViewController {
             model.cityLongitude = long
         }
         SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
+        
     }
     
     @IBAction func saveButtonClicked(_ sender: Any) {
@@ -379,9 +380,8 @@ extension AddOrEditAddressViewController {
                 case .saveAddressDidSucceed(response: let response):
                     debugPrint(response)
                     self?.redirectUserAfterConfirmLocation()
-                    break
-                case .saveAddressDidFail(error: _):
-                    break
+                case .saveAddressDidFail(error: let error):
+                    debugPrint(error ?? "")
                 }
             }.store(in: &cancellables)
     }
@@ -600,10 +600,10 @@ extension AddOrEditAddressViewController {
     func redirectUserAfterConfirmLocation() {
         
         if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
-            self.navigationController?.popToViewController(updateLocationVC, animated: true)
             if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
                 delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
             }
+            self.navigationController?.popToViewController(updateLocationVC, animated: true)
         } else {
             SmilesLocationRouter.shared.popVC()
         }

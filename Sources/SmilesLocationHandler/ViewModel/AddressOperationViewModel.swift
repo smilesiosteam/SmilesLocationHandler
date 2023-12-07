@@ -100,7 +100,7 @@ extension AddressOperationViewModel {
     
     private func saveAddress(address: Address?) {
        
-        let request = SaveAddressRequestModel(userInfo: LocationStateSaver.getLocationInfo(),address: address)
+        let request = SaveAddressRequestModel(address: address)
         
         let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,

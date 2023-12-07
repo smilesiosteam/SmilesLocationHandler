@@ -116,9 +116,9 @@ import CoreLocation
         
     }
     
-    func pushSearchLocationVC(locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+     func pushSearchLocationVC(isFromUpdateLocation: Bool = false, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         
-        let vc = SmilesLocationConfigurator.create(type: .searchLocation(locationSelected: locationSelected)) as! SearchLocationViewController
+         let vc = SmilesLocationConfigurator.create(type: .searchLocation(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)) as! SearchLocationViewController
         navigationController?.pushViewController(vc, animated: true)
         
     }

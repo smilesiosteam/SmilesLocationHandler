@@ -42,11 +42,17 @@ class ConfirmUserLocationViewController: UIViewController {
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
-        SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
-            self?.latitude = "\(selectedLocation.latitude)"
-            self?.longitude = "\(selectedLocation.longitude)"
-            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
-        })
+        
+        switch sourceScreen {
+        case .searchLocation:
+            SmilesLocationRouter.shared.popVC()
+        default:
+            SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
+                self?.latitude = "\(selectedLocation.latitude)"
+                self?.longitude = "\(selectedLocation.longitude)"
+                self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+            })
+        }
     }
     
     @IBAction func currentLocationPressed(_ sender: Any) {
@@ -82,11 +88,16 @@ class ConfirmUserLocationViewController: UIViewController {
             location.selectCityName = city.cityName.asStringOrEmpty()
         }
         switch sourceScreen {
-        case .addAddressViewController,.searchLocation:
+        case .addAddressViewController:
             moveToAddAddress(with: location)
         case .editAddressViewController:
             delegate?.locationPicked(location: location)
             SmilesLocationRouter.shared.popVC()
+        case .searchLocation:
+            if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
+                self.navigationController?.popToViewController(updateLocationVC, animated: true)
+                delegate?.locationPicked(location: location)
+            }
         }
         
     }

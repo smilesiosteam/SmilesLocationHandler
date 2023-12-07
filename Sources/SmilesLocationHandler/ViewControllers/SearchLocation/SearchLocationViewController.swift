@@ -42,6 +42,7 @@ class SearchLocationViewController: UIViewController {
             }
         }
     }
+    private var isFromUpdateLocation: Bool
     
     // MARK: - ACTIONS -
     @IBAction func clearPressed(_ sender: Any) {
@@ -55,8 +56,9 @@ class SearchLocationViewController: UIViewController {
     }
     
     // MARK: - INITIALIZERS -
-    init(locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+    init(isFromUpdateLocation: Bool, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         self.locationSelected = locationSelected
+        self.isFromUpdateLocation = isFromUpdateLocation
         super.init(nibName: "SearchLocationViewController", bundle: .module)
     }
     
@@ -234,12 +236,12 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
                 model.cityName = selectedResult.formattedAddress
                 model.cityLatitude = Double(selectedResult.latitude)
                 model.cityLongitude = Double(selectedResult.longitude)
-                
-                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .searchLocation) { location in
-                    
+                if isFromUpdateLocation {
+                    SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: .searchLocation, delegate: self)
+                } else {
+                    locationSelected?(selectedResult)
+                    SmilesLocationRouter.shared.popVC()
                 }
-                //locationSelected?(selectedResult)
-                //SmilesLocationRouter.shared.popVC()
             }
         } else {
             if !result.addressId.isEmpty {
@@ -251,11 +253,11 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return showRecents ? RecentLocationHeader() : nil
+        return (showRecents && !searchResults.isEmpty) ? RecentLocationHeader() : nil
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return showRecents ? UITableView.automaticDimension : 0
+        return (showRecents && !searchResults.isEmpty) ? UITableView.automaticDimension : 0
     }
     
 }
@@ -274,12 +276,12 @@ extension SearchLocationViewController {
             model.cityName = selectedResult.formattedAddress
             model.cityLatitude = Double(selectedResult.latitude)
             model.cityLongitude = Double(selectedResult.longitude)
-            
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .searchLocation) { location in
-                
+            if isFromUpdateLocation {
+                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: .searchLocation, delegate: self)
+            } else {
+                locationSelected?(selectedResult)
+                SmilesLocationRouter.shared.popVC()
             }
-//            locationSelected?(selectedResult)
-//            SmilesLocationRouter.shared.popVC()
         }
         
     }
@@ -304,6 +306,19 @@ extension SearchLocationViewController {
         if let recentLocations = UserDefaults.standard.object([SearchedLocationDetails].self, with: Constants.Keys.recentLocation) {
             searchResults = recentLocations.reversed()
         }
+        
+    }
+    
+}
+
+// MARK: - CONFIRM LOCATION DELEGATE -
+extension SearchLocationViewController: ConfirmLocationDelegate {
+    
+    func locationPicked(location: SearchLocationResponseModel) {
+        
+        guard let latitude = location.lat, let longitude = location.long else { return }
+        let selectedLocation = SearchedLocationDetails(latitude: latitude, longitude: longitude)
+        locationSelected?(selectedLocation)
         
     }
     
