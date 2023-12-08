@@ -126,7 +126,7 @@ extension AddressOperationViewModel {
         let request = RegisterLocationRequest()
         request.isGuestUser = isGuestUser
         if let userInfo = LocationStateSaver.getLocationInfo() {
-            request.userInfo = userInfo
+            request.locationInfo = userInfo
         }
         let service = ManageAddressRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),baseUrl: AppCommonMethods.serviceBaseUrl,
