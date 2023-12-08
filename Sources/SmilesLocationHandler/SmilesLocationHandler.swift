@@ -92,19 +92,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         SmilesLocationHandler.isLocationEnabled = isAllowed
         LocationManager.shared.destroyLocationManager()
         switch self.controllerType{
-        case .fromDashboard:
-            if isFirstLaunch {
-                getUserCurrentLocation()
-            } else {
-                if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
-                    locationName = loc
-                    locationNickName = location.nickName ?? "---"
-                    self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-                } else {
-                    setupSetLocationString()
-                }
-            }
-        case .fromFood, .fromVertical:
+        case .fromFood:
             if let location = LocationStateSaver.getLocationInfo() {
                 if let _ = location.locationId {
                     debugPrint("call update service for mamba")
@@ -113,6 +101,18 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                     guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
                           let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
                     self.locationsUseCaseInput.send(.registerUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                }
+            }
+        default:
+            if controllerType == .fromDashboard && isFirstLaunch {
+                getUserCurrentLocation()
+            } else {
+                if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
+                    locationName = loc
+                    locationNickName = location.nickName ?? "Current Location".localizedString
+                    self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+                } else {
+                    setupSetLocationString()
                 }
             }
         }
@@ -185,7 +185,7 @@ extension SmilesLocationHandler {
         LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
         if let userInfo = LocationStateSaver.getLocationInfo() {
             locationName = userInfo.location ?? ""
-            locationNickName = userInfo.nickName ?? "---"
+            locationNickName = userInfo.nickName ?? "Current Location".localizedString
             self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
         }
         self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
@@ -199,7 +199,7 @@ extension SmilesLocationHandler {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
             if let userInfo = LocationStateSaver.getLocationInfo() {
                 locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "---"
+                locationNickName = userInfo.nickName ?? "Current Location".localizedString
                 self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
             }
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
@@ -221,7 +221,7 @@ extension SmilesLocationHandler {
                 fireEvent?(Constants.AnalyticsEvent.locationRegistered)
                 LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
                 locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "---"
+                locationNickName = userInfo.nickName ?? "Current Location".localizedString
                 self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
                 self.smilesLocationHandlerDelegate?.gotUserLocation()
             }
