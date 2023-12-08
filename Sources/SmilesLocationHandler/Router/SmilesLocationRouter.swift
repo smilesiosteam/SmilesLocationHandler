@@ -56,11 +56,7 @@ import CoreLocation
     
     private func handleDetectLocationAction(for controllerType: LocationPopUpType) {
         switch controllerType {
-        case .detectLocation:
-            if let navigationController = navigationController {
-                self.pushUpdateLocationViewController(with: navigationController)
-            }
-        case .automaticallyDetectLocation:
+        case .detectLocation, .automaticallyDetectLocation:
             LocationManager.shared.showPopupForSettings()
         case .deleteWorkAddress:
             // Handle detect location action for DeleteWorkAddress
@@ -75,8 +71,9 @@ import CoreLocation
                 presentSetLocationPopUp(on: topViewController)
             }
         case .automaticallyDetectLocation:
-            // Handle search location action for AutomaticallyDetectLocation
-            break
+            if let navigationController = navigationController {
+                self.pushUpdateLocationViewController(with: navigationController)
+            }
         case .deleteWorkAddress:
             // Handle search location action for DeleteWorkAddress
             break
