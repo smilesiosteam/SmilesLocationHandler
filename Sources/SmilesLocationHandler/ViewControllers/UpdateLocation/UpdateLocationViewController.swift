@@ -134,6 +134,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
             self.isEditingEnabled = false
             self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         } else {
+            // will reset the selection in Editing mode
+            self.selectedIndex = -1
             self.isEditingEnabled = true
             self.editButton.setTitle("Done".localizedString, for: .normal)
         }
@@ -156,8 +158,14 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         
     }
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
+        
+        if isEditingEnabled {
+            self.selectedIndex = -1
+            self.isEditingEnabled = false
+            self.addressesTableView.reloadData()
+        }
         SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
-            
+
         }
     }
     @IBAction func didTabConfirmLocation(_ sender: UIButton) {
@@ -211,13 +219,16 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         }
     }
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
-        if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
-            self.confirmLocationButton.isUserInteractionEnabled = true
-            self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
-            self.selectedAddress = self.addressDataSource[indexPath.row]
-            self.selectedIndex = indexPath.row
-            self.addressesTableView.reloadData()
+        // if editing mode is enabled then it will not let user select
+        if !isEditingEnabled{
+            if let indexPath = self.addressesTableView.indexPath(for: cell) {
+                self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
+                self.confirmLocationButton.isUserInteractionEnabled = true
+                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
+                self.selectedAddress = self.addressDataSource[indexPath.row]
+                self.selectedIndex = indexPath.row
+                self.addressesTableView.reloadData()
+            }
         }
     }
     

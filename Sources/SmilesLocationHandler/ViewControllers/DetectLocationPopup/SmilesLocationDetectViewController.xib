@@ -5,7 +5,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -40,6 +39,11 @@
                                 <constraint firstAttribute="height" constant="5" id="Nej-Dy-k5a"/>
                                 <constraint firstAttribute="width" constant="45" id="qNf-0y-wGd"/>
                             </constraints>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                    <integer key="value" value="5"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
                         </view>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="58e-jr-pPc">
                             <rect key="frame" x="353" y="24" width="24" height="24"/>
@@ -53,8 +57,9 @@
                                 <action selector="didTabCrossButton:" destination="-1" eventType="touchUpInside" id="JPl-Ck-QHQ"/>
                             </connections>
                         </button>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="detectLocationIcon" translatesAutoresizingMaskIntoConstraints="NO" id="9i4-fW-Sh3">
+                        <imageView clipsSubviews="YES" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="detectLocationIcon" translatesAutoresizingMaskIntoConstraints="NO" id="9i4-fW-Sh3">
                             <rect key="frame" x="151.66666666666666" y="56" width="90" height="90"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="90" id="Z46-cm-nru"/>
                                 <constraint firstAttribute="height" constant="90" id="ghg-py-JJ7"/>
@@ -115,7 +120,7 @@
                             </connections>
                         </button>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="RKT-3S-uF1" firstAttribute="leading" secondItem="kNB-Nn-QYE" secondAttribute="leading" constant="16" id="342-MN-wQB"/>
                         <constraint firstItem="RKT-3S-uF1" firstAttribute="top" secondItem="9i4-fW-Sh3" secondAttribute="bottom" constant="16" id="9Dz-wv-lll"/>
@@ -157,17 +162,14 @@
     </objects>
     <designables>
         <designable name="7jw-I3-Ce3">
-            <size key="intrinsicContentSize" width="112" height="31"/>
+            <size key="intrinsicContentSize" width="115" height="32"/>
         </designable>
         <designable name="ZCd-L5-vp4">
-            <size key="intrinsicContentSize" width="109" height="31"/>
+            <size key="intrinsicContentSize" width="114" height="32"/>
         </designable>
     </designables>
     <resources>
         <image name="detectLocationCross" width="24" height="24"/>
         <image name="detectLocationIcon" width="90.333335876464844" height="90"/>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>
