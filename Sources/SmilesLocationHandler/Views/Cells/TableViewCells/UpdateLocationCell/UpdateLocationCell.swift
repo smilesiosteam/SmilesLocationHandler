@@ -65,6 +65,13 @@ class UpdateLocationCell: UITableViewCell {
             self.detailLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
             self.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
         
+            if address.selection == 1 {
+                mainView.borderColor = .appRevampPurpleMainColor
+                forwardButton.setImage(UIImage(named: "checked_address_radio", in: .module, with: nil), for: .normal)
+            } else {
+                forwardButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, with: nil), for: .normal)
+                mainView.borderColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+            }
         }
         
     }

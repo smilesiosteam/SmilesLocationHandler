@@ -26,10 +26,9 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     @IBOutlet weak var confirmLocationButton: UIButton!
     
     // MARK: - Properties
-    var selectedIndex = -1
-    var isEditingEnabled: Bool = false
-    var addressDataSource = [Address]()
-    var selectedAddress: Address?
+    private var isEditingEnabled: Bool = false
+    private var addressDataSource = [Address]()
+    private var selectedAddress: Address?
     private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private lazy var viewModel: ManageAddressViewModel = {
@@ -192,13 +191,6 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         cell.delegate = self
         cell.configureCell(with: addressDataSource[indexPath.row])
         cell.selectionStyle = .none
-        if (selectedIndex == indexPath.row) {
-            cell.mainView.borderColor = .appRevampPurpleMainColor
-            cell.forwardButton.setImage(UIImage(named: "checked_address_radio", in: .module, with: nil), for: .normal)
-        } else {
-            cell.forwardButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, with: nil), for: .normal)
-            cell.mainView.borderColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
-        }
         return cell
     }
     
@@ -225,7 +217,9 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             self.confirmLocationButton.isUserInteractionEnabled = true
             self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
             self.selectedAddress = self.addressDataSource[indexPath.row]
-            self.selectedIndex = indexPath.row
+            for (index, address) in addressDataSource.enumerated() {
+                address.selection = index == indexPath.row ? 1 : 0
+            }
             self.addressesTableView.reloadData()
         }
     }

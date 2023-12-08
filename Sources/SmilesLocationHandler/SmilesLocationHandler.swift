@@ -12,8 +12,9 @@ public enum LocationCheckEntryPoint {
 }
 
 public protocol SmilesLocationHandlerDelegate: AnyObject {
-    func getUserLocationWith(locationName:String, andLocationNickName:String)
+    func showUserLocation(locationName:String, andLocationNickName:String)
     func locationUpdatedSuccessfully()
+    func gotUserLocation()
 }
 
 public class SmilesLocationHandler {
@@ -55,7 +56,7 @@ public class SmilesLocationHandler {
         
         locationName = ""
         locationNickName = "SetLocationKey".localizedString
-        self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+        self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
         
     }
     
@@ -98,7 +99,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                 if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
                     locationName = loc
                     locationNickName = location.nickName ?? "---"
-                    self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+                    self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
                 } else {
                     setupSetLocationString()
                 }
@@ -175,7 +176,7 @@ extension SmilesLocationHandler{
 extension SmilesLocationHandler {
     
     private func displayLocationName(_ locationName: String) {
-        self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+        self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
     }
     
     private func updateUserLocationSucceeded(response : RegisterLocationResponse) {
@@ -185,7 +186,7 @@ extension SmilesLocationHandler {
         if let userInfo = LocationStateSaver.getLocationInfo() {
             locationName = userInfo.location ?? ""
             locationNickName = userInfo.nickName ?? "---"
-            self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+            self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
         }
         self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         
@@ -199,7 +200,7 @@ extension SmilesLocationHandler {
             if let userInfo = LocationStateSaver.getLocationInfo() {
                 locationName = userInfo.location ?? ""
                 locationNickName = userInfo.nickName ?? "---"
-                self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
             }
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         }
@@ -221,7 +222,8 @@ extension SmilesLocationHandler {
                 LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
                 locationName = userInfo.location ?? ""
                 locationNickName = userInfo.nickName ?? "---"
-                self.smilesLocationHandlerDelegate?.getUserLocationWith(locationName: locationName, andLocationNickName: locationNickName)
+                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+                self.smilesLocationHandlerDelegate?.gotUserLocation()
             }
         }
         
