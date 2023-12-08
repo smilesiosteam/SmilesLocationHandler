@@ -17,10 +17,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
     @IBOutlet weak var editButton: UIButton!
-    @IBOutlet weak var currentLocationRadioButton: UIButton!
     @IBOutlet weak var savedAddressedLabel: UILabel!
     @IBOutlet weak var addNewAddressLabel: UILabel!
-    @IBOutlet weak var useMycurrentLocationLabel: UILabel!
     @IBOutlet weak var currentLocationLabel: UILabel!
     @IBOutlet weak var currentLocationContainer: UIView!
     @IBOutlet weak var confirmLocationButton: UIButton!
@@ -29,7 +27,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private var isEditingEnabled: Bool = false
     private var addressDataSource = [Address]()
     private var selectedAddress: Address?
-    private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
+    private var isCurrentLocationSetByUser = false
+    private var input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private lazy var viewModel: ManageAddressViewModel = {
         return ManageAddressViewModel()
@@ -87,7 +86,6 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.confirmLocationButton.fontTextStyle = .smilesHeadline4
         self.editButton.fontTextStyle = .smilesHeadline4
         self.addNewAddressLabel.fontTextStyle = .smilesHeadline4
-        self.useMycurrentLocationLabel.fontTextStyle = .smilesHeadline4
         self.currentLocationLabel.fontTextStyle = .smilesBody3
         self.savedAddressedLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
@@ -96,20 +94,22 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private func updateUI() {
         self.editButton.isHidden = true
         self.confirmLocationButton.setTitle("confirm_address".localizedString, for: .normal)
-        self.useMycurrentLocationLabel.text = "UseCurrentLocationTitle".localizedString
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         self.confirmLocationButton.isUserInteractionEnabled = false
         self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(0.5)
-        if SmilesLocationHandler.isLocationEnabled {
+        if SmilesLocationHandler.isLocationEnabled && !isCurrentLocationSetByUser {
             self.currentLocationContainer.isHidden = false
             if let userInfo = LocationStateSaver.getLocationInfo() {
-                self.useMycurrentLocationLabel.text = userInfo.nickName
                 self.currentLocationLabel.text = userInfo.location
             }
         }
         
+    }
+    
+    private func setupCurrentLocationContainerSelection(isSelected: Bool = false) {
+        currentLocationContainer.layer.borderColor = (isSelected ? .appRevampPurpleMainColor : UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)).cgColor
     }
     
     func setupTableViewCells() {
@@ -144,8 +144,6 @@ final class UpdateLocationViewController: UIViewController, Toastable {
             self.isEditingEnabled = false
             self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         } else {
-            // will reset the selection in Editing mode
-//            self.selectedAddress = nil
             self.isEditingEnabled = true
             self.editButton.setTitle("Done".localizedString, for: .normal)
         }
@@ -163,12 +161,16 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
-        if isEditingEnabled {
-//            self.selectedAddress = nil
-            self.isEditingEnabled = false
-            self.addressesTableView.reloadData()
+        
+        self.isEditingEnabled = false
+        addressDataSource.forEach { address in
+            address.selection = 0
         }
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, delegate: self)
+        selectedAddress = nil
+        self.addressesTableView.reloadData()
+        setupCurrentLocationContainerSelection(isSelected: true)
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .updateUserLocation, delegate: self)
+        
     }
     
     @IBAction func didTabConfirmLocation(_ sender: UIButton) {
@@ -180,7 +182,6 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
         
     }
-    
     
 }
 
@@ -194,10 +195,9 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
-        cell.editButton.isHidden = !isEditingEnabled
-        cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
         cell.delegate = self
-        cell.configureCell(with: addressDataSource[indexPath.row])
+        let address = addressDataSource[indexPath.row]
+        cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: selectedAddress?.addressId == address.addressId)
         cell.selectionStyle = .none
         return cell
     }
@@ -223,13 +223,10 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
-                self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
                 self.confirmLocationButton.isUserInteractionEnabled = true
                 self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
                 self.selectedAddress = self.addressDataSource[indexPath.row]
-                for (index, address) in addressDataSource.enumerated() {
-                    address.selection = index == indexPath.row ? 1 : 0
-                }
+                setupCurrentLocationContainerSelection(isSelected: false)
                 self.addressesTableView.reloadData()
             }
         }
@@ -295,6 +292,13 @@ extension UpdateLocationViewController: ConfirmLocationDelegate {
         isNewAddressAdded = true
         SmilesLoader.show()
         self.input.send(.getUserLocation(location: location))
+    }
+    
+    func locationPicked(location: SearchLocationResponseModel) {
+        guard let latitude = location.lat, let longitude = location.long else { return }
+        isCurrentLocationSetByUser = true
+        SmilesLoader.show()
+        self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
     }
     
 }

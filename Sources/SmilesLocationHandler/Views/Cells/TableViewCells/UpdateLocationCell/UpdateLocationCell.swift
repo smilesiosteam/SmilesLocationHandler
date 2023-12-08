@@ -53,7 +53,8 @@ class UpdateLocationCell: UITableViewCell {
         self.detailLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
-    func configureCell(with address: Address?) {
+    func configureCell(with address: Address?, isEditingEnabled: Bool, isSelected: Bool? = nil) {
+        
         if let address = address {
             self.headingLabel.text = address.nickname
             
@@ -64,17 +65,30 @@ class UpdateLocationCell: UITableViewCell {
 
             self.detailLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
             self.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
-        
-            if address.selection == 1 {
-                mainView.borderColor = .appRevampPurpleMainColor
-                forwardButton.setImage(UIImage(named: "checked_address_radio", in: .module, with: nil), for: .normal)
+            
+            editButton.isHidden = !isEditingEnabled
+            mainViewLeading.constant = isEditingEnabled ? 48 : 16
+            if isEditingEnabled {
+                setupSelection(isSelected: false)
+                return
+            }
+            
+            if let isSelected {
+                setupSelection(isSelected: isSelected)
             } else {
-                forwardButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, with: nil), for: .normal)
-                mainView.borderColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+                setupSelection(isSelected: address.selection == 1)
             }
         }
         
     }
+    
+    private func setupSelection(isSelected: Bool) {
+        
+        mainView.borderColor = isSelected ? .appRevampPurpleMainColor : UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+        forwardButton.setImage(UIImage(named: isSelected ? "checked_address_radio" : "unchecked_address_radio", in: .module, with: nil), for: .normal)
+        
+    }
+    
     func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
         let components = [flatNo, building, street, locationName]
         var addressString = ""

@@ -24,10 +24,8 @@
                 <outlet property="confirmLocationButton" destination="cpa-P5-Ktf" id="LtS-GF-vIY"/>
                 <outlet property="currentLocationContainer" destination="7jz-IN-ovn" id="pLA-8Z-8Ce"/>
                 <outlet property="currentLocationLabel" destination="d5j-VK-SsJ" id="hfv-ff-p0A"/>
-                <outlet property="currentLocationRadioButton" destination="Pek-6M-faU" id="KQq-Cq-CB6"/>
                 <outlet property="editButton" destination="biH-fS-xY9" id="vhd-bT-kTz"/>
                 <outlet property="savedAddressedLabel" destination="fzz-Op-5IV" id="uN0-4u-rvT"/>
-                <outlet property="useMycurrentLocationLabel" destination="ZVI-5q-Hyz" id="Zgr-Yg-zW5"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -114,7 +112,7 @@
                     <rect key="frame" x="16" y="158" width="361" height="0.0"/>
                     <subviews>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7jz-IN-ovn" customClass="UICustomView" customModule="SmilesUtilities">
-                            <rect key="frame" x="0.0" y="0.0" width="361" height="100"/>
+                            <rect key="frame" x="0.0" y="0.0" width="361" height="61"/>
                             <subviews>
                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="use_my_location_icon" translatesAutoresizingMaskIntoConstraints="NO" id="GmO-3o-SeP">
                                     <rect key="frame" x="16" y="16" width="24" height="24"/>
@@ -123,48 +121,52 @@
                                         <constraint firstAttribute="width" constant="24" id="ueF-Ru-ZOg"/>
                                     </constraints>
                                 </imageView>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pek-6M-faU">
-                                    <rect key="frame" x="321" y="16" width="24" height="24"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="24" id="LVH-7Y-oCs"/>
-                                        <constraint firstAttribute="height" constant="24" id="S8A-4y-gep"/>
-                                    </constraints>
-                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                    <state key="normal" image="manage_address_chevron"/>
-                                    <connections>
-                                        <action selector="didTabCurrentLocationButton:" destination="-1" eventType="touchUpInside" id="2cc-Uv-oB7"/>
-                                    </connections>
-                                </button>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZVI-5q-Hyz">
-                                    <rect key="frame" x="52" y="16" width="257" height="21"/>
+                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="manage_address_chevron" translatesAutoresizingMaskIntoConstraints="NO" id="aty-ob-iJe">
+                                    <rect key="frame" x="315" y="16" width="30" height="30"/>
+                                </imageView>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZVI-5q-Hyz" customClass="UILocalizableLabel" customModule="SmilesUtilities">
+                                    <rect key="frame" x="52" y="16" width="0.0" height="21"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="21" id="m3L-4b-LBh"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="UseCurrentLocationTitle"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesHeadline4"/>
+                                    </userDefinedRuntimeAttributes>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d5j-VK-SsJ">
-                                    <rect key="frame" x="52" y="45" width="257" height="0.0"/>
+                                    <rect key="frame" x="52" y="45" width="0.0" height="0.0"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pek-6M-faU">
+                                    <rect key="frame" x="0.0" y="0.0" width="361" height="61"/>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <connections>
+                                        <action selector="didTabCurrentLocationButton:" destination="-1" eventType="touchUpInside" id="2cc-Uv-oB7"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>
-                                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="d5j-VK-SsJ" secondAttribute="bottom" constant="16" id="21s-r3-cuE"/>
+                                <constraint firstItem="aty-ob-iJe" firstAttribute="top" secondItem="7jz-IN-ovn" secondAttribute="top" constant="16" id="0qZ-7K-ZMb"/>
+                                <constraint firstAttribute="bottom" secondItem="d5j-VK-SsJ" secondAttribute="bottom" constant="16" id="21s-r3-cuE"/>
+                                <constraint firstAttribute="bottom" secondItem="Pek-6M-faU" secondAttribute="bottom" id="3ko-kT-CA1"/>
                                 <constraint firstItem="d5j-VK-SsJ" firstAttribute="top" secondItem="ZVI-5q-Hyz" secondAttribute="bottom" constant="8" id="Epc-wq-zm2"/>
-                                <constraint firstItem="Pek-6M-faU" firstAttribute="leading" secondItem="ZVI-5q-Hyz" secondAttribute="trailing" constant="12" id="IWo-Mb-WAN"/>
                                 <constraint firstItem="d5j-VK-SsJ" firstAttribute="trailing" secondItem="ZVI-5q-Hyz" secondAttribute="trailing" id="JIg-aW-iAX"/>
                                 <constraint firstItem="GmO-3o-SeP" firstAttribute="leading" secondItem="7jz-IN-ovn" secondAttribute="leading" constant="16" id="O1E-hF-4ug"/>
                                 <constraint firstItem="ZVI-5q-Hyz" firstAttribute="leading" secondItem="GmO-3o-SeP" secondAttribute="trailing" constant="12" id="PLb-cp-mKt"/>
+                                <constraint firstItem="Pek-6M-faU" firstAttribute="leading" secondItem="7jz-IN-ovn" secondAttribute="leading" id="Y7H-GY-oIl"/>
+                                <constraint firstAttribute="trailing" secondItem="aty-ob-iJe" secondAttribute="trailing" constant="16" id="fmy-BW-3mf"/>
                                 <constraint firstItem="GmO-3o-SeP" firstAttribute="top" secondItem="7jz-IN-ovn" secondAttribute="top" constant="16" id="j0q-Bf-2Iz"/>
                                 <constraint firstItem="ZVI-5q-Hyz" firstAttribute="top" secondItem="7jz-IN-ovn" secondAttribute="top" constant="16" id="k3Q-SS-w8w"/>
                                 <constraint firstItem="d5j-VK-SsJ" firstAttribute="leading" secondItem="ZVI-5q-Hyz" secondAttribute="leading" id="mPe-Qe-FSY"/>
-                                <constraint firstAttribute="height" constant="100" id="oLT-uF-ln8"/>
-                                <constraint firstItem="Pek-6M-faU" firstAttribute="top" secondItem="7jz-IN-ovn" secondAttribute="top" constant="16" id="stc-fL-Ul9"/>
-                                <constraint firstAttribute="trailing" secondItem="Pek-6M-faU" secondAttribute="trailing" constant="16" id="xgU-s6-TBs"/>
+                                <constraint firstAttribute="trailing" secondItem="Pek-6M-faU" secondAttribute="trailing" id="oq7-xM-SU3"/>
+                                <constraint firstItem="Pek-6M-faU" firstAttribute="top" secondItem="7jz-IN-ovn" secondAttribute="top" id="stc-fL-Ul9"/>
                             </constraints>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
