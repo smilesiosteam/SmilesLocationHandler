@@ -12,11 +12,14 @@ import SmilesLanguageManager
 import GoogleMaps
 import Combine
 import CoreLocation
+import SmilesLoader
 
 enum ConfirmLocatiuonSourceScreen {
     case addAddressViewController
     case editAddressViewController
     case searchLocation
+    case updateUserLocation
+    case setLocation
 }
 
 class ConfirmUserLocationViewController: UIViewController {
@@ -90,13 +93,18 @@ class ConfirmUserLocationViewController: UIViewController {
         switch sourceScreen {
         case .addAddressViewController:
             moveToAddAddress(with: location)
-        case .editAddressViewController:
+        case .editAddressViewController, .updateUserLocation:
             delegate?.locationPicked(location: location)
             SmilesLocationRouter.shared.popVC()
         case .searchLocation:
             if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
                 self.navigationController?.popToViewController(updateLocationVC, animated: true)
                 delegate?.locationPicked(location: location)
+            }
+        case .setLocation:
+            if let latitude = Double(latitude), let longitude = Double(longitude) {
+                SmilesLoader.show()
+                input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
             }
         }
         
@@ -250,6 +258,16 @@ extension ConfirmUserLocationViewController {
                     self?.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
                     debugPrint(error?.localizedDescription ?? "")
+                case .getUserLocationDidSucceed(let response, _):
+                    SmilesLoader.dismiss()
+                    if let userInfo = response.userInfo {
+                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                        self?.navigationController?.popToRootViewController()
+                        NotificationCenter.default.post(name: .LocationUpdated, object: nil)
+                    }
+                case .getUserLocationDidFail(error: let error):
+                    SmilesLoader.dismiss()
+                    debugPrint(error)
                 default: break
                 }
             }.store(in: &cancellables)
