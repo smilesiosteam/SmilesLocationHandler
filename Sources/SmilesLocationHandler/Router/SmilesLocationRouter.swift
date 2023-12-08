@@ -60,11 +60,8 @@ import CoreLocation
             if let navigationController = navigationController {
                 self.pushUpdateLocationViewController(with: navigationController)
             }
-            // Handle detect location action for DetectLocation
-            break
         case .automaticallyDetectLocation:
-            // Handle detect location action for AutomaticallyDetectLocation
-            break
+            LocationManager.shared.showPopupForSettings()
         case .deleteWorkAddress:
             // Handle detect location action for DeleteWorkAddress
             break

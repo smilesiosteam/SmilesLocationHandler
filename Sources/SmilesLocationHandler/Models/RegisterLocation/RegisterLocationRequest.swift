@@ -38,7 +38,7 @@ public class RegisterLocationRequest: SmilesBaseMainRequest {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(self.menuItemType, forKey: .menuItemType)
         try container.encodeIfPresent(self.isGuestUser, forKey: .isGuestUser)
-        try container.encodeIfPresent(self.locationInfo, forKey: .userInfo)
+        try container.encode(self.locationInfo, forKey: .userInfo)
     }
     
     public func asDictionary(dictionary: [String: Any]) -> [String: Any] {

@@ -26,10 +26,9 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     @IBOutlet weak var confirmLocationButton: UIButton!
     
     // MARK: - Properties
-    var selectedIndex = -1
-    var isEditingEnabled: Bool = false
-    var addressDataSource = [Address]()
-    var selectedAddress: Address?
+    private var isEditingEnabled: Bool = false
+    private var addressDataSource = [Address]()
+    private var selectedAddress: Address?
     private var  input: PassthroughSubject<ManageAddressViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     private lazy var viewModel: ManageAddressViewModel = {
@@ -146,7 +145,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
             self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         } else {
             // will reset the selection in Editing mode
-            self.selectedIndex = -1
+//            self.selectedAddress = nil
             self.isEditingEnabled = true
             self.editButton.setTitle("Done".localizedString, for: .normal)
         }
@@ -165,7 +164,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
         if isEditingEnabled {
-            self.selectedIndex = -1
+//            self.selectedAddress = nil
             self.isEditingEnabled = false
             self.addressesTableView.reloadData()
         }
@@ -181,8 +180,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
         
     }
-
-
+    
+    
 }
 
 
@@ -200,13 +199,6 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         cell.delegate = self
         cell.configureCell(with: addressDataSource[indexPath.row])
         cell.selectionStyle = .none
-        if (selectedIndex == indexPath.row) {
-            cell.mainView.borderColor = .appRevampPurpleMainColor
-            cell.forwardButton.setImage(UIImage(named: "checked_address_radio", in: .module, with: nil), for: .normal)
-        } else {
-            cell.forwardButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, with: nil), for: .normal)
-            cell.mainView.borderColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
-        }
         return cell
     }
     
@@ -235,14 +227,15 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
                 self.confirmLocationButton.isUserInteractionEnabled = true
                 self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
                 self.selectedAddress = self.addressDataSource[indexPath.row]
-                self.selectedIndex = indexPath.row
+                for (index, address) in addressDataSource.enumerated() {
+                    address.selection = index == indexPath.row ? 1 : 0
+                }
                 self.addressesTableView.reloadData()
             }
         }
+        
     }
-    
 }
-
 // MARK: - ViewModel Binding
 extension UpdateLocationViewController {
     
@@ -285,7 +278,7 @@ extension UpdateLocationViewController {
                     debugPrint(error)
                 case .saveAddressDidSucceed(response: _):
                     if let latitudeString = self?.selectedAddress?.latitude, let longitudeString = self?.selectedAddress?.longitude,
-                        let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
                         self?.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
                     }
                 case .saveAddressDidFail(error: let error):
