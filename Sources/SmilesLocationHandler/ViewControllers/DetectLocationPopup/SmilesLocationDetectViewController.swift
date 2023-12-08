@@ -50,6 +50,8 @@ class SmilesLocationDetectViewController: UIViewController {
         self.messageLabel.text = viewModel?.data?.message
         if let imageName = viewModel?.data?.iconImage {
             self.imageIcon.image = UIImage(named: imageName, in: .module, compatibleWith: nil)
+            self.imageIcon.backgroundColor = .white
+            
         }
         self.detectButton.setTitle(viewModel?.data?.detectButtonTitle, for: .normal)
         self.searchButton.setTitle(viewModel?.data?.searchButtonTitle, for: .normal)
@@ -67,11 +69,11 @@ class SmilesLocationDetectViewController: UIViewController {
     }
     
     private func setupUI() {
-        
+        mainContainerView.backgroundColor = .white
         mainContainerView.clipsToBounds = true
         mainContainerView.layer.cornerRadius = 16
         mainContainerView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-        view.backgroundColor = .appRevampFilterTextColor.withAlphaComponent(0.6)
+//        view.backgroundColor = .appRevampFilterTextColor.withAlphaComponent(0.6)
         panDismissView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
         panDismissView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }

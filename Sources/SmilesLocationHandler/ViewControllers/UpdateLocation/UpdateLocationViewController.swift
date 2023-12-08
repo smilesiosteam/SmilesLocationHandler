@@ -144,6 +144,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
             self.isEditingEnabled = false
             self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         } else {
+            // will reset the selection in Editing mode
+//            self.selectedAddress = nil
             self.isEditingEnabled = true
             self.editButton.setTitle("Done".localizedString, for: .normal)
         }
@@ -161,6 +163,11 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
+        if isEditingEnabled {
+//            self.selectedAddress = nil
+            self.isEditingEnabled = false
+            self.addressesTableView.reloadData()
+        }
         SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, delegate: self)
     }
     
@@ -173,6 +180,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
         
     }
+    
     
 }
 
@@ -212,20 +220,22 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         }
     }
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
-        if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
-            self.confirmLocationButton.isUserInteractionEnabled = true
-            self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
-            self.selectedAddress = self.addressDataSource[indexPath.row]
-            for (index, address) in addressDataSource.enumerated() {
-                address.selection = index == indexPath.row ? 1 : 0
+        // if editing mode is enabled then it will not let user select
+        if !isEditingEnabled{
+            if let indexPath = self.addressesTableView.indexPath(for: cell) {
+                self.currentLocationRadioButton.setImage(UIImage(named: "unchecked_address_radio", in: .module, compatibleWith: nil), for: .normal)
+                self.confirmLocationButton.isUserInteractionEnabled = true
+                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
+                self.selectedAddress = self.addressDataSource[indexPath.row]
+                for (index, address) in addressDataSource.enumerated() {
+                    address.selection = index == indexPath.row ? 1 : 0
+                }
+                self.addressesTableView.reloadData()
             }
-            self.addressesTableView.reloadData()
         }
+        
     }
-    
 }
-
 // MARK: - ViewModel Binding
 extension UpdateLocationViewController {
     
@@ -268,7 +278,7 @@ extension UpdateLocationViewController {
                     debugPrint(error)
                 case .saveAddressDidSucceed(response: _):
                     if let latitudeString = self?.selectedAddress?.latitude, let longitudeString = self?.selectedAddress?.longitude,
-                        let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
                         self?.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
                     }
                 case .saveAddressDidFail(error: let error):
