@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import CoreLocation
+import SmilesUtilities
 
 struct SmilesLocationConfigurator {
     
@@ -16,9 +17,9 @@ struct SmilesLocationConfigurator {
         case createDetectLocationPopup(_ viewModel: DetectLocationPopupViewModel?)
         case setLocationPopUp
         case manageAddresses
-        case addOrEditAddress
-        case confirmUserLocation(selectedCity: GetCitiesModel?, locationHandler: ((SearchLocationResponseModel) -> Void)?)
-        case searchLocation(locationSelected: ((SearchedLocationDetails) -> Void))
+        case addOrEditAddress(addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate?)
+        case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen, delegate: ConfirmLocationDelegate?)
+        case searchLocation(isFromUpdateLocation: Bool, locationSelected: ((SearchedLocationDetails) -> Void))
         case updateLocation(delegate: UpdateUserLocationDelegate?)
         
     }
@@ -32,15 +33,14 @@ struct SmilesLocationConfigurator {
             return vc
         case .manageAddresses:
             return SmilesManageAddressesViewController()
-        case .confirmUserLocation(let selectedCity, let locationHandler):
-            let vc = ConfirmUserLocationViewController(selectedCity: selectedCity)
-            vc.locationHandler = locationHandler
+        case .confirmUserLocation(let selectedCity, let sourceScreen, let delegate):
+            let vc = ConfirmUserLocationViewController(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)
             return vc
-        case .searchLocation(let locationSelected):
-            let vc = SearchLocationViewController(locationSelected: locationSelected)
+        case .searchLocation(let isFromUpdateLocation, let locationSelected):
+            let vc = SearchLocationViewController(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)
             return vc
-        case .addOrEditAddress:
-            let vc = AddOrEditAddressViewController()
+        case .addOrEditAddress(let addressObject, let selectedLocation, let delegate):
+            let vc = AddOrEditAddressViewController(addressObj: addressObject, selectedLocation: selectedLocation, delegate: delegate)
             return vc
         case .updateLocation(let delegate):
             let vc = UpdateLocationViewController(delegate: delegate)

@@ -36,6 +36,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         return ManageAddressViewModel()
     }()
     private weak var delegate: UpdateUserLocationDelegate?
+    private var isNewAddressAdded = false
+    
     // MARK: - Methods
     init(delegate: UpdateUserLocationDelegate? = nil) {
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
@@ -45,6 +47,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     private func setUpNavigationBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         let appearance = UINavigationBarAppearance()
@@ -78,6 +81,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.navigationItem.leftBarButtonItem = barButton
         self.navigationController?.navigationBar.tintColor = .black
     }
+    
     private func styleFontAndTextColor() {
         
         self.savedAddressedLabel.fontTextStyle = .smilesHeadline3
@@ -89,6 +93,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.savedAddressedLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
+    
     private func updateUI() {
         self.editButton.isHidden = true
         self.confirmLocationButton.setTitle("confirm_address".localizedString, for: .normal)
@@ -107,27 +112,33 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
         
     }
+    
     func setupTableViewCells() {
         addressesTableView.registerCellFromNib(UpdateLocationCell.self, withIdentifier: String(describing: UpdateLocationCell.self), bundle: .module)
     }
+    
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
     }
+    
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         bind(to: viewModel)
         setupTableViewCells()
         styleFontAndTextColor()
-        
         // Do any additional setup after loading the view.
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
-        SmilesLoader.show(on: self.view)
-        self.input.send(.getAllAddress)
+        if !isNewAddressAdded {
+            SmilesLoader.show()
+            self.input.send(.getAllAddress)
+        }
     }
+    
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
         if (isEditingEnabled) {
@@ -141,39 +152,37 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         }
         self.addressesTableView.reloadData()
     }
+    
     @IBAction func didTabSearchButton(_ sender: UIButton) {
-        SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
-            //            self?.latitude = "\(selectedLocation.latitude)"
-            //            self?.longitude = "\(selectedLocation.longitude)"
-            //            self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+        SmilesLocationRouter.shared.pushSearchLocationVC(isFromUpdateLocation: true, locationSelected: { [weak self] selectedLocation in
+            self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
         })
     }
+    
     @IBAction func didTabAddAddressButton(_ sender: UIButton) {
-        if let navigationController = navigationController {
-            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
-                
-            }
-            
-        }
-        
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, delegate: self)
     }
+    
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
-        
         if isEditingEnabled {
             self.selectedIndex = -1
             self.isEditingEnabled = false
             self.addressesTableView.reloadData()
         }
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil) { location in
-
-        }
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, delegate: self)
     }
+    
     @IBAction func didTabConfirmLocation(_ sender: UIButton) {
-        if let address = selectedAddress, let lat = Double(address.latitude ?? ""), let long = Double(address.longitude ?? "") {
-            SmilesLoader.show(on: self.view)
-            self.input.send(.getUserLocation(location: CLLocation(latitude:lat , longitude: long)))
+        
+        if let address = selectedAddress {
+            address.selection = 1
+            SmilesLoader.show()
+            self.input.send(.saveAddress(address: address))
         }
+        
     }
+
+
 }
 
 
@@ -210,7 +219,7 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
                 vc.setDetectLocationAction {
                     self.addressDataSource.remove(at: indexPath.row)
                     self.addressesTableView.reloadData()
-                    SmilesLoader.show(on: self.view)
+                    SmilesLoader.show()
                     self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
@@ -244,7 +253,7 @@ extension UpdateLocationViewController {
             .sink { [weak self] event in
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    SmilesLoader.dismiss()
                     debugPrint(response)
                     if let address = response.addresses {
                         self?.editButton.isHidden = false
@@ -252,7 +261,7 @@ extension UpdateLocationViewController {
                         self?.addressesTableView.reloadData()
                     }
                 case .fetchAllAddressDidFail(error: let error):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    SmilesLoader.dismiss()
                     debugPrint(error?.localizedDescription ?? "")
                 case .removeAddressDidSucceed(response: let response):
                     debugPrint(response)
@@ -264,22 +273,35 @@ extension UpdateLocationViewController {
                 case .removeAddressDidFail(error: _):
                     self?.input.send(.getAllAddress)
                     break
-                case .saveDefaultAddressDidSucceed(response: let response):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(response)
-                case .saveDefaultAddressDidFail(error: let error):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(error?.localizedDescription ?? "")
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    SmilesLoader.dismiss()
                     if let userInfo = response.userInfo {
                         LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                        SmilesLocationRouter.shared.popVC()
                         self?.delegate?.locationUpdatedSuccessfully()
                     }
                 case .getUserLocationDidFail(error: let error):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
+                    SmilesLoader.dismiss()
                     debugPrint(error)
+                case .saveAddressDidSucceed(response: _):
+                    if let latitudeString = self?.selectedAddress?.latitude, let longitudeString = self?.selectedAddress?.longitude,
+                        let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                        self?.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                    }
+                case .saveAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
+                    debugPrint(error ?? "")
                 }
             }.store(in: &cancellables)
     }
+}
+
+extension UpdateLocationViewController: ConfirmLocationDelegate {
+    
+    func newAddressAdded(location: CLLocation) {
+        isNewAddressAdded = true
+        SmilesLoader.show()
+        self.input.send(.getUserLocation(location: location))
+    }
+    
 }

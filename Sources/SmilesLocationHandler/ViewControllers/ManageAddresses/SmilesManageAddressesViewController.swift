@@ -178,15 +178,18 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         }
     }
     func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+
         if !isEditingEnabled {
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
-                let item = self.addressDataSource[indexPath.row]
+                 let item = self.addressDataSource[indexPath.row]
                 // Perform actions based on indexPath
                 if let navigationController = self.navigationController {
-                    SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item)
+                    SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item, delegate: nil)
+
                 }
             }
         }
+        
     }
     
 }

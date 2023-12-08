@@ -8,7 +8,7 @@ import AnalyticsSmiles
 public enum LocationCheckEntryPoint {
     case fromVertical
     case fromFood
-    case fromBAU
+    case fromDashboard
 }
 
 public protocol SmilesLocationHandlerDelegate: AnyObject {
@@ -25,7 +25,7 @@ public class SmilesLocationHandler {
     private var userLocation: CLLocation?
     private var locationName = ""
     private var locationNickName = ""
-    private var controllerType : LocationCheckEntryPoint = .fromBAU
+    private var controllerType : LocationCheckEntryPoint = .fromDashboard
     private var isFirstLaunch = false
     public var fireEvent: ((String) -> Void)?
     public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
@@ -36,7 +36,7 @@ public class SmilesLocationHandler {
         locationsViewModel.fireEvent = fireEvent
     }
     
-    public convenience init(delegate: SmilesLocationHandlerDelegate?, isFirstLaunch: Bool = false , controllerType: LocationCheckEntryPoint = .fromBAU){
+    public convenience init(delegate: SmilesLocationHandlerDelegate?, isFirstLaunch: Bool = false , controllerType: LocationCheckEntryPoint = .fromDashboard){
         self.init()
         self.controllerType = controllerType
         self.isFirstLaunch = isFirstLaunch
@@ -91,7 +91,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         SmilesLocationHandler.isLocationEnabled = isAllowed
         LocationManager.shared.destroyLocationManager()
         switch self.controllerType{
-        case .fromBAU:
+        case .fromDashboard:
             if isFirstLaunch {
                 getUserCurrentLocation()
             } else {

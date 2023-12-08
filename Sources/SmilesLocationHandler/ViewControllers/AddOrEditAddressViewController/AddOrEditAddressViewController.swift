@@ -10,6 +10,7 @@ import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
 import Combine
+import CoreLocation
 
 
 enum SmilesConfirmLocationRedirection {
@@ -25,7 +26,7 @@ enum SmilesConfirmLocationRedirection {
     case toCollectionDetails
 }
 
- class AddOrEditAddressViewController: UIViewController {
+class AddOrEditAddressViewController: UIViewController {
     
     // MARK: - IBOutlets
     @IBOutlet weak var btnChange: UIButton!
@@ -121,7 +122,7 @@ enum SmilesConfirmLocationRedirection {
     var selectedLocation: SearchLocationResponseModel?
     var isShortFormEnabled = true
     var nickNamesArray = [Nicknames]()
-   
+    
     var selectedNickName: String?
     var otherNickNameSelected = false
     var addressObj: Address?
@@ -136,10 +137,14 @@ enum SmilesConfirmLocationRedirection {
     private lazy var viewModel: AddOrEditAddressViewModel = {
         return AddOrEditAddressViewModel()
     }()
-     var redirectTo: SmilesConfirmLocationRedirection?
+    private weak var delegate: ConfirmLocationDelegate?
+    var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
-    init() {
+    init(addressObj: Address?, selectedLocation: SearchLocationResponseModel?, delegate: ConfirmLocationDelegate?) {
+        self.addressObj = addressObj
+        self.selectedLocation = selectedLocation
+        self.delegate = delegate
         super.init(nibName: "AddOrEditAddressViewController", bundle: .module)
     }
     
@@ -233,12 +238,12 @@ enum SmilesConfirmLocationRedirection {
             txtField.textAlignment  = AppCommonMethods.languageIsArabic() ? .right : .left
         }
         
-       // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
+        // self.input.send(.getLocationName(lat: String(selectedLocation?.lat ?? 0.0) , long: String(selectedLocation?.long ?? 0.0)))
         if let title = selectedLocation?.title {
             self.addressLabel.text = title
         }
         
-       
+        
         deliveryToLabel.text = "deliver_address".localizedString
         villaFlatNoLabel.text = "VillaFlatno".localizedString
         flatNoTextField.placeholder = "EnterTitle".localizedString.capitalizingFirstLetter()
@@ -309,25 +314,19 @@ enum SmilesConfirmLocationRedirection {
     }
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
-       let model = GetCitiesModel()
+        
+        let model = GetCitiesModel()
         if let object = self.addressObj {
-            model.cityName = self.addressLabel.text
             model.cityLatitude = Double(object.latitude ?? "")
             model.cityLongitude = Double(object.longitude ?? "")
+        } else if let lat = selectedLocation?.lat, let long = selectedLocation?.long {
+            model.cityLatitude = lat
+            model.cityLongitude = long
         }
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController) { location in
-            self.addressLabel.text = location.title
-            let addressObj = Address()
-            addressObj.latitude =  "\(location.lat ?? 0)"
-            addressObj.longitude = "\(location.long ?? 0)"
-            if let addressid = self.addressObj?.addressId {
-                addressObj.addressId = addressid
-            }
-            
-            self.addressObj = addressObj
-           // self.getNewAddressLocation(location: location)
-        }
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
+        
     }
+    
     @IBAction func saveButtonClicked(_ sender: Any) {
         saveButton.isUserInteractionEnabled = false
         
@@ -353,11 +352,11 @@ enum SmilesConfirmLocationRedirection {
             address.longitude = String(selectedLocation?.long ?? 0)
             address.locationName = selectedLocation?.title
         }
-        
+        addressObj = address
         self.input.send(.saveAddress(address: address))
         
     }
-     
+    
 }
 // MARK: - ViewModel Binding
 extension AddOrEditAddressViewController {
@@ -381,9 +380,8 @@ extension AddOrEditAddressViewController {
                 case .saveAddressDidSucceed(response: let response):
                     debugPrint(response)
                     self?.redirectUserAfterConfirmLocation()
-                    break
-                case .saveAddressDidFail(error: _):
-                    break
+                case .saveAddressDidFail(error: let error):
+                    debugPrint(error ?? "")
                 }
             }.store(in: &cancellables)
     }
@@ -404,24 +402,24 @@ extension AddOrEditAddressViewController: UICollectionViewDelegate, UICollection
         let cell = collectionView.dequeueReusableCell(withClass: AddressNicknameCollectionViewCell.self, for: indexPath)
         
         let nickNameObject = nickNamesArray[indexPath.item]
-            cell.containerView.layer.borderWidth = 1
-            if nickNameObject.isSelected.asBoolOrFalse() {
-                
-                cell.containerView.backgroundColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
-                selectedNickName = nickNameObject.nickname
-                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
-                nickNameView.isHidden = false
-            } else {
-                cell.containerView.backgroundColor = UIColor(hex: "ffffff")
-                collectionView.deselectItem(at: indexPath, animated: true)
-                nickNameView.isHidden = true
-            }
-            cell.containerView.layer.borderColor = UIColor.black.withAlphaComponent(0.2).cgColor
-            cell.configureCellWithData(nickName: nickNameObject)
-            isValid()
+        cell.containerView.layer.borderWidth = 1
+        if nickNameObject.isSelected.asBoolOrFalse() {
+            
+            cell.containerView.backgroundColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
+            selectedNickName = nickNameObject.nickname
+            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
+            nickNameView.isHidden = false
+        } else {
+            cell.containerView.backgroundColor = UIColor(hex: "ffffff")
+            collectionView.deselectItem(at: indexPath, animated: true)
+            nickNameView.isHidden = true
+        }
+        cell.containerView.layer.borderColor = UIColor.black.withAlphaComponent(0.2).cgColor
+        cell.configureCellWithData(nickName: nickNameObject)
+        isValid()
         
         
-            return cell
+        return cell
         
     }
     
@@ -529,10 +527,10 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             streetNameValid = self.checkTextFieldValid(textField: textField, view: streetTextFieldContainer, label: invalidStreetLabel)
             
         }
-//        else if textField == landmarkTextField {
-//            landMarkValid = self.checkTextFieldValid(textField: textField, view: landmarkTextFieldContainer, label: invalidLandmarkLabel)
-//            
-//        }
+        //        else if textField == landmarkTextField {
+        //            landMarkValid = self.checkTextFieldValid(textField: textField, view: landmarkTextFieldContainer, label: invalidLandmarkLabel)
+        //
+        //        }
     }
     
     func isValid() {
@@ -569,7 +567,7 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
             
         } else {
             if textField.text?.isEmpty ?? false {
-//                setTextFieldBorderColorGreen(view: flatNoTextFieldContainer)
+                //                setTextFieldBorderColorGreen(view: flatNoTextFieldContainer)
                 label.isHidden = true
                 return false
             } else {
@@ -600,110 +598,116 @@ extension AddOrEditAddressViewController:  UITextFieldDelegate {
 extension AddOrEditAddressViewController {
     
     func redirectUserAfterConfirmLocation() {
-        if let toViewController = redirectTo {
-            if let controllers = navigationController?.viewControllers {
-                for controller in controllers {
-                    if toViewController == .toUpdateLocation {
-                        if controller.isKind(of: UpdateLocationViewController.self) {
-                            self.navigationController?.popToViewController(controller, animated: true)
-                            break
-                        }
-                    } else  {
-                        SmilesLocationRouter.shared.popVC()
-                        break
-                    }
-                }
+        
+        if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
+            if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
             }
+            self.navigationController?.popToViewController(updateLocationVC, animated: true)
         } else {
             SmilesLocationRouter.shared.popVC()
         }
+        
     }
-
-        func nickNamesResponse(nickNames: [Nicknames]) {
-            if let address = addressObj {
-                setViewForEdit(address: address)
-            } else {
-                nickNamesArray = nickNames
-                self.nickNameCollectionView.reloadData()
-            }
-            saveButton.isUserInteractionEnabled = true
-           
-        }
-
-        func setViewForEdit(address: Address) {
-            
-            flatNoTextField.text = address.flatNo
-            buildingNameTextField.text = address.building
-            streetTextField.text = address.street
-            landmarkTextField.text = address.landmark
-            
-            let flatNo = address.flatNo.asStringOrEmpty()
-            let building = address.building.asStringOrEmpty()
-            let street = address.street.asStringOrEmpty()
-            let locationName = address.locationName.asStringOrEmpty()
-
-            self.addressLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
-            
-            flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
-            buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
-            streetNameValid = !(streetTextField.text?.isEmpty ?? false)
-            setTextFieldActiveBorderColor(view: flatNoTextFieldContainer)
-            setTextFieldActiveBorderColor(view: buildingTextFieldContainer)
-            setTextFieldActiveBorderColor(view: streetTextFieldContainer)
-            setTextFieldActiveBorderColor(view: landmarkTextFieldContainer)
-            
-            address.nicknames?.forEach { nickName in
-                if address.nickname?.lowercased() == nickName.nickname?.lowercased() {
-                    self.nickNameTextField.text = address.nickname
-                    setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
-                } else {
-                    self.nickNameTextField.text = nickName.otherNickname ?? ""
-                    setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
-                }
-            }
-            nickNamesArray = address.nicknames ?? []
+    
+    func nickNamesResponse(nickNames: [Nicknames]) {
+        if let address = addressObj {
+            setViewForEdit(address: address)
+        } else {
+            nickNamesArray = nickNames
             self.nickNameCollectionView.reloadData()
         }
-
-        func updateLocationName(place: String) {
-            addressLabel.text = place
-            addressObj?.locationName = place
-        }
-        func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
-            let components = [flatNo, building, street, locationName]
-            var addressString = ""
-
-            for component in components {
-                if let comp = component, !comp.isEmpty {
-                    addressString += "\(comp), "
-                }
-            }
-
-            // Remove trailing comma and space if present
-            if addressString.hasSuffix(", ") {
-                addressString.removeLast(2)
-            }
-
-            return addressString
-        }
-
+        saveButton.isUserInteractionEnabled = true
+        
     }
+    
+    func setViewForEdit(address: Address) {
+        
+        flatNoTextField.text = address.flatNo
+        buildingNameTextField.text = address.building
+        streetTextField.text = address.street
+        landmarkTextField.text = address.landmark
+        
+        let flatNo = address.flatNo.asStringOrEmpty()
+        let building = address.building.asStringOrEmpty()
+        let street = address.street.asStringOrEmpty()
+        let locationName = address.locationName.asStringOrEmpty()
+        
+        self.addressLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
+        
+        flatNumberValid = !(flatNoTextField.text?.isEmpty ?? false)
+        buildNameValid = !(buildingNameTextField.text?.isEmpty ?? false)
+        streetNameValid = !(streetTextField.text?.isEmpty ?? false)
+        setTextFieldActiveBorderColor(view: flatNoTextFieldContainer)
+        setTextFieldActiveBorderColor(view: buildingTextFieldContainer)
+        setTextFieldActiveBorderColor(view: streetTextFieldContainer)
+        setTextFieldActiveBorderColor(view: landmarkTextFieldContainer)
+        
+        address.nicknames?.forEach { nickName in
+            if address.nickname?.lowercased() == nickName.nickname?.lowercased() {
+                self.nickNameTextField.text = address.nickname
+                setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
+            } else {
+                self.nickNameTextField.text = nickName.otherNickname ?? ""
+                setTextFieldActiveBorderColor(view: nickNameTextFieldContainer)
+            }
+        }
+        nickNamesArray = address.nicknames ?? []
+        self.nickNameCollectionView.reloadData()
+    }
+    
+    func updateLocationName(place: String) {
+        addressLabel.text = place
+        addressObj?.locationName = place
+    }
+    func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
+        let components = [flatNo, building, street, locationName]
+        var addressString = ""
+        
+        for component in components {
+            if let comp = component, !comp.isEmpty {
+                addressString += "\(comp), "
+            }
+        }
+        
+        // Remove trailing comma and space if present
+        if addressString.hasSuffix(", ") {
+            addressString.removeLast(2)
+        }
+        
+        return addressString
+    }
+    
+}
 
 
 // MARK: - Call Back from confirm Location
-    extension AddOrEditAddressViewController {
-        func getNewAddressLocation(location: SearchLocationResponseModel?) {
-
-            if let addressloc = location?.title {
-                addressLabel.text = addressloc
-
-//                let addressObj = Address()
-//                addressObj.latitude =  "\(location?.lat ?? 0)"
-//                addressObj.longitude = "\(location?.long ?? 0)"
-//                self.addressObj = addressObj
-//                self.input.send(.getLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? "")))
-            }
+extension AddOrEditAddressViewController {
+    func getNewAddressLocation(location: SearchLocationResponseModel?) {
+        
+        if let addressloc = location?.title {
+            addressLabel.text = addressloc
+            
+            //                let addressObj = Address()
+            //                addressObj.latitude =  "\(location?.lat ?? 0)"
+            //                addressObj.longitude = "\(location?.long ?? 0)"
+            //                self.addressObj = addressObj
+            //                self.input.send(.getLocationName(lat: String(addressObj.latitude ?? ""), long: String(addressObj.longitude ?? "")))
         }
     }
+}
 
 
+extension AddOrEditAddressViewController: ConfirmLocationDelegate {
+    
+    func locationPicked(location: SearchLocationResponseModel) {
+        
+        self.addressLabel.text = location.title
+        let addressObj = Address()
+        addressObj.latitude =  "\(location.lat ?? 0)"
+        addressObj.longitude = "\(location.long ?? 0)"
+        self.addressObj = addressObj
+        
+    }
+    
+}

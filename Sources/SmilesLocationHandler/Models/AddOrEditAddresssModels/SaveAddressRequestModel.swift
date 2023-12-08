@@ -11,17 +11,14 @@ import SmilesBaseMainRequestManager
 
 public class SaveAddressRequestModel: SmilesBaseMainRequest {
     
-    var userInformation: AppUserInfo? = nil
     var address: Address? = nil
 
     enum CodingKeys: String, CodingKey {
-        case userInformation = "userInfo"
         case address
     }
 
-    init(userInfo: AppUserInfo? = nil, address: Address? = nil) {
+    init(address: Address? = nil) {
         super.init()
-        self.userInformation = userInfo
         self.address = address
     }
     
@@ -33,7 +30,6 @@ public class SaveAddressRequestModel: SmilesBaseMainRequest {
         try super.encode(to: encoder)
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(address, forKey: .address)
-        try container.encodeIfPresent(userInformation, forKey: .userInformation)
     }
 
    
