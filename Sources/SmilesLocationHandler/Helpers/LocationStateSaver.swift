@@ -19,7 +19,7 @@ import SmilesBaseMainRequestManager
                 previousInfo?.mambaId = userLoc.mambaId
             }
             UserDefaults.standard.set(try! PropertyListEncoder().encode(isFromMamba ? previousInfo : userLoc), forKey: UserDefaultKeys.locationSaver)
-            SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = userLoc
+            SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = isFromMamba ? previousInfo : userLoc
         }
     }
 
@@ -97,10 +97,6 @@ import SmilesBaseMainRequestManager
         } else {
             return nil
         }
-    }
-    
-    @objc public func isLocationEnabled() -> Bool {
-        return SmilesLocationHandler.isLocationEnabled
     }
     
 }

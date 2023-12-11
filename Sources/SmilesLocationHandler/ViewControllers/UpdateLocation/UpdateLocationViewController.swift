@@ -33,13 +33,11 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private lazy var viewModel: ManageAddressViewModel = {
         return ManageAddressViewModel()
     }()
-    private weak var delegate: UpdateUserLocationDelegate?
-    private var isNewAddressAdded = false
+    private var getAllAddresses = true
     
     // MARK: - Methods
-    init(delegate: UpdateUserLocationDelegate? = nil) {
+    init() {
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
-        self.delegate = delegate
     }
     
     required init?(coder: NSCoder) {
@@ -132,7 +130,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
-        if !isNewAddressAdded {
+        if getAllAddresses {
             SmilesLoader.show()
             self.input.send(.getAllAddress)
         }
@@ -152,6 +150,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     
     @IBAction func didTabSearchButton(_ sender: UIButton) {
         SmilesLocationRouter.shared.pushSearchLocationVC(isFromUpdateLocation: true, locationSelected: { [weak self] selectedLocation in
+            self?.getAllAddresses = false
+            SmilesLoader.show()
             self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
         })
     }
@@ -267,8 +267,8 @@ extension UpdateLocationViewController {
                     SmilesLoader.dismiss()
                     if let userInfo = response.userInfo {
                         LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                        NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: ["shouldUpdateMamba" : true])
                         SmilesLocationRouter.shared.popVC()
-                        self?.delegate?.locationUpdatedSuccessfully()
                     }
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss()
@@ -289,7 +289,7 @@ extension UpdateLocationViewController {
 extension UpdateLocationViewController: ConfirmLocationDelegate {
     
     func newAddressAdded(location: CLLocation) {
-        isNewAddressAdded = true
+        getAllAddresses = false
         SmilesLoader.show()
         self.input.send(.getUserLocation(location: location))
     }

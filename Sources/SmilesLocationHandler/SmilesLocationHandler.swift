@@ -96,7 +96,13 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
             if let location = LocationStateSaver.getLocationInfo() {
                 if let _ = location.locationId {
                     debugPrint("call update service for mamba")
-                    updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
+                    if isFirstLaunch {
+                        updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
+                    } else {
+                        locationName = location.location ?? ""
+                        locationNickName = location.nickName ?? "Current Location".localizedString
+                        self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+                    }
                 } else {
                     guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
                           let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
@@ -218,7 +224,6 @@ extension SmilesLocationHandler {
             if controllerType == .fromFood {
                 self.locationsUseCaseInput.send(.registerUserLocation(location: location))
             } else{
-                fireEvent?(Constants.AnalyticsEvent.locationRegistered)
                 LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
                 locationName = userInfo.location ?? ""
                 locationNickName = userInfo.nickName ?? "Current Location".localizedString
@@ -228,14 +233,15 @@ extension SmilesLocationHandler {
         }
         
         if let responseMsg = response.responseMsg, !responseMsg.isEmpty {
-            fireEvent?(Constants.AnalyticsEvent.locationRegistrationFailed)
+            /// Remove userInfo object if it is saved previously but there is no address returned from BE (AddressBook is empty and user picked location manually without adding an address)
+            LocationStateSaver.removeLocation()
+            self.smilesLocationHandlerDelegate?.gotUserLocation()
             setupSetLocationString()
         }
         
     }
     
     private func getUserLocationFail() {
-        fireEvent?(Constants.AnalyticsEvent.locationRegistrationFailed)
         setupSetLocationString()
     }
     

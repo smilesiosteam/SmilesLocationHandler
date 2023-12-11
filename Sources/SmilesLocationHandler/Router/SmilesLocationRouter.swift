@@ -96,8 +96,9 @@ import CoreLocation
         }
     }
 
-    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil) {
-        let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate))
+    public func pushUpdateLocationViewController(with navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

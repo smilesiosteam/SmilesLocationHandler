@@ -329,6 +329,7 @@
         </view>
     </objects>
     <designables>
+        <designable name="ZVI-5q-Hyz"/>
         <designable name="cpa-P5-Ktf">
             <size key="intrinsicContentSize" width="30" height="29"/>
         </designable>

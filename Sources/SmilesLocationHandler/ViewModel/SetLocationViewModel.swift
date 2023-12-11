@@ -157,12 +157,12 @@ extension SetLocationViewModel {
         
         let request = RegisterLocationRequest()
         request.isGuestUser = AppCommonMethods.isGuestUser
-        request.userInfo = withUserInfo ? SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo : AppUserInfo()
+        request.locationInfo = withUserInfo ? SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo : AppUserInfo()
         if AppCommonMethods.isGuestUser {
-            request.userInfo = AppUserInfo()
+            request.locationInfo = AppUserInfo()
         }
-        request.userInfo?.latitude = String(location.coordinate.latitude)
-        request.userInfo?.longitude = String(location.coordinate.longitude)
+        request.locationInfo?.latitude = String(location.coordinate.latitude)
+        request.locationInfo?.longitude = String(location.coordinate.longitude)
         
         let service = SetLocationRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),

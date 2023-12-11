@@ -20,7 +20,7 @@ struct SmilesLocationConfigurator {
         case addOrEditAddress(addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate?)
         case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen, delegate: ConfirmLocationDelegate?)
         case searchLocation(isFromUpdateLocation: Bool, locationSelected: ((SearchedLocationDetails) -> Void))
-        case updateLocation(delegate: UpdateUserLocationDelegate?)
+        case updateLocation
         
     }
     
@@ -42,8 +42,8 @@ struct SmilesLocationConfigurator {
         case .addOrEditAddress(let addressObject, let selectedLocation, let delegate):
             let vc = AddOrEditAddressViewController(addressObj: addressObject, selectedLocation: selectedLocation, delegate: delegate)
             return vc
-        case .updateLocation(let delegate):
-            let vc = UpdateLocationViewController(delegate: delegate)
+        case .updateLocation:
+            let vc = UpdateLocationViewController()
             return vc
         }
     }
