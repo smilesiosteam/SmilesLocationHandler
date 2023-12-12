@@ -188,6 +188,7 @@ class ConfirmUserLocationViewController: UIViewController {
             let position = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             let marker = GMSMarker(position: position)
             let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 15)
+            marker.appearAnimation = .pop
             
             /// Set the map style by passing the URL of the local file.
             do {
@@ -280,7 +281,10 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
     
     func mapView(_ mapView: GMSMapView, didChange position: GMSCameraPosition) {
         
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(0.7)
         mapView.selectedMarker?.position = position.target
+        CATransaction.commit()
         let lat = position.target.latitude
         let long = position.target.longitude
         latitude = String(format: "%f", lat)
@@ -288,75 +292,26 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
         
     }
     
-    func mapView(_ mapView: GMSMapView, willMove gesture: Bool) {
-        
-        if gesture {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                if !Constants.switchToOpenStreetMap {
-                    self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
-                } else {
-                    let coordinates = CLLocationCoordinate2D(latitude: self.latitude.toDouble() ?? 0, longitude: self.longitude.toDouble() ?? 0)
-                    self.input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
-                }
-            }
-        }
-        self.mapGesture = gesture
-        
-    }
-    
     func mapView(_ mapView: GMSMapView, markerInfoWindow marker: GMSMarker) -> UIView? {
         return LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: 63))
     }
     
-    func mapView(_ mapView: GMSMapView, didDrag marker: GMSMarker) {
-        
-        let lat = marker.position.latitude
-        let long = marker.position.longitude
-        latitude = String(format: "%f", lat)
-        longitude = String(format: "%f", long)
-        
-        if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
-        } else {
-            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
-            input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
-        }
-        
-    }
-    
-    func mapView(_ mapView: GMSMapView, didEndDragging didEndDraggingMarker: GMSMarker) {
-        let lat = didEndDraggingMarker.position.latitude
-        let long = didEndDraggingMarker.position.longitude
-        latitude = String(format: "%f", lat)
-        longitude = String(format: "%f", long)
-        
-        if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
-        } else {
-            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
-            input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
-        }
-    }
-    
-    func didTapMyLocationButton(for mapView: GMSMapView) -> Bool {
-        
-        
-        return true
-    }
-    
     func mapView(_ mapView: GMSMapView, idleAt position: GMSCameraPosition) {
         
-        if self.mapGesture {
-            let lat = position.target.latitude
-            let long = position.target.longitude
-            
-            latitude = String(format: "%f", lat)
-            longitude = String(format: "%f", long)
-            
+        let lat = position.target.latitude
+        let long = position.target.longitude
+        latitude = String(format: "%f", lat)
+        longitude = String(format: "%f", long)
+        
+        if !Constants.switchToOpenStreetMap {
             input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
+        } else {
+            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+            input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
         }
         
     }
+    
 }
 
 // MARK: - API RESPONSE CONFIGURATION -
