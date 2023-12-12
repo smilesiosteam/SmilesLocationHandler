@@ -57,7 +57,6 @@ class UpdateLocationCell: UITableViewCell {
         
         if let address = address {
             self.headingLabel.text = address.nickname
-            
             let flatNo = address.flatNo.asStringOrEmpty()
             let building = address.building.asStringOrEmpty()
             let street = address.street.asStringOrEmpty()
@@ -76,7 +75,13 @@ class UpdateLocationCell: UITableViewCell {
             if let isSelected {
                 setupSelection(isSelected: isSelected)
             } else {
-                setupSelection(isSelected: address.selection == 1)
+                if let userInfo = LocationStateSaver.getLocationInfo(), let location = userInfo.location, let latitude = userInfo.latitude, let longitude = userInfo.longitude {
+                    if location == address.locationName, latitude == address.latitude, longitude == address.longitude {
+                        setupSelection(isSelected: true)
+                        return
+                    }
+                }
+                setupSelection(isSelected: false)
             }
         }
         

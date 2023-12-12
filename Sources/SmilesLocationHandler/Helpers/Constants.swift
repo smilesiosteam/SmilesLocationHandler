@@ -12,6 +12,7 @@ struct Constants {
     struct Keys {
         static let recentLocation = "recentLocation"
         static let googleAppKey = "GoogleAppKey"
+        static let shouldUpdateMamba = "shouldUpdateMamba"
     }
     
     struct AnalyticsEvent {

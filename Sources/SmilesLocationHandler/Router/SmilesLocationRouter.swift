@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Abdul Rehman Amjad on 15/11/2023.
 //
@@ -11,7 +11,7 @@ import SmilesUtilities
 import CoreLocation
 
 @objcMembers
- public final class SmilesLocationRouter: NSObject {
+public final class SmilesLocationRouter: NSObject {
     
     // MARK: - Singleton Instance
     public var navigationController: UINavigationController?
@@ -22,62 +22,25 @@ import CoreLocation
     public func showDetectLocationPopup(from viewController: UIViewController, controllerType: LocationPopUpType, switchToOpenStreetMap: Bool = false) {
         
         Constants.switchToOpenStreetMap = switchToOpenStreetMap
-        let viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
-        if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(viewModel)) as? SmilesLocationDetectViewController {
-            setActionsForControllerType(popupViewController: detectLocationPopup, controllerType: controllerType)
+        if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: controllerType)) as? SmilesLocationDetectViewController {
             viewController.modalPresentationStyle = .overFullScreen
             viewController.present(detectLocationPopup, animated: true)
         }
         
     }
-    func presentSetLocationPopUp(on viewController: UIViewController) {
+    func presentSetLocationPopUp() {
         
+        guard let viewController = navigationController?.topViewController else { return }
         let setLocationPopUp = SmilesLocationConfigurator.create(type: .setLocationPopUp) as! SetLocationPopupViewController
         setLocationPopUp.modalPresentationStyle = .overFullScreen
         viewController.present(setLocationPopUp, animated: true)
         
     }
     
-   public func pushManageAddressesViewController(with navigationController: UINavigationController) {
+    public func pushManageAddressesViewController(with navigationController: UINavigationController) {
         let vc = SmilesLocationConfigurator.create(type: .manageAddresses)
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
-    }
-    
-    // MARK: - Private Methods
-    private func setActionsForControllerType(popupViewController: SmilesLocationDetectViewController, controllerType: LocationPopUpType) {
-        popupViewController.setDetectLocationAction {
-            self.handleDetectLocationAction(for: controllerType)
-        }
-        popupViewController.setSearchLocationAction {
-            self.handleSearchLocationAction(for: controllerType)
-        }
-    }
-    
-    private func handleDetectLocationAction(for controllerType: LocationPopUpType) {
-        switch controllerType {
-        case .detectLocation, .automaticallyDetectLocation:
-            LocationManager.shared.showPopupForSettings()
-        case .deleteWorkAddress:
-            // Handle detect location action for DeleteWorkAddress
-            break
-        }
-    }
-    
-    private func handleSearchLocationAction(for controllerType: LocationPopUpType) {
-        switch controllerType {
-        case .detectLocation:
-            if let topViewController = navigationController?.topViewController {
-                presentSetLocationPopUp(on: topViewController)
-            }
-        case .automaticallyDetectLocation:
-            if let navigationController = navigationController {
-                self.pushUpdateLocationViewController(with: navigationController)
-            }
-        case .deleteWorkAddress:
-            // Handle search location action for DeleteWorkAddress
-            break
-        }
     }
     
     // MARK: - Navigation Methods
@@ -89,13 +52,13 @@ import CoreLocation
         // Implement navigation logic to detect location
     }
     
-     func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate?) {
+    func pushAddOrEditAddressViewController(with navigationController: UINavigationController, addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate?) {
         if let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress(addressObject: addressObject, selectedLocation: selectedLocation, delegate: delegate)) as? AddOrEditAddressViewController {
             vc.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(vc, animated: true)
         }
     }
-
+    
     public func pushUpdateLocationViewController(with navigationController: UINavigationController) {
         self.navigationController = navigationController
         let vc = SmilesLocationConfigurator.create(type: .updateLocation)
@@ -103,17 +66,17 @@ import CoreLocation
         navigationController.pushViewController(vc, animated: true)
     }
     
-     func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, delegate: ConfirmLocationDelegate?) {
+    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, delegate: ConfirmLocationDelegate?) {
         
-         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)) as! ConfirmUserLocationViewController
+        let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)) as! ConfirmUserLocationViewController
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         
     }
     
-     func pushSearchLocationVC(isFromUpdateLocation: Bool = false, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+    func pushSearchLocationVC(isFromUpdateLocation: Bool = false, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         
-         let vc = SmilesLocationConfigurator.create(type: .searchLocation(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)) as! SearchLocationViewController
+        let vc = SmilesLocationConfigurator.create(type: .searchLocation(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)) as! SearchLocationViewController
         navigationController?.pushViewController(vc, animated: true)
         
     }

@@ -197,8 +197,11 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
         cell.delegate = self
         let address = addressDataSource[indexPath.row]
-        cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: selectedAddress?.addressId == address.addressId)
-        cell.selectionStyle = .none
+        var isSelected: Bool?
+        if let selectedAddress {
+            isSelected = selectedAddress.addressId == address.addressId
+        }
+        cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
         return cell
     }
     
@@ -207,8 +210,9 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
             let item = self.addressDataSource[indexPath.row]
             let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
-            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
-                vc.setDetectLocationAction {
+            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: .deleteWorkAddress(message: message))) as? SmilesLocationDetectViewController {
+                vc.deletePressed = { [weak self] in
+                    guard let self else { return }
                     self.addressDataSource.remove(at: indexPath.row)
                     self.addressesTableView.reloadData()
                     SmilesLoader.show()
@@ -267,7 +271,7 @@ extension UpdateLocationViewController {
                     SmilesLoader.dismiss()
                     if let userInfo = response.userInfo {
                         LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: ["shouldUpdateMamba" : true])
+                        NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
                         SmilesLocationRouter.shared.popVC()
                     }
                 case .getUserLocationDidFail(error: let error):

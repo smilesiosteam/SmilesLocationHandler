@@ -9,6 +9,7 @@ import UIKit
 import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
+import Combine
 
 class SmilesLocationDetectViewController: UIViewController {
     
@@ -21,14 +22,31 @@ class SmilesLocationDetectViewController: UIViewController {
     @IBOutlet private weak var searchButton: UIButton!
     
     // MARK: - Properties
-    private var detectLocationAction: (() -> Void)?
-    private var searchLocationAction: (() -> Void)?
     private var dismissViewTranslation = CGPoint(x: 0, y: 0)
     private var viewModel: DetectLocationPopupViewModel?
+    private var controllerType: LocationPopUpType
+    private var setLocationViewModel = SetLocationViewModel()
+    private var setLocationInput: PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
+    private var cancellables = Set<AnyCancellable>()
+    var deletePressed: (() -> Void)?
+    
+    // MARK: - IBActions
+    @IBAction private func didTabDetectLocationButton(_ sender: UIButton) {
+        handleDetectLocationAction()
+    }
+    
+    @IBAction private func didTabSearchLocationButton(_ sender: UIButton) {
+        handleSearchLocationAction()
+    }
+    
+    @IBAction private func didTabCrossButton(_ sender: UIButton) {
+        self.dismiss(animated: true)
+    }
+    
     // MARK: - Methods
-    init(_ viewModel: DetectLocationPopupViewModel?) {
-        
-        self.viewModel = viewModel
+    init(controllerType: LocationPopUpType) {
+        self.viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
+        self.controllerType = controllerType
         super.init(nibName: "SmilesLocationDetectViewController", bundle: .module)
         self.modalPresentationStyle = .overFullScreen
     }
@@ -78,30 +96,45 @@ class SmilesLocationDetectViewController: UIViewController {
         panDismissView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
     
-    // MARK: - IBActions
-    @IBAction private func didTabDetectLocationButton(_ sender: UIButton) {
-        dismiss(animated: true) { [weak self] in
-            self?.detectLocationAction?()
+    private func handleDetectLocationAction() {
+        switch controllerType {
+        case .detectLocation:
+            if SmilesLocationHandler.isLocationEnabled {
+                detectUserLocation()
+            } else {
+                dismiss(animated: true) {
+                    LocationManager.shared.showPopupForSettings()
+                }
+            }
+        case .deleteWorkAddress:
+            dismiss(animated: true) {
+                self.deletePressed?()
+            }
         }
     }
     
-    @IBAction private func didTabSearchLocationButton(_ sender: UIButton) {
-        dismiss(animated: true) { [weak self] in
-            self?.searchLocationAction?()
+    private func handleSearchLocationAction() {
+        switch controllerType {
+        case .detectLocation:
+            dismiss(animated: true) {
+                SmilesLocationRouter.shared.presentSetLocationPopUp()
+            }
+        case .deleteWorkAddress:
+            dismiss(animated: true)
         }
     }
     
-    @IBAction private func didTabCrossButton(_ sender: UIButton) {
-        self.dismiss(animated: true)
-    }
-    // MARK: - methods to set closure actions
-    func setDetectLocationAction(_ action: (() -> Void)?) {
-        detectLocationAction = action
+    private func detectUserLocation() {
+        
+        LocationManager.shared.getLocation { [weak self] location, error in
+            guard let self else { return }
+            if let location {
+                self.setLocationInput.send(.getUserLocation(location: location))
+            }
+        }
+        
     }
     
-    func setSearchLocationAction(_ action: (() -> Void)?) {
-        searchLocationAction = action
-    }
 }
 
 // MARK: - GESTURES ACTION HANDLING -
@@ -132,6 +165,29 @@ extension SmilesLocationDetectViewController {
     
     @objc func handleTap(sender: UITapGestureRecognizer) {
         dismiss(animated: true)
+    }
+    
+}
+
+// MARK: - VIEMODEL BINDING -
+extension SmilesLocationDetectViewController {
+    
+    func bind(to setLocationViewModel: SetLocationViewModel) {
+        setLocationInput = PassthroughSubject<SetLocationViewModel.Input, Never>()
+        let output = setLocationViewModel.transform(input: setLocationInput.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .getUserLocationDidSucceed(let response, _):
+                    if let userInfo = response.userInfo {
+                        self?.dismiss(animated: true, completion: {
+                            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                            NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
+                        })
+                    }
+                default: break
+                }
+            }.store(in: &cancellables)
     }
     
 }

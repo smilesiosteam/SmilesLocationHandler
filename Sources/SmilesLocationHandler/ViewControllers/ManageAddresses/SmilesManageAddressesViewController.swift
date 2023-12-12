@@ -166,8 +166,9 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
              let item = self.addressDataSource[indexPath.row]
             let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
-            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(DetectLocationPopupViewModelFactory.createViewModel(for: .deleteWorkAddress(message: message)))) as? SmilesLocationDetectViewController {
-                vc.setDetectLocationAction {
+            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: .deleteWorkAddress(message: message))) as? SmilesLocationDetectViewController {
+                vc.deletePressed = { [weak self] in
+                    guard let self else { return }
                     self.addressDataSource.remove(at: indexPath.row)
                     SmilesLoader.show(on: self.view)
                     self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
