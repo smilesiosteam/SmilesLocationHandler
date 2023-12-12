@@ -97,7 +97,8 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
         self.confirmLocationButton.isUserInteractionEnabled = false
-        self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(0.5)
+        self.confirmLocationButton.backgroundColor = .black.withAlphaComponent(0.1)
+        self.confirmLocationButton.setTitleColor(.black.withAlphaComponent(0.5), for: .normal)
         if SmilesLocationHandler.isLocationEnabled && !isCurrentLocationSetByUser {
             LocationManager.shared.getLocation { [weak self] location, error in
                 guard let self, let location else { return }
@@ -234,7 +235,8 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
                 self.confirmLocationButton.isUserInteractionEnabled = true
-                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(1.0)
+                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor
+                self.confirmLocationButton.setTitleColor(.white, for: .normal)
                 self.selectedAddress = self.addressDataSource[indexPath.row]
                 setupCurrentLocationContainerSelection(isSelected: false)
                 self.addressesTableView.reloadData()
