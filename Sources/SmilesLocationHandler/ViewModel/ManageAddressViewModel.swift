@@ -19,6 +19,7 @@ class ManageAddressViewModel: NSObject {
         case removeAddress(address_id: String?)
         case getUserLocation(location: CLLocation?)
         case saveAddress(address: Address?)
+        case reverseGeocodeLatitudeAndLongitudeForAddress(location: CLLocation)
     }
     
     enum Output {
@@ -33,6 +34,9 @@ class ManageAddressViewModel: NSObject {
         
         case saveAddressDidSucceed(response: SaveAddressResponseModel)
         case saveAddressDidFail(error: Error?)
+        
+        case fetchAddressFromCoordinatesDidSucceed(address: String)
+        case fetchAddressFromCoordinatesDidFail(error: Error?)
     }
     
     // MARK: -- Variables
@@ -65,6 +69,13 @@ extension ManageAddressViewModel {
             case .saveAddress(let address):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.saveAddress(address: address))
+            case .reverseGeocodeLatitudeAndLongitudeForAddress(let location):
+                self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
+                if !Constants.switchToOpenStreetMap {
+                    self?.setLocationInput.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(location.coordinate.latitude)", longitude: "\(location.coordinate.longitude)"))
+                } else {
+                    self?.setLocationInput.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: location.coordinate, format: .json))
+                }
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -108,6 +119,25 @@ extension ManageAddressViewModel {
                     self?.output.send(.getUserLocationDidSucceed(response: response, location: location))
                 case .getUserLocationDidFail(let error):
                     self?.output.send(.getUserLocationDidFail(error: error))
+                case .fetchAddressFromCoordinatesDidSucceed(let response):
+                    if let results = response.results {
+                        guard let formatAddress = results.first?.formattedAddress else {
+                            return
+                        }
+                        self?.output.send(.fetchAddressFromCoordinatesDidSucceed(address: formatAddress))
+                    } else {
+                        self?.output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
+                    }
+                case .fetchAddressFromCoordinatesDidFail(let error):
+                    self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error))
+                case .fetchAddressFromCoordinatesOSMDidSucceed(let response):
+                    if let address = response.displayName {
+                        self?.output.send(.fetchAddressFromCoordinatesDidSucceed(address: address))
+                    } else {
+                        self?.output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
+                    }
+                case .fetchAddressFromCoordinatesOSMDidFail(let error):
+                    self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error))
                 default: break
                 }
             }.store(in: &cancellables)

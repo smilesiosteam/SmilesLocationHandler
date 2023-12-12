@@ -34,6 +34,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         return ManageAddressViewModel()
     }()
     private var getAllAddresses = true
+    private var userCurrentLocation: CLLocation?
     
     // MARK: - Methods
     init() {
@@ -98,9 +99,10 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         self.confirmLocationButton.isUserInteractionEnabled = false
         self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor.withAlphaComponent(0.5)
         if SmilesLocationHandler.isLocationEnabled && !isCurrentLocationSetByUser {
-            self.currentLocationContainer.isHidden = false
-            if let userInfo = LocationStateSaver.getLocationInfo() {
-                self.currentLocationLabel.text = userInfo.location
+            LocationManager.shared.getLocation { [weak self] location, error in
+                guard let self, let location else { return }
+                self.userCurrentLocation = location
+                self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
             }
         }
         
@@ -169,7 +171,11 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         selectedAddress = nil
         self.addressesTableView.reloadData()
         setupCurrentLocationContainerSelection(isSelected: true)
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, sourceScreen: .updateUserLocation, delegate: self)
+        
+        let city = GetCitiesModel()
+        city.cityLatitude = userCurrentLocation?.coordinate.latitude
+        city.cityLongitude = userCurrentLocation?.coordinate.longitude
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, sourceScreen: .updateUserLocation, delegate: self)
         
     }
     
@@ -285,6 +291,12 @@ extension UpdateLocationViewController {
                 case .saveAddressDidFail(error: let error):
                     SmilesLoader.dismiss()
                     debugPrint(error ?? "")
+                case .fetchAddressFromCoordinatesDidSucceed(let address):
+                    self?.currentLocationLabel.text = address
+                    self?.currentLocationContainer.isHidden = false
+                case .fetchAddressFromCoordinatesDidFail(_):
+                    self?.currentLocationLabel.text = ""
+                    self?.currentLocationContainer.isHidden = true
                 }
             }.store(in: &cancellables)
     }
