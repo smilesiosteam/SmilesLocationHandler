@@ -10,6 +10,7 @@ import SmilesLanguageManager
 import SmilesFontsManager
 import SmilesUtilities
 import Combine
+import SmilesLoader
 
 class SmilesLocationDetectViewController: UIViewController {
     
@@ -129,6 +130,7 @@ class SmilesLocationDetectViewController: UIViewController {
         LocationManager.shared.getLocation { [weak self] location, error in
             guard let self else { return }
             if let location {
+                SmilesLoader.show()
                 self.setLocationInput.send(.getUserLocation(location: location))
             }
         }
@@ -177,13 +179,19 @@ extension SmilesLocationDetectViewController {
         let output = setLocationViewModel.transform(input: setLocationInput.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                guard let self else { return }
+                SmilesLoader.dismiss()
                 switch event {
                 case .getUserLocationDidSucceed(let response, _):
                     if let userInfo = response.userInfo {
-                        self?.dismiss(animated: true, completion: {
+                        self.dismiss(animated: true, completion: {
                             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
                             NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
                         })
+                    }
+                case .getUserLocationDidFail(let error):
+                    if !error.localizedDescription.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
                     }
                 default: break
                 }

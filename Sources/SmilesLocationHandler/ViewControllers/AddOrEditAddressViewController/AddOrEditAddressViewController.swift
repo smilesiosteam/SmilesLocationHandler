@@ -11,7 +11,7 @@ import SmilesFontsManager
 import SmilesUtilities
 import Combine
 import CoreLocation
-
+import SmilesLoader
 
 enum SmilesConfirmLocationRedirection {
     case toUpdateLocation
@@ -193,6 +193,7 @@ class AddOrEditAddressViewController: UIViewController {
         bind(to: viewModel)
         setupCollectionView()
         setUpViewUI()
+        SmilesLoader.show()
         self.input.send(.getLocationsNickName)
         // Do any additional setup after loading the view.
     }
@@ -290,8 +291,10 @@ class AddOrEditAddressViewController: UIViewController {
         saveButton.isEnabled = isValid
         if (isValid) {
             saveButton.backgroundColor = .appRevampPurpleMainColor
+            saveButton.setTitleColor(.white, for: .normal)
         } else {
-            saveButton.backgroundColor =  UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1)
+            saveButton.backgroundColor =  .black.withAlphaComponent(0.1)
+            saveButton.setTitleColor(.black.withAlphaComponent(0.5), for: .normal)
         }
         
     }
@@ -328,7 +331,6 @@ class AddOrEditAddressViewController: UIViewController {
     }
     
     @IBAction func saveButtonClicked(_ sender: Any) {
-        saveButton.isUserInteractionEnabled = false
         
         let address = Address()
         if let id = self.addressObj?.addressId {
@@ -353,6 +355,7 @@ class AddOrEditAddressViewController: UIViewController {
             address.locationName = selectedLocation?.title
         }
         addressObj = address
+        SmilesLoader.show()
         self.input.send(.saveAddress(address: address))
         
     }
@@ -366,6 +369,7 @@ extension AddOrEditAddressViewController {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                SmilesLoader.dismiss()
                 switch event {
                 case .fetchLocationsNickNameDidSucceed(let nickNameResponse):
                     if let nickNamesArray = nickNameResponse.addressDetail?.nicknames {
@@ -377,8 +381,7 @@ extension AddOrEditAddressViewController {
                     self?.updateLocationName(place: response)
                 case .fetchLocationNameDidFail(error: _):
                     break
-                case .saveAddressDidSucceed(response: let response):
-                    debugPrint(response)
+                case .saveAddressDidSucceed(_):
                     self?.redirectUserAfterConfirmLocation()
                 case .saveAddressDidFail(error: let error):
                     debugPrint(error ?? "")
