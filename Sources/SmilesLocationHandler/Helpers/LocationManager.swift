@@ -388,7 +388,7 @@ extension LocationManager: CLLocationManagerDelegate {
             
             self.delegate?.locationIsAllowedByUser(isAllowed: false)
         case .notDetermined:
-            self.locationManager?.requestLocation()
+            self.locationManager?.requestWhenInUseAuthorization()
             
         @unknown default:
             didComplete(location: nil,error: NSError(
@@ -399,6 +399,24 @@ extension LocationManager: CLLocationManagerDelegate {
                  NSLocalizedFailureReasonErrorKey:LocationErrors.unknown.rawValue,
                  NSLocalizedRecoverySuggestionErrorKey:LocationErrors.unknown.rawValue]))
             self.delegate?.locationIsAllowedByUser(isAllowed: false)
+        }
+    }
+    
+    public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if #available(iOS 14.0, *) {
+            switch manager.authorizationStatus {
+            case .authorizedAlways, .authorizedWhenInUse:
+                self.locationManager?.startUpdatingLocation()
+                self.delegate?.locationIsAllowedByUser(isAllowed: true)
+                break
+            case .denied, .restricted, .notDetermined:
+                self.locationManager?.requestWhenInUseAuthorization()
+                break
+            @unknown default:
+                break
+            }
+        } else {
+            // Fallback on earlier versions
         }
     }
     
