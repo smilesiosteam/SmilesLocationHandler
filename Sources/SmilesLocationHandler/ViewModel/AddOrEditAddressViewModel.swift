@@ -22,13 +22,13 @@ class AddOrEditAddressViewModel: NSObject {
     
     enum Output {
         case fetchLocationsNickNameDidSucceed(response: SaveAddressResponseModel)
-        case fetchLocationsNickNameDidFail(error: Error?)
+        case fetchLocationsNickNameDidFail(error: NetworkError?)
         
         case saveAddressDidSucceed(response: SaveAddressResponseModel)
-        case saveAddressDidFail(error: Error?)
+        case saveAddressDidFail(error: NetworkError?)
         
         case fetchLocationNameDidSucceed(response: String)
-        case fetchLocationNameDidFail(error: Error?)
+        case fetchLocationNameDidFail(error: NetworkError?)
     }
     
     // MARK: -- Variables

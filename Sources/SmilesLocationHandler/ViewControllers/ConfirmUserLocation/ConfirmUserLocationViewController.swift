@@ -250,25 +250,28 @@ extension ConfirmUserLocationViewController {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                guard let self else { return }
                 switch event {
                 case .fetchAddressFromCoordinatesDidSucceed(let response):
-                    self?.configureAddressString(response: response)
+                    self.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesDidFail(let error):
                     debugPrint(error?.localizedDescription ?? "")
                 case .fetchAddressFromCoordinatesOSMDidSucceed(let response):
-                    self?.configureAddressString(response: response)
+                    self.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
                     debugPrint(error?.localizedDescription ?? "")
                 case .getUserLocationDidSucceed(let response, _):
                     SmilesLoader.dismiss()
                     if let userInfo = response.userInfo {
                         LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        self?.navigationController?.popToRootViewController()
+                        self.navigationController?.popToRootViewController()
                         NotificationCenter.default.post(name: .LocationUpdated, object: nil)
                     }
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss()
-                    debugPrint(error)
+                    if !error.localizedDescription.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                    }
                 default: break
                 }
             }.store(in: &cancellables)

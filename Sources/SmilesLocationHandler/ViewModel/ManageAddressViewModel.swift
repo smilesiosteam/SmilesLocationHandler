@@ -24,19 +24,19 @@ class ManageAddressViewModel: NSObject {
     
     enum Output {
         case fetchAllAddressDidSucceed(response: GetAllAddressesResponse)
-        case fetchAllAddressDidFail(error: Error?)
+        case fetchAllAddressDidFail(error: NetworkError?)
         
         case removeAddressDidSucceed(response: RemoveAddressResponseModel)
-        case removeAddressDidFail(error: Error?)
+        case removeAddressDidFail(error: NetworkError?)
         
         case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
-        case getUserLocationDidFail(error: Error)
+        case getUserLocationDidFail(error: NetworkError)
         
         case saveAddressDidSucceed(response: SaveAddressResponseModel)
-        case saveAddressDidFail(error: Error?)
+        case saveAddressDidFail(error: NetworkError?)
         
         case fetchAddressFromCoordinatesDidSucceed(address: String)
-        case fetchAddressFromCoordinatesDidFail(error: Error?)
+        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
     }
     
     // MARK: -- Variables

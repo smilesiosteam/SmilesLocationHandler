@@ -29,31 +29,31 @@ public class SetLocationViewModel: NSObject {
     
     public enum Output {
         case fetchCitiesDidSucceed(response: GetCitiesResponse)
-        case fetchCitiesDidFail(error: Error)
+        case fetchCitiesDidFail(error: NetworkError)
         
         case fetchAddressFromCoordinatesDidSucceed(response: SWGoogleAddressResponse)
-        case fetchAddressFromCoordinatesDidFail(error: Error?)
+        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
-        case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
+        case fetchAddressFromCoordinatesOSMDidFail(error: NetworkError?)
         
         case searchLocationDidSucceed(response: [SearchedLocationDetails])
         case searchLocationDidFail(error: Error)
         
         case fetchLocationDetailsDidSucceed(response: SearchedLocationDetails)
-        case fetchLocationDetailsDidFail(error: Error?)
+        case fetchLocationDetailsDidFail(error: NetworkError?)
         
         case registerUserLocationDidSucceed(response: RegisterLocationResponse, location: CLLocation?)
-        case registerUserLocationDidFail(error: Error)
+        case registerUserLocationDidFail(error: NetworkError)
         
         case updateUserLocationDidSucceed(response : RegisterLocationResponse)
-        case updateUserLocationDidFail(error: Error)
+        case updateUserLocationDidFail(error: NetworkError)
         
         case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
-        case getUserLocationDidFail(error: Error)
+        case getUserLocationDidFail(error: NetworkError)
         
         case fetchLocationNameDidSucceed(response: String)
-        case fetchLocationNameDidFail(error: Error? = nil)
+        case fetchLocationNameDidFail(error: NetworkError? = nil)
     }
     
     // MARK: -- Variables

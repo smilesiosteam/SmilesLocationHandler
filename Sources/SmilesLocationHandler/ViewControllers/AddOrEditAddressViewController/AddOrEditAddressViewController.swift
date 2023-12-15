@@ -369,22 +369,29 @@ extension AddOrEditAddressViewController {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                guard let self else { return }
                 SmilesLoader.dismiss()
                 switch event {
                 case .fetchLocationsNickNameDidSucceed(let nickNameResponse):
                     if let nickNamesArray = nickNameResponse.addressDetail?.nicknames {
-                        self?.nickNamesResponse(nickNames: nickNamesArray)
+                        self.nickNamesResponse(nickNames: nickNamesArray)
                     }
                 case .fetchLocationsNickNameDidFail(error: let error):
-                    debugPrint(error?.localizedDescription ?? "")
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
                 case .fetchLocationNameDidSucceed(response: let response):
-                    self?.updateLocationName(place: response)
-                case .fetchLocationNameDidFail(error: _):
-                    break
+                    self.updateLocationName(place: response)
+                case .fetchLocationNameDidFail(let error):
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
                 case .saveAddressDidSucceed(_):
-                    self?.redirectUserAfterConfirmLocation()
+                    self.redirectUserAfterConfirmLocation()
                 case .saveAddressDidFail(error: let error):
-                    debugPrint(error ?? "")
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
                 }
             }.store(in: &cancellables)
     }
