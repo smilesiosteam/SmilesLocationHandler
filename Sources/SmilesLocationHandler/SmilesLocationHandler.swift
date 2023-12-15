@@ -81,6 +81,11 @@ public class SmilesLocationHandler {
         }
     }
     
+    public static func isLocationUpdated(previousLocationId: String?) -> Bool {
+        guard let previousLocationId, let currentLocationId = LocationStateSaver.getLocationInfo()?.locationId else { return false}
+        return previousLocationId != currentLocationId
+    }
+    
 }
 
 // MARK: - LOCATION UPDATE DELEGATE -

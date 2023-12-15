@@ -140,19 +140,20 @@ extension SearchLocationViewController {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                guard let self else { return }
+                SmilesLoader.dismiss()
                 switch event {
                 case .searchLocationDidSucceed(let results):
-                    self?.showRecents = false
-                    self?.searchResults = results
+                    self.showRecents = false
+                    self.searchResults = results
                 case .searchLocationDidFail(let error):
                     print(error.localizedDescription)
                 case .fetchLocationDetailsDidSucceed(let locationDetails):
-                    SmilesLoader.dismiss()
-                    self?.setupSearchedLocationData(locationDetails: locationDetails)
-                    break
+                    self.setupSearchedLocationData(locationDetails: locationDetails)
                 case .fetchLocationDetailsDidFail(let error):
-                    SmilesLoader.dismiss()
-                    debugPrint(error?.localizedDescription ?? "")
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
                 default: break
                 }
             }.store(in: &cancellables)

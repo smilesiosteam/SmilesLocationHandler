@@ -97,7 +97,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
     override func viewWillAppear(_ animated: Bool) {
         setUpNavigationBar()
         updateUI()
-        SmilesLoader.show(on: self.view)
+        SmilesLoader.show()
         self.input.send(.getAllAddress)
     }
     override func viewWillDisappear(_ animated: Bool) {
@@ -203,33 +203,46 @@ extension SmilesManageAddressesViewController {
         let output = viewModel.transform(input: input.eraseToAnyPublisher())
         output
             .sink { [weak self] event in
+                guard let self else { return }
+                SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(response)
                     if let address = response.addresses {
-                        self?.editButton.isHidden = false
-                        self?.savedAddressedLabel.isHidden = false
-                        self?.addressDataSource = address
-                        self?.addressesTableView.reloadData()
+                        self.editButton.isHidden = false
+                        self.savedAddressedLabel.isHidden = false
+                        self.addressDataSource = address
+                        self.addressesTableView.reloadData()
+
                     }
                 case .fetchAllAddressDidFail(error: let error):
-                    SmilesLoader.dismiss(from: self?.view ?? UIView())
-                    debugPrint(error?.localizedDescription ?? "")
-                case .removeAddressDidSucceed(response: let response):
-                    debugPrint(response)
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
+                    }
+                case .removeAddressDidSucceed(_):
                     let model = ToastModel()
                     model.title = "address_has_been_deleted".localizedString
                     model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-                    self?.showToast(model: model)
-                    self?.input.send(.getAllAddress)
-                case .removeAddressDidFail(error: _):
-                    self?.input.send(.getAllAddress)
-                    break
+                    self.showToast(model: model)
+                case .removeAddressDidFail(let error):
+                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
                 default:
                    break
                 
                 }
             }.store(in: &cancellables)
     }
+}
+
+// MARK: - SMILES ERROR VIEW DELEGATE -
+extension SmilesManageAddressesViewController: SmilesErrorViewDelegate {
+    
+    func primaryButtonPressed() {
+        SmilesLoader.show()
+        self.input.send(.getAllAddress)
+    }
+    
+    func secondaryButtonPressed() {}
+    
 }

@@ -59,9 +59,9 @@ public final class SmilesLocationRouter: NSObject {
         }
     }
     
-    public func pushUpdateLocationViewController(with navigationController: UINavigationController) {
+    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil) {
         self.navigationController = navigationController
-        let vc = SmilesLocationConfigurator.create(type: .updateLocation)
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate))
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }

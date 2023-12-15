@@ -22,16 +22,16 @@ class LocationsViewModel: NSObject {
     
     enum Output {
         case fetchPlaceFromLocationDidSucceed(response: String)
-        case fetchPlaceFromLocationDidFail(error: Error?)
+        case fetchPlaceFromLocationDidFail(error: NetworkError?)
         
         case updateUserLocationDidSucceed(response : RegisterLocationResponse)
-        case updateUserLocationDidFail(error: Error)
+        case updateUserLocationDidFail(error: NetworkError)
         
         case registerUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
-        case registerUserLocationDidFail(error: Error)
+        case registerUserLocationDidFail(error: NetworkError)
         
         case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
-        case getUserLocationDidFail(error: Error)
+        case getUserLocationDidFail(error: NetworkError)
         
     }
     

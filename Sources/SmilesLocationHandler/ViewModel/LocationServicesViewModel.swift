@@ -25,19 +25,19 @@ public class LocationServicesViewModel: NSObject {
     
     public enum Output {
         case fetchAddressFromCoordinatesDidSucceed(response: SWGoogleAddressResponse)
-        case fetchAddressFromCoordinatesDidFail(error: Error?)
+        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
-        case fetchAddressFromCoordinatesOSMDidFail(error: Error?)
+        case fetchAddressFromCoordinatesOSMDidFail(error: NetworkError?)
         
         case searchLocationDidSucceed(response: [SearchedLocationDetails])
         case searchLocationDidFail(error: Error)
         
         case fetchLocationDetailsDidSucceed(locationDetails: SearchedLocationDetails)
-        case fetchLocationDetailsDidFail(error: Error?)
+        case fetchLocationDetailsDidFail(error: NetworkError?)
         
         case getPolylineDidSucceed(response: PolylineResponseModel)
-        case getPolylineDidFail(error: Error?)
+        case getPolylineDidFail(error: NetworkError?)
     }
     
     // MARK: -- Variables
