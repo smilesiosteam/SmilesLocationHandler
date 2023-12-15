@@ -209,6 +209,7 @@ extension SmilesManageAddressesViewController {
                     debugPrint(response)
                     if let address = response.addresses {
                         self?.editButton.isHidden = false
+                        self?.savedAddressedLabel.isHidden = false
                         self?.addressDataSource = address
                         self?.addressesTableView.reloadData()
                     }

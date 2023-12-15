@@ -409,7 +409,10 @@ extension LocationManager: CLLocationManagerDelegate {
                 self.locationManager?.startUpdatingLocation()
                 self.delegate?.locationIsAllowedByUser(isAllowed: true)
                 break
-            case .denied, .restricted, .notDetermined:
+            case .denied, .restricted:
+                self.delegate?.locationIsAllowedByUser(isAllowed: false)
+            case .notDetermined:
+                self.delegate?.locationIsAllowedByUser(isAllowed: false)
                 self.locationManager?.requestWhenInUseAuthorization()
                 break
             @unknown default:
