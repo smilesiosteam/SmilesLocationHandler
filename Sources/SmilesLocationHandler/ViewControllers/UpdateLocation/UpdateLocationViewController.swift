@@ -262,6 +262,7 @@ extension UpdateLocationViewController {
                 case .fetchAllAddressDidSucceed(let response):
                     if let address = response.addresses {
                         self.editButton.isHidden = false
+                        self.savedAddressedLabel.isHidden = false
                         self.addressDataSource = address
                         self.addressesTableView.reloadData()
                     }
