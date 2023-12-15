@@ -35,9 +35,12 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }()
     private var getAllAddresses = true
     private var userCurrentLocation: CLLocation?
+    private weak var delegate: UpdateUserLocationDelegate?
+
     
     // MARK: - Methods
-    init() {
+    init(delegate: UpdateUserLocationDelegate? = nil) {
+        self.delegate = delegate
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
     }
     
@@ -278,8 +281,8 @@ extension UpdateLocationViewController {
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     if let userInfo = response.userInfo {
                         LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
                         SmilesLocationRouter.shared.popVC()
+                        self.delegate?.userLocationUpdatedSuccessfully()
                     }
                 case .getUserLocationDidFail(let error):
                     if !error.localizedDescription.isEmpty {
