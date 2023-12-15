@@ -116,7 +116,11 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
             }
         default:
             if controllerType == .fromDashboard && isFirstLaunch {
-                getUserCurrentLocation()
+                if isAllowed {
+                    getUserCurrentLocation()
+                } else {
+                    self.locationsUseCaseInput.send(.getUserLocation(location: nil))
+                }
             } else {
                 if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
                     locationName = loc
