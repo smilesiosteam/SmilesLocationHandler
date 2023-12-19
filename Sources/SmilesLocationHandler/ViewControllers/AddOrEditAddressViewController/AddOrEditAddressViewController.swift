@@ -138,13 +138,15 @@ class AddOrEditAddressViewController: UIViewController {
         return AddOrEditAddressViewModel()
     }()
     private weak var delegate: ConfirmLocationDelegate?
+    private weak var updateLocationDelegate: UpdateUserLocationDelegate?
     var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
-    init(addressObj: Address?, selectedLocation: SearchLocationResponseModel?, delegate: ConfirmLocationDelegate?) {
+    init(addressObj: Address?, selectedLocation: SearchLocationResponseModel?, delegate: ConfirmLocationDelegate?, updateLocationDelegate: UpdateUserLocationDelegate?) {
         self.addressObj = addressObj
         self.selectedLocation = selectedLocation
         self.delegate = delegate
+        self.updateLocationDelegate = updateLocationDelegate
         super.init(nibName: "AddOrEditAddressViewController", bundle: .module)
     }
     
@@ -244,6 +246,9 @@ class AddOrEditAddressViewController: UIViewController {
             self.addressLabel.text = title
         }
         
+        if updateLocationDelegate != nil {
+            self.addressLabel.text = addressObj?.locationName
+        }
         
         deliveryToLabel.text = "deliver_address".localizedString
         villaFlatNoLabel.text = "VillaFlatno".localizedString
@@ -271,16 +276,6 @@ class AddOrEditAddressViewController: UIViewController {
             nickNameCollectionView.semanticContentAttribute = .forceLeftToRight
         }
         
-    }
-    
-    func setUpViewForEditAddress() {
-        if let addressToEdit = addressObj {
-            self.input.send(.getLocationName(lat: addressToEdit.latitude ?? "", long: addressToEdit.longitude ?? ""))
-            buildingNameTextField.text = addressToEdit.building
-            flatNoTextField.text = addressToEdit.flatNo
-            streetTextField.text = addressToEdit.street
-            landmarkTextField.text = addressToEdit.landmark
-        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -387,10 +382,28 @@ extension AddOrEditAddressViewController {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
                 case .saveAddressDidSucceed(_):
-                    self.redirectUserAfterConfirmLocation()
+                    if updateLocationDelegate != nil {
+                        if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
+                           let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                            SmilesLoader.show()
+                            self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                        }
+                    } else {
+                        self.redirectUserAfterConfirmLocation()
+                    }
                 case .saveAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                    }
+                case .getUserLocationDidSucceed(response: let response, location: _):
+                    if let userInfo = response.userInfo {
+                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                        SmilesLocationRouter.shared.popVC()
+                        self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
+                    }
+                case .getUserLocationDidFail(error: let error):
+                    if !error.localizedDescription.isEmpty {
+                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
                     }
                 }
             }.store(in: &cancellables)
@@ -621,7 +634,8 @@ extension AddOrEditAddressViewController {
     }
     
     func nickNamesResponse(nickNames: [Nicknames]) {
-        if let address = addressObj {
+        
+        if let address = addressObj, updateLocationDelegate == nil {
             setViewForEdit(address: address)
         } else {
             nickNamesArray = nickNames

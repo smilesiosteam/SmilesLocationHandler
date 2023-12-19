@@ -124,8 +124,7 @@ public final class LocationManager: NSObject {
     }
     
     public func isEnabled() -> Bool {
-        guard CLLocationManager.locationServicesEnabled() else { return false }
-        return [.authorizedAlways, .authorizedWhenInUse].contains(CLLocationManager.authorizationStatus())
+        return SmilesLocationHandler.isLocationEnabled
     }
     
     /// Get current location

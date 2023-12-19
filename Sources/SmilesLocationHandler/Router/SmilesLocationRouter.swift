@@ -59,6 +59,18 @@ public final class SmilesLocationRouter: NSObject {
         }
     }
     
+    public func pushAddressDetailsViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate?) {
+        self.navigationController = navigationController
+        let selectedLocation = Address()
+        selectedLocation.latitude = LocationStateSaver.getLocationInfo()?.latitude
+        selectedLocation.longitude = LocationStateSaver.getLocationInfo()?.longitude
+        selectedLocation.locationName = LocationStateSaver.getLocationInfo()?.location
+        if let vc = SmilesLocationConfigurator.create(type: .addOrEditAddress(addressObject: selectedLocation, updateLocationDelegate: delegate)) as? AddOrEditAddressViewController {
+            vc.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(vc, animated: true)
+        }
+    }
+    
     public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil) {
         self.navigationController = navigationController
         let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate))

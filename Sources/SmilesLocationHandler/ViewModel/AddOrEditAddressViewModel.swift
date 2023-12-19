@@ -18,6 +18,7 @@ class AddOrEditAddressViewModel: NSObject {
         case getLocationsNickName
         case getLocationName(lat: String, long: String)
         case saveAddress(address: Address?)
+        case getUserLocation(location: CLLocation?)
     }
     
     enum Output {
@@ -29,6 +30,9 @@ class AddOrEditAddressViewModel: NSObject {
         
         case fetchLocationNameDidSucceed(response: String)
         case fetchLocationNameDidFail(error: NetworkError?)
+        
+        case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
+        case getUserLocationDidFail(error: NetworkError)
     }
     
     // MARK: -- Variables
@@ -58,6 +62,9 @@ extension AddOrEditAddressViewModel {
             case .saveAddress(let address):
                 self?.bind(to: self?.addressOperationViewModel ?? AddressOperationViewModel())
                 self?.addressOperationUseCaseInput.send(.saveAddress(address: address))
+            case .getUserLocation(location: let location):
+                self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
+                self?.setLocationInput.send(.getUserLocation(location: location))
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
@@ -105,6 +112,10 @@ extension AddOrEditAddressViewModel {
                     self?.output.send(.fetchLocationNameDidSucceed(response: name))
                 case .fetchLocationNameDidFail(let error):
                     self?.output.send(.fetchLocationNameDidFail(error: error))
+                case .getUserLocationDidSucceed(let response, let location):
+                    self?.output.send(.getUserLocationDidSucceed(response: response, location: location))
+                case .getUserLocationDidFail(let error):
+                    self?.output.send(.getUserLocationDidFail(error: error))
                 default: break
                 }
             }.store(in: &cancellables)
