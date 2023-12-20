@@ -183,12 +183,7 @@ extension SmilesLocationDetectViewController {
                 SmilesLoader.dismiss()
                 switch event {
                 case .getUserLocationDidSucceed(let response, _):
-                    if let userInfo = response.userInfo {
-                        self.dismiss(animated: true, completion: {
-                            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                            NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
-                        })
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
                     if !error.localizedDescription.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
@@ -196,6 +191,24 @@ extension SmilesLocationDetectViewController {
                 default: break
                 }
             }.store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - RESPONSE HANDLING -
+extension SmilesLocationDetectViewController {
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            self.dismiss(animated: true, completion: {
+                LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
+            })
+        }
+        
     }
     
 }

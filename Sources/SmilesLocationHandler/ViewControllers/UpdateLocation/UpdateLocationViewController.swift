@@ -260,40 +260,25 @@ extension UpdateLocationViewController {
                 SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    if let address = response.addresses {
-                        self.editButton.isHidden = false
-                        self.savedAddressedLabel.isHidden = false
-                        self.addressDataSource = address
-                        self.addressesTableView.reloadData()
-                    }
+                    self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
                     }
-                case .removeAddressDidSucceed(response: _):
-                    let model = ToastModel()
-                    model.title = "address_has_been_deleted".localizedString
-                    model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-                    self.showToast(model: model)
+                case .removeAddressDidSucceed(let response):
+                    handleRemoveAddressResponse(response: response)
                 case .removeAddressDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        SmilesLocationRouter.shared.popVC()
-                        self.delegate?.userLocationUpdatedSuccessfully()
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
                     if !error.localizedDescription.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
                     }
-                case .saveAddressDidSucceed(response: _):
-                    if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
-                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                        self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                    }
+                case .saveAddressDidSucceed(let response):
+                    self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
@@ -307,6 +292,60 @@ extension UpdateLocationViewController {
                 }
             }.store(in: &cancellables)
     }
+}
+
+// MARK: - RESPONSE HANDLING -
+extension UpdateLocationViewController {
+    
+    private func handleAddressListResponse(response: GetAllAddressesResponse) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        } else if let address = response.addresses {
+            self.editButton.isHidden = false
+            self.savedAddressedLabel.isHidden = false
+            self.addressDataSource = address
+            self.addressesTableView.reloadData()
+        }
+        
+    }
+    
+    private func handleRemoveAddressResponse(response: RemoveAddressResponseModel) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else {
+            let model = ToastModel()
+            model.title = "address_has_been_deleted".localizedString
+            model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
+            self.showToast(model: model)
+        }
+        
+    }
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            SmilesLocationRouter.shared.popVC()
+            self.delegate?.userLocationUpdatedSuccessfully()
+        }
+        
+    }
+    
+    private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
+           let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+            self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+        }
+        
+    }
+    
 }
 
 // MARK: - CONFIRM LOCATION DELEGATE -

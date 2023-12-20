@@ -261,12 +261,7 @@ extension ConfirmUserLocationViewController {
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
                     debugPrint(error?.localizedDescription ?? "")
                 case .getUserLocationDidSucceed(let response, _):
-                    SmilesLoader.dismiss()
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        self.navigationController?.popToRootViewController()
-                        NotificationCenter.default.post(name: .LocationUpdated, object: nil)
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
@@ -275,6 +270,24 @@ extension ConfirmUserLocationViewController {
                 default: break
                 }
             }.store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - RESPONSE HANDLING -
+extension ConfirmUserLocationViewController {
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        SmilesLoader.dismiss()
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            self.navigationController?.popToRootViewController()
+            NotificationCenter.default.post(name: .LocationUpdated, object: nil)
+        }
+        
     }
     
 }

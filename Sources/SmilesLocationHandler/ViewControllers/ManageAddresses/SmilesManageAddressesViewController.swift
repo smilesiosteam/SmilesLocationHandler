@@ -207,32 +207,53 @@ extension SmilesManageAddressesViewController {
                 SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    if let address = response.addresses {
-                        self.editButton.isHidden = false
-                        self.savedAddressedLabel.isHidden = false
-                        self.addressDataSource = address
-                        self.addressesTableView.reloadData()
-
-                    }
+                    self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
                     }
-                case .removeAddressDidSucceed(_):
-                    let model = ToastModel()
-                    model.title = "address_has_been_deleted".localizedString
-                    model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-                    self.showToast(model: model)
+                case .removeAddressDidSucceed(let response):
+                    self.handleRemoveAddressResponse(response: response)
                 case .removeAddressDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
                 default:
                    break
-                
                 }
             }.store(in: &cancellables)
     }
+}
+
+// MARK: - RESPONSE HANDLING -
+extension SmilesManageAddressesViewController {
+    
+    private func handleAddressListResponse(response: GetAllAddressesResponse) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        } else if let address = response.addresses {
+            self.editButton.isHidden = false
+            self.savedAddressedLabel.isHidden = false
+            self.addressDataSource = address
+            self.addressesTableView.reloadData()
+        }
+        
+    }
+    
+    private func handleRemoveAddressResponse(response: RemoveAddressResponseModel) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else {
+            let model = ToastModel()
+            model.title = "address_has_been_deleted".localizedString
+            model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
+            self.showToast(model: model)
+        }
+        
+    }
+    
 }
 
 // MARK: - SMILES ERROR VIEW DELEGATE -

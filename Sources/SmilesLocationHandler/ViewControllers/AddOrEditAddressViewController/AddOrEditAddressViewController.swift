@@ -367,10 +367,8 @@ extension AddOrEditAddressViewController {
                 guard let self else { return }
                 SmilesLoader.dismiss()
                 switch event {
-                case .fetchLocationsNickNameDidSucceed(let nickNameResponse):
-                    if let nickNamesArray = nickNameResponse.addressDetail?.nicknames {
-                        self.nickNamesResponse(nickNames: nickNamesArray)
-                    }
+                case .fetchLocationsNickNameDidSucceed(let response):
+                    self.handleNickNamesResponse(response: response)
                 case .fetchLocationsNickNameDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
@@ -381,26 +379,14 @@ extension AddOrEditAddressViewController {
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
-                case .saveAddressDidSucceed(_):
-                    if updateLocationDelegate != nil {
-                        if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
-                           let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                            SmilesLoader.show()
-                            self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                        }
-                    } else {
-                        self.redirectUserAfterConfirmLocation()
-                    }
+                case .saveAddressDidSucceed(let response):
+                    self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        SmilesLocationRouter.shared.popVC()
-                        self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
                     if !error.localizedDescription.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
@@ -409,6 +395,64 @@ extension AddOrEditAddressViewController {
             }.store(in: &cancellables)
     }
 }
+
+// MARK: - RESPONSE HANDLING -
+extension AddOrEditAddressViewController {
+    
+    private func handleNickNamesResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        } else if let nickNamesArray = response.addressDetail?.nicknames {
+            self.nickNamesResponse(nickNames: nickNamesArray)
+        }
+        
+    }
+    
+    private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else {
+            if updateLocationDelegate != nil {
+                if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
+                   let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                    SmilesLoader.show()
+                    self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                }
+            } else {
+                self.redirectUserAfterConfirmLocation()
+            }
+        }
+        
+    }
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            SmilesLocationRouter.shared.popVC()
+            self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
+        }
+        
+    }
+    
+}
+
+// MARK: - SMILES ERROR VIEW DELEGATE -
+extension AddOrEditAddressViewController: SmilesErrorViewDelegate {
+    
+    func primaryButtonPressed() {
+        SmilesLoader.show()
+        self.input.send(.getLocationsNickName)
+    }
+    
+    func secondaryButtonPressed() {}
+    
+}
+
 
 // MARK: - UICollectionView Delegate & DataSource
 extension AddOrEditAddressViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
