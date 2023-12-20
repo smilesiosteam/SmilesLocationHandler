@@ -144,14 +144,9 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
-        if (isEditingEnabled) {
-            self.isEditingEnabled = false
-            self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
-        } else {
-            self.isEditingEnabled = true
-            self.editButton.setTitle("Done".localizedString, for: .normal)
+        if let navigationController {
+            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController)
         }
-        self.addressesTableView.reloadData()
     }
     
     @IBAction func didTabSearchButton(_ sender: UIButton) {
@@ -197,7 +192,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
 
 
 // MARK: - UITableView Delegate & DataSource -
-extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
+extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
@@ -205,7 +200,6 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
-        cell.delegate = self
         let address = addressDataSource[indexPath.row]
         var isSelected: Bool?
         if let selectedAddress {
@@ -215,38 +209,6 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
-    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {
-        // Handle the action here based on the cell's action
-        if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            let item = self.addressDataSource[indexPath.row]
-            let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
-            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: .deleteWorkAddress(message: message))) as? SmilesLocationDetectViewController {
-                vc.deletePressed = { [weak self] in
-                    guard let self else { return }
-                    self.addressDataSource.remove(at: indexPath.row)
-                    self.addressesTableView.reloadData()
-                    SmilesLoader.show()
-                    self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
-                }
-                self.present(vc, animated: true)
-            }
-            // Perform actions based on indexPath
-        }
-    }
-    func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
-        // if editing mode is enabled then it will not let user select
-        if !isEditingEnabled{
-            if let indexPath = self.addressesTableView.indexPath(for: cell) {
-                self.confirmLocationButton.isUserInteractionEnabled = true
-                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor
-                self.confirmLocationButton.setTitleColor(.white, for: .normal)
-                self.selectedAddress = self.addressDataSource[indexPath.row]
-                setupCurrentLocationContainerSelection(isSelected: false)
-                self.addressesTableView.reloadData()
-            }
-        }
-        
-    }
 }
 // MARK: - ViewModel Binding
 extension UpdateLocationViewController {
@@ -264,12 +226,6 @@ extension UpdateLocationViewController {
                 case .fetchAllAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
-                    }
-                case .removeAddressDidSucceed(let response):
-                    handleRemoveAddressResponse(response: response)
-                case .removeAddressDidFail(let error):
-                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     self.handleUserLocationResponse(response: response)
@@ -289,6 +245,7 @@ extension UpdateLocationViewController {
                 case .fetchAddressFromCoordinatesDidFail(_):
                     self.currentLocationLabel.text = ""
                     self.currentLocationContainer.isHidden = true
+                default: break
                 }
             }.store(in: &cancellables)
     }
@@ -306,19 +263,6 @@ extension UpdateLocationViewController {
             self.savedAddressedLabel.isHidden = false
             self.addressDataSource = address
             self.addressesTableView.reloadData()
-        }
-        
-    }
-    
-    private func handleRemoveAddressResponse(response: RemoveAddressResponseModel) {
-        
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
-        } else {
-            let model = ToastModel()
-            model.title = "address_has_been_deleted".localizedString
-            model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-            self.showToast(model: model)
         }
         
     }
