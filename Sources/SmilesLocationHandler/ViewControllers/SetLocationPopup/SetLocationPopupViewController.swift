@@ -166,7 +166,7 @@ extension SetLocationPopupViewController {
     
     private func handleCitiesResponse(response: GetCitiesResponse) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else {
             showShimmer = false

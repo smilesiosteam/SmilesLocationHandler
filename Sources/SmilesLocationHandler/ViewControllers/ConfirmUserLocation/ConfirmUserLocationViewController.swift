@@ -280,7 +280,7 @@ extension ConfirmUserLocationViewController {
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
         SmilesLoader.dismiss()
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)

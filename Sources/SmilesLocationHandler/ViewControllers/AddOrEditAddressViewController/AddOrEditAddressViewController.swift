@@ -401,7 +401,7 @@ extension AddOrEditAddressViewController {
     
     private func handleNickNamesResponse(response: SaveAddressResponseModel) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let nickNamesArray = response.addressDetail?.nicknames {
             self.nickNamesResponse(nickNames: nickNamesArray)
@@ -411,7 +411,7 @@ extension AddOrEditAddressViewController {
     
     private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else {
             if updateLocationDelegate != nil {
@@ -429,7 +429,7 @@ extension AddOrEditAddressViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)

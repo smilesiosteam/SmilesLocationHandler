@@ -63,6 +63,7 @@ class SmilesLocationDetectViewController: UIViewController {
         if let viewModel = viewModel {
             self.configure(with: viewModel)
         }
+        bind(to: setLocationViewModel)
     }
     private  func configure(with viewModel: DetectLocationPopupViewModel?) {
         
@@ -200,7 +201,7 @@ extension SmilesLocationDetectViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             self.dismiss(animated: true, completion: {

@@ -256,7 +256,7 @@ extension UpdateLocationViewController {
     
     private func handleAddressListResponse(response: GetAllAddressesResponse) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
             self.editButton.isHidden = false
@@ -269,7 +269,7 @@ extension UpdateLocationViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
@@ -281,7 +281,7 @@ extension UpdateLocationViewController {
     
     private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
         
-        if let errorMessage = response.errorMsg, !errorMessage.isEmpty {
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
            let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
