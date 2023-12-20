@@ -274,7 +274,7 @@ extension UpdateLocationViewController {
                     let model = ToastModel()
                     model.title = "address_has_been_deleted".localizedString
                     model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-                    self.showToast(model: model)
+                    self.showToast(model: model,atPosition: .bottom)
                 case .removeAddressDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
