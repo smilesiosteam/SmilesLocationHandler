@@ -15,6 +15,10 @@ protocol SmilesUpdateLocationTableViewCellDelegate: AnyObject {
     func didTapDetailButtonInCell(_ cell: UpdateLocationCell)
 }
 
+extension SmilesUpdateLocationTableViewCellDelegate {
+    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {}
+}
+
 
 class UpdateLocationCell: UITableViewCell {
     

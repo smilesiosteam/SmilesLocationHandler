@@ -26,6 +26,8 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
     private lazy var viewModel: ManageAddressViewModel = {
         return ManageAddressViewModel()
     }()
+    private var deletedAddress: Address?
+    
     // MARK: - Methods
     init() {
         super.init(nibName: "SmilesManageAddressesViewController", bundle: .module)
@@ -85,6 +87,20 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
     }
+    
+    private func showToastForDeletedAddress() {
+        
+        addressDataSource.removeAll { address in
+            address.addressId == deletedAddress?.addressId
+        }
+        addressesTableView.reloadData()
+        let model = ToastModel()
+        model.title = "address_has_been_deleted".localizedString
+        model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
+        self.showToast(model: model,atPosition: .bottom)
+        
+    }
+    
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -169,8 +185,8 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
             if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: .deleteWorkAddress(message: message))) as? SmilesLocationDetectViewController {
                 vc.deletePressed = { [weak self] in
                     guard let self else { return }
-                    self.addressDataSource.remove(at: indexPath.row)
-                    SmilesLoader.show(on: self.view)
+                    SmilesLoader.show()
+                    self.deletedAddress = item
                     self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
                 }
                 self.present(vc, animated: true)
@@ -204,7 +220,6 @@ extension SmilesManageAddressesViewController {
         output
             .sink { [weak self] event in
                 guard let self else { return }
-                SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
                     self.handleAddressListResponse(response: response)
@@ -218,6 +233,10 @@ extension SmilesManageAddressesViewController {
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
+                case .getUserLocationDidSucceed(let response, _):
+                    self.handleUserLocationResponse(response: response)
+                case .getUserLocationDidFail(_):
+                    self.handleUserLocationFailedResponse()
                 default:
                    break
                 }
@@ -230,6 +249,7 @@ extension SmilesManageAddressesViewController {
     
     private func handleAddressListResponse(response: GetAllAddressesResponse) {
         
+        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
@@ -246,11 +266,35 @@ extension SmilesManageAddressesViewController {
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
         } else {
-            let model = ToastModel()
-            model.title = "address_has_been_deleted".localizedString
-            model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-            self.showToast(model: model,atPosition: .bottom)
+            if let deletedAddress, deletedAddress.latitude == LocationStateSaver.getLocationInfo()?.latitude, deletedAddress.longitude == LocationStateSaver.getLocationInfo()?.longitude {
+                LocationManager.shared.getLocation { [weak self] location, error in
+                    self?.input.send(.getUserLocation(location: location))
+                }
+            } else {
+                SmilesLoader.dismiss()
+                showToastForDeletedAddress()
+            }
         }
+        
+    }
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        SmilesLoader.dismiss()
+        if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            showToastForDeletedAddress()
+        } else {
+            handleUserLocationFailedResponse()
+        }
+        
+    }
+    
+    private func handleUserLocationFailedResponse() {
+        
+        SmilesLoader.dismiss()
+        LocationStateSaver.removeLocation()
+        showToastForDeletedAddress()
         
     }
     

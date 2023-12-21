@@ -192,7 +192,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
 
 
 // MARK: - UITableView Delegate & DataSource -
-extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource {
+extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
@@ -205,8 +205,23 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         if let selectedAddress {
             isSelected = selectedAddress.addressId == address.addressId
         }
+        cell.delegate = self
         cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
         return cell
+    }
+    
+    func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
+        // if editing mode is enabled then it will not let user select
+        if !isEditingEnabled{
+            if let indexPath = self.addressesTableView.indexPath(for: cell) {
+                self.confirmLocationButton.isUserInteractionEnabled = true
+                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor
+                self.confirmLocationButton.setTitleColor(.white, for: .normal)
+                self.selectedAddress = self.addressDataSource[indexPath.row]
+                setupCurrentLocationContainerSelection(isSelected: false)
+                self.addressesTableView.reloadData()
+            }
+        }
     }
     
 }
@@ -219,23 +234,28 @@ extension UpdateLocationViewController {
         output
             .sink { [weak self] event in
                 guard let self else { return }
-                SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
+                    SmilesLoader.dismiss()
                     self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
+                    SmilesLoader.dismiss()
                     self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
+                    SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
                     }
                 case .saveAddressDidSucceed(let response):
+                    SmilesLoader.dismiss()
                     self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
                     }
