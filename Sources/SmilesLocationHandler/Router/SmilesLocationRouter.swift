@@ -71,14 +71,14 @@ public final class SmilesLocationRouter: NSObject {
         }
     }
     
-    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil) {
+    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool = false) {
         self.navigationController = navigationController
-        let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate))
+        let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate, isFromFoodCart: isFromFoodCart))
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController, delegate: ConfirmLocationDelegate?) {
+    func pushConfirmUserLocationVC(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocationSourceScreen = .addAddressViewController, delegate: ConfirmLocationDelegate?) {
         
         let vc = SmilesLocationConfigurator.create(type: .confirmUserLocation(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)) as! ConfirmUserLocationViewController
         vc.hidesBottomBarWhenPushed = true
@@ -86,9 +86,9 @@ public final class SmilesLocationRouter: NSObject {
         
     }
     
-    func pushSearchLocationVC(isFromUpdateLocation: Bool = false, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+    func pushSearchLocationVC(isFromFoodCart: Bool? = nil, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         
-        let vc = SmilesLocationConfigurator.create(type: .searchLocation(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)) as! SearchLocationViewController
+        let vc = SmilesLocationConfigurator.create(type: .searchLocation(isFromFoodCart: isFromFoodCart, locationSelected: locationSelected)) as! SearchLocationViewController
         navigationController?.pushViewController(vc, animated: true)
         
     }

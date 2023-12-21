@@ -36,11 +36,13 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private var getAllAddresses = true
     private var userCurrentLocation: CLLocation?
     private weak var delegate: UpdateUserLocationDelegate?
+    private var isFromFoodCart: Bool
 
     
     // MARK: - Methods
-    init(delegate: UpdateUserLocationDelegate? = nil) {
+    init(delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool) {
         self.delegate = delegate
+        self.isFromFoodCart = isFromFoodCart
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
     }
     
@@ -150,10 +152,13 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     @IBAction func didTabSearchButton(_ sender: UIButton) {
-        SmilesLocationRouter.shared.pushSearchLocationVC(isFromUpdateLocation: true, locationSelected: { [weak self] selectedLocation in
+        SmilesLocationRouter.shared.pushSearchLocationVC(isFromFoodCart: isFromFoodCart, locationSelected: { [weak self] selectedLocation in
             self?.getAllAddresses = false
-            SmilesLoader.show()
-            self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
+            // Added delay so that Add address screen poped completely and this controller become visible
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                SmilesLoader.show()
+                self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
+            }
         })
     }
     
@@ -174,7 +179,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         let city = GetCitiesModel()
         city.cityLatitude = userCurrentLocation?.coordinate.latitude
         city.cityLongitude = userCurrentLocation?.coordinate.longitude
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, sourceScreen: .updateUserLocation, delegate: self)
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, sourceScreen: .updateUserLocation(isFromFoodCart: isFromFoodCart), delegate: self)
         
     }
     

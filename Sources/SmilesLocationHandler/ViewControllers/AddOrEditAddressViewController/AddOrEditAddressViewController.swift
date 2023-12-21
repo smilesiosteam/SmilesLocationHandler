@@ -13,19 +13,6 @@ import Combine
 import CoreLocation
 import SmilesLoader
 
-enum SmilesConfirmLocationRedirection {
-    case toUpdateLocation
-    case toAddNewAddress
-    case toHome
-    case toBack
-    case toRestaurantDetail
-    case toFoodCart
-    case toEnterAddress
-    case toEditAddress
-    case toCategoryContainer
-    case toCollectionDetails
-}
-
 class AddOrEditAddressViewController: UIViewController {
     
     // MARK: - IBOutlets
@@ -139,7 +126,6 @@ class AddOrEditAddressViewController: UIViewController {
     }()
     private weak var delegate: ConfirmLocationDelegate?
     private weak var updateLocationDelegate: UpdateUserLocationDelegate?
-    var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
     init(addressObj: Address?, selectedLocation: SearchLocationResponseModel?, delegate: ConfirmLocationDelegate?, updateLocationDelegate: UpdateUserLocationDelegate?) {
@@ -313,15 +299,19 @@ class AddOrEditAddressViewController: UIViewController {
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
         
-        let model = GetCitiesModel()
-        if let object = self.addressObj {
-            model.cityLatitude = Double(object.latitude ?? "")
-            model.cityLongitude = Double(object.longitude ?? "")
-        } else if let lat = selectedLocation?.lat, let long = selectedLocation?.long {
-            model.cityLatitude = lat
-            model.cityLongitude = long
+        if let controllers = navigationController?.viewControllers, controllers[safe: controllers.count - 2] is ConfirmUserLocationViewController {
+            SmilesLocationRouter.shared.popVC()
+        } else {
+            let model = GetCitiesModel()
+            if let object = self.addressObj {
+                model.cityLatitude = Double(object.latitude ?? "")
+                model.cityLongitude = Double(object.longitude ?? "")
+            } else if let lat = selectedLocation?.lat, let long = selectedLocation?.long {
+                model.cityLatitude = lat
+                model.cityLongitude = long
+            }
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
         }
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
         
     }
     
@@ -666,13 +656,16 @@ extension AddOrEditAddressViewController {
     
     func redirectUserAfterConfirmLocation() {
         
-        if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
-            if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
-            }
-            self.navigationController?.popToViewController(updateLocationVC, animated: true)
-        } else {
+        guard let controllers = navigationController?.viewControllers else { return }
+        if controllers[safe: controllers.count - 2] is SmilesManageAddressesViewController {
             SmilesLocationRouter.shared.popVC()
+        } else {
+            if let updateLocationVC = controllers.last(where: { $0 is UpdateLocationViewController }) {
+                if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                    delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
+                }
+                self.navigationController?.popToViewController(updateLocationVC, animated: true)
+            }
         }
         
     }
