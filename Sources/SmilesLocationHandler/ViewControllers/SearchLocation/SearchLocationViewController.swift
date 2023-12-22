@@ -13,7 +13,7 @@ import SmilesLoader
 import SmilesLanguageManager
 import CoreLocation
 
-class SearchLocationViewController: UIViewController {
+class SearchLocationViewController: UIViewController, SmilesPresentableMessage {
 
     // MARK: - OUTLETS -
     @IBOutlet weak var searchResultsTableView: UITableView!
@@ -153,7 +153,7 @@ extension SearchLocationViewController {
                     self.setupSearchedLocationData(locationDetails: locationDetails)
                 case .fetchLocationDetailsDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 default: break
                 }

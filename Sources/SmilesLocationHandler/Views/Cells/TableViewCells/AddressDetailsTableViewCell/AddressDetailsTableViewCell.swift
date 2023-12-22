@@ -10,17 +10,17 @@ import SmilesUtilities
 import SmilesFontsManager
 import SmilesLanguageManager
 
-protocol SmilesUpdateLocationTableViewCellDelegate: AnyObject {
-    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell)
-    func didTapDetailButtonInCell(_ cell: UpdateLocationCell)
+protocol AddressDetailsTbaleViewCellDelegate: AnyObject {
+    func didTapDeleteButtonInCell(_ cell: AddressDetailsTableViewCell)
+    func didTapDetailButtonInCell(_ cell: AddressDetailsTableViewCell)
 }
 
-extension SmilesUpdateLocationTableViewCellDelegate {
-    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {}
+extension AddressDetailsTbaleViewCellDelegate {
+    func didTapDeleteButtonInCell(_ cell: AddressDetailsTableViewCell) {}
 }
 
 
-class UpdateLocationCell: UITableViewCell {
+class AddressDetailsTableViewCell: UITableViewCell {
     
     // MARK: - OUTLETS -
     @IBOutlet weak var mainView: UICustomView!
@@ -31,9 +31,10 @@ class UpdateLocationCell: UITableViewCell {
     @IBOutlet weak var editButton: UIButton!
     @IBOutlet weak var detailButton: UIButton!
     @IBOutlet weak var mainViewLeading: NSLayoutConstraint!
+    @IBOutlet weak var mainViewTrailing: NSLayoutConstraint!
     
     // MARK: - PROPERTIES
-    weak var delegate: SmilesUpdateLocationTableViewCellDelegate?
+    weak var delegate: AddressDetailsTbaleViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -57,7 +58,7 @@ class UpdateLocationCell: UITableViewCell {
         self.detailLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
-    func configureCell(with address: Address?, isEditingEnabled: Bool, isSelected: Bool? = nil) {
+    func configureCell(with address: Address?, isFromManageAddress: Bool, isEditingEnabled: Bool, isSelected: Bool? = nil) {
         
         if let address = address {
             self.headingLabel.text = address.nickname
@@ -71,22 +72,29 @@ class UpdateLocationCell: UITableViewCell {
             
             editButton.isHidden = !isEditingEnabled
             mainViewLeading.constant = isEditingEnabled ? 48 : 16
-            if isEditingEnabled {
-                setupSelection(isSelected: false)
-                return
+            mainViewTrailing.constant = isEditingEnabled ? 0 : 16
+            
+            if !isFromManageAddress {
+                if isEditingEnabled {
+                    setupSelection(isSelected: false)
+                    return
+                }
+                
+                if let isSelected {
+                    setupSelection(isSelected: isSelected)
+                } else {
+                    if let userInfo = LocationStateSaver.getLocationInfo(), let location = userInfo.location, let latitude = userInfo.latitude, let longitude = userInfo.longitude {
+                        if location == address.locationName, latitude == address.latitude, longitude == address.longitude {
+                            setupSelection(isSelected: true)
+                            return
+                        }
+                    }
+                    setupSelection(isSelected: false)
+                }
+            } else {
+                forwardButton.setImage(UIImage(named: "manage_address_chevron", in: .module, with: nil), for: .normal)
             }
             
-            if let isSelected {
-                setupSelection(isSelected: isSelected)
-            } else {
-                if let userInfo = LocationStateSaver.getLocationInfo(), let location = userInfo.location, let latitude = userInfo.latitude, let longitude = userInfo.longitude {
-                    if location == address.locationName, latitude == address.latitude, longitude == address.longitude {
-                        setupSelection(isSelected: true)
-                        return
-                    }
-                }
-                setupSelection(isSelected: false)
-            }
         }
         
     }

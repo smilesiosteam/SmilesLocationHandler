@@ -22,7 +22,7 @@ enum ConfirmLocationSourceScreen {
     case setLocation
 }
 
-class ConfirmUserLocationViewController: UIViewController {
+class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMessage {
 
     // MARK: - OUTLETS -
     @IBOutlet weak var mapView: GMSMapView!
@@ -272,7 +272,7 @@ extension ConfirmUserLocationViewController {
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 default: break
                 }
@@ -288,7 +288,7 @@ extension ConfirmUserLocationViewController {
         
         SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
             self.navigationController?.popToRootViewController()

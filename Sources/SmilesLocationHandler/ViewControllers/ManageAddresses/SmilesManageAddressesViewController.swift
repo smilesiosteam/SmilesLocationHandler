@@ -11,7 +11,7 @@ import SmilesLanguageManager
 import Combine
 import SmilesLoader
 
-final class SmilesManageAddressesViewController: UIViewController, Toastable {
+final class SmilesManageAddressesViewController: UIViewController, Toastable, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
@@ -82,7 +82,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
     }
     func setupTableViewCells() {
-        addressesTableView.registerCellFromNib(SmilesManageAddressTableViewCell.self, withIdentifier: String(describing: SmilesManageAddressTableViewCell.self), bundle: .module)
+        addressesTableView.registerCellFromNib(AddressDetailsTableViewCell.self, withIdentifier: String(describing: AddressDetailsTableViewCell.self), bundle: .module)
     }
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
@@ -94,6 +94,10 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
             address.addressId == deletedAddress?.addressId
         }
         addressesTableView.reloadData()
+        if addressDataSource.isEmpty {
+            editButton.isHidden = true
+            savedAddressedLabel.isHidden = true
+        }
         let model = ToastModel()
         model.title = "address_has_been_deleted".localizedString
         model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
@@ -134,27 +138,17 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
 }
 
 // MARK: - UITableView Delegate & DataSource -
-extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewDataSource, SmilesManageAddressTableViewCellDelegate {
+extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewDataSource, AddressDetailsTbaleViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "SmilesManageAddressTableViewCell", for: indexPath) as? SmilesManageAddressTableViewCell else { return UITableViewCell() }
-        cell.editButton.isHidden = !isEditingEnabled
-        cell.mainViewLeading.constant = isEditingEnabled ? 48 : 16
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
+        let address = addressDataSource[indexPath.row]
         cell.delegate = self
-        let address = addressDataSource [indexPath.row]
-        cell.headingLabel.text = address.nickname
-        let flatNo = address.flatNo.asStringOrEmpty()
-        let building = address.building.asStringOrEmpty()
-        let street = address.street.asStringOrEmpty()
-        let locationName = address.locationName.asStringOrEmpty()
-        
-        cell.detailLabel.text  =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
-        cell.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
-        cell.selectionStyle = .none
+        cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: isEditingEnabled)
         return cell
     }
     func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
@@ -177,7 +171,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
     }
-    func didTapDeleteButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+    func didTapDeleteButtonInCell(_ cell: AddressDetailsTableViewCell) {
         // Handle the action here based on the cell's action
         if let indexPath = self.addressesTableView.indexPath(for: cell) {
              let item = self.addressDataSource[indexPath.row]
@@ -194,7 +188,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
             // Perform actions based on indexPath
         }
     }
-    func didTapDetailButtonInCell(_ cell: SmilesManageAddressTableViewCell) {
+    func didTapDetailButtonInCell(_ cell: AddressDetailsTableViewCell) {
 
         if !isEditingEnabled {
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
@@ -225,13 +219,13 @@ extension SmilesManageAddressesViewController {
                     self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
                 case .removeAddressDidSucceed(let response):
                     self.handleRemoveAddressResponse(response: response)
                 case .removeAddressDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(let response, _):
                     self.handleUserLocationResponse(response: response)
@@ -251,7 +245,7 @@ extension SmilesManageAddressesViewController {
         
         SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
             self.editButton.isHidden = false
             self.savedAddressedLabel.isHidden = false
@@ -263,8 +257,9 @@ extension SmilesManageAddressesViewController {
     
     private func handleRemoveAddressResponse(response: RemoveAddressResponseModel) {
         
+        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             if let deletedAddress, deletedAddress.latitude == LocationStateSaver.getLocationInfo()?.latitude, deletedAddress.longitude == LocationStateSaver.getLocationInfo()?.longitude {
                 LocationManager.shared.getLocation { [weak self] location, error in
@@ -301,13 +296,13 @@ extension SmilesManageAddressesViewController {
 }
 
 // MARK: - SMILES ERROR VIEW DELEGATE -
-extension SmilesManageAddressesViewController: SmilesErrorViewDelegate {
+extension SmilesManageAddressesViewController: SmilesMessageViewDelegate {
     
-    func primaryButtonPressed() {
-        SmilesLoader.show()
-        self.input.send(.getAllAddress)
+    func primaryButtonPressed(isForRetry: Bool) {
+        if isForRetry {
+            SmilesLoader.show()
+            self.input.send(.getAllAddress)
+        }
     }
-    
-    func secondaryButtonPressed() {}
     
 }

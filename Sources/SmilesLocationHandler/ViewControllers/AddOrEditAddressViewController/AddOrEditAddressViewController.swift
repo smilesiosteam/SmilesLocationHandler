@@ -13,7 +13,7 @@ import Combine
 import CoreLocation
 import SmilesLoader
 
-class AddOrEditAddressViewController: UIViewController {
+class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet weak var btnChange: UIButton!
@@ -361,25 +361,25 @@ extension AddOrEditAddressViewController {
                     self.handleNickNamesResponse(response: response)
                 case .fetchLocationsNickNameDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .fetchLocationNameDidSucceed(response: let response):
                     self.updateLocationName(place: response)
                 case .fetchLocationNameDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .saveAddressDidSucceed(let response):
                     self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 }
             }.store(in: &cancellables)
@@ -392,7 +392,7 @@ extension AddOrEditAddressViewController {
     private func handleNickNamesResponse(response: SaveAddressResponseModel) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let nickNamesArray = response.addressDetail?.nicknames {
             self.nickNamesResponse(nickNames: nickNamesArray)
         }
@@ -402,7 +402,7 @@ extension AddOrEditAddressViewController {
     private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             if updateLocationDelegate != nil {
                 if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
@@ -420,7 +420,7 @@ extension AddOrEditAddressViewController {
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
             SmilesLocationRouter.shared.popVC()
@@ -432,14 +432,12 @@ extension AddOrEditAddressViewController {
 }
 
 // MARK: - SMILES ERROR VIEW DELEGATE -
-extension AddOrEditAddressViewController: SmilesErrorViewDelegate {
+extension AddOrEditAddressViewController: SmilesMessageViewDelegate {
     
     func primaryButtonPressed() {
         SmilesLoader.show()
         self.input.send(.getLocationsNickName)
     }
-    
-    func secondaryButtonPressed() {}
     
 }
 

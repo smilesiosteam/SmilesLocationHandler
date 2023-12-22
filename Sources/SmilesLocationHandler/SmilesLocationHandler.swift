@@ -104,9 +104,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                     if isFirstLaunch {
                         updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
                     } else {
-                        locationName = location.location ?? ""
-                        locationNickName = location.nickName ?? "Current Location".localizedString
-                        self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+                        setupLocation()
                     }
                 } else {
                     guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
@@ -116,19 +114,14 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
             }
         default:
             if controllerType == .fromDashboard && isFirstLaunch {
+                setupLocation()
                 if isAllowed {
                     getUserCurrentLocation()
                 } else {
                     self.locationsUseCaseInput.send(.getUserLocation(location: nil))
                 }
             } else {
-                if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
-                    locationName = loc
-                    locationNickName = location.nickName ?? "Current Location".localizedString
-                    self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-                } else {
-                    setupSetLocationString()
-                }
+                setupLocation()
             }
         }
         
@@ -139,6 +132,18 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         if let placemark = placemark {
             self.displayLocationName((placemark.name ?? "") + ", " + (placemark.country ?? ""))
         }
+    }
+    
+    private func setupLocation() {
+        
+        if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
+            locationName = loc
+            locationNickName = location.nickName ?? "Current Location".localizedString
+            self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+        } else {
+            setupSetLocationString()
+        }
+        
     }
     
 }
@@ -198,11 +203,7 @@ extension SmilesLocationHandler {
         
         fireEvent?(Constants.AnalyticsEvent.locationUpdated)
         LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
-        if let userInfo = LocationStateSaver.getLocationInfo() {
-            locationName = userInfo.location ?? ""
-            locationNickName = userInfo.nickName ?? "Current Location".localizedString
-            self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-        }
+        setupLocation()
         self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         
     }
@@ -212,11 +213,7 @@ extension SmilesLocationHandler {
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationRegistered)
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
-            if let userInfo = LocationStateSaver.getLocationInfo() {
-                locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "Current Location".localizedString
-                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-            }
+            setupLocation()
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         }
         
@@ -234,9 +231,7 @@ extension SmilesLocationHandler {
                 self.locationsUseCaseInput.send(.registerUserLocation(location: location))
             } else{
                 LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "Current Location".localizedString
-                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+                setupLocation()
                 self.smilesLocationHandlerDelegate?.gotUserLocation()
             }
         }

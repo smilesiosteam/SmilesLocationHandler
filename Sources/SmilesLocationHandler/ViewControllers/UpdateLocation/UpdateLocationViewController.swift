@@ -12,7 +12,7 @@ import Combine
 import SmilesLoader
 import CoreLocation
 
-final class UpdateLocationViewController: UIViewController, Toastable {
+final class UpdateLocationViewController: UIViewController, Toastable, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
@@ -119,7 +119,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     func setupTableViewCells() {
-        addressesTableView.registerCellFromNib(UpdateLocationCell.self, withIdentifier: String(describing: UpdateLocationCell.self), bundle: .module)
+        addressesTableView.registerCellFromNib(AddressDetailsTableViewCell.self, withIdentifier: String(describing: AddressDetailsTableViewCell.self), bundle: .module)
     }
     
     @objc func onClickBack() {
@@ -197,25 +197,25 @@ final class UpdateLocationViewController: UIViewController, Toastable {
 
 
 // MARK: - UITableView Delegate & DataSource -
-extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
+extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, AddressDetailsTbaleViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
         let address = addressDataSource[indexPath.row]
         var isSelected: Bool?
         if let selectedAddress {
             isSelected = selectedAddress.addressId == address.addressId
         }
         cell.delegate = self
-        cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
+        cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
         return cell
     }
     
-    func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
+    func didTapDetailButtonInCell(_ cell: AddressDetailsTableViewCell) {
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
@@ -246,7 +246,7 @@ extension UpdateLocationViewController {
                 case .fetchAllAddressDidFail(error: let error):
                     SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     SmilesLoader.dismiss()
@@ -254,7 +254,7 @@ extension UpdateLocationViewController {
                 case .getUserLocationDidFail(let error):
                     SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 case .saveAddressDidSucceed(let response):
                     SmilesLoader.dismiss()
@@ -262,7 +262,7 @@ extension UpdateLocationViewController {
                 case .saveAddressDidFail(error: let error):
                     SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .fetchAddressFromCoordinatesDidSucceed(let address):
                     self.currentLocationLabel.text = address
@@ -282,7 +282,7 @@ extension UpdateLocationViewController {
     private func handleAddressListResponse(response: GetAllAddressesResponse) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
             self.editButton.isHidden = false
             self.savedAddressedLabel.isHidden = false
@@ -294,8 +294,9 @@ extension UpdateLocationViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
+        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
             SmilesLocationRouter.shared.popVC()
@@ -307,9 +308,10 @@ extension UpdateLocationViewController {
     private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
            let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+            SmilesLoader.show()
             self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
         }
         
@@ -336,13 +338,13 @@ extension UpdateLocationViewController: ConfirmLocationDelegate {
 }
 
 // MARK: - SMILES ERROR VIEW DELEGATE -
-extension UpdateLocationViewController: SmilesErrorViewDelegate {
+extension UpdateLocationViewController: SmilesMessageViewDelegate {
     
-    func primaryButtonPressed() {
-        SmilesLoader.show()
-        self.input.send(.getAllAddress)
+    func primaryButtonPressed(isForRetry: Bool) {
+        if isForRetry {
+            SmilesLoader.show()
+            self.input.send(.getAllAddress)
+        }
     }
-    
-    func secondaryButtonPressed() {}
     
 }

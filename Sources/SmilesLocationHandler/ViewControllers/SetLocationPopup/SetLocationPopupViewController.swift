@@ -9,7 +9,7 @@ import UIKit
 import SmilesUtilities
 import Combine
 
-class SetLocationPopupViewController: UIViewController {
+class SetLocationPopupViewController: UIViewController, SmilesPresentableMessage {
 
     // MARK: - OUTLETS -
     @IBOutlet weak var locationsCollectionView: UICollectionView!
@@ -152,7 +152,7 @@ extension SetLocationPopupViewController {
                     self.handleCitiesResponse(response: response)
                 case .fetchCitiesDidFail(let error):
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 default: break
                 }
@@ -167,7 +167,7 @@ extension SetLocationPopupViewController {
     private func handleCitiesResponse(response: GetCitiesResponse) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             showShimmer = false
             citiesResponse = response

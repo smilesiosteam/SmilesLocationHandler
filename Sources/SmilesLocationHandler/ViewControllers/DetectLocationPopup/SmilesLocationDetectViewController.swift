@@ -12,7 +12,7 @@ import SmilesUtilities
 import Combine
 import SmilesLoader
 
-class SmilesLocationDetectViewController: UIViewController {
+class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet private weak var mainContainerView: UIView!
@@ -187,7 +187,7 @@ extension SmilesLocationDetectViewController {
                     self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 default: break
                 }
@@ -202,7 +202,7 @@ extension SmilesLocationDetectViewController {
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
-            SmilesErrorHandler.shared.showError(on: self, error: SmilesError(title: response.errorTitle, description: errorMessage))
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
             self.dismiss(animated: true, completion: {
                 LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
