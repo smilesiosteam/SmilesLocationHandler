@@ -330,6 +330,7 @@ extension UpdateLocationViewController: ConfirmLocationDelegate {
     
     func locationPicked(location: SearchLocationResponseModel) {
         guard let latitude = location.lat, let longitude = location.long else { return }
+        getAllAddresses = false
         isCurrentLocationSetByUser = true
         SmilesLoader.show()
         self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
