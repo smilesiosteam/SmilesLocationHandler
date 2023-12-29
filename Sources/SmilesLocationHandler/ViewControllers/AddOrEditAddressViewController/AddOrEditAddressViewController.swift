@@ -762,10 +762,15 @@ extension AddOrEditAddressViewController: ConfirmLocationDelegate {
     func locationPicked(location: SearchLocationResponseModel) {
         
         self.addressLabel.text = location.title
-        let addressObj = Address()
-        addressObj.latitude =  "\(location.lat ?? 0)"
-        addressObj.longitude = "\(location.long ?? 0)"
-        self.addressObj = addressObj
+        if addressObj != nil {
+            self.addressObj?.latitude =  "\(location.lat ?? 0)"
+            self.addressObj?.longitude = "\(location.long ?? 0)"
+        } else {
+            let addressObj = Address()
+            addressObj.latitude =  "\(location.lat ?? 0)"
+            addressObj.longitude = "\(location.long ?? 0)"
+            self.addressObj = addressObj
+        }
         
     }
     
