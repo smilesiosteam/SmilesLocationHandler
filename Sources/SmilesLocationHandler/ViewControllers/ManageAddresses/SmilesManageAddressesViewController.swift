@@ -257,13 +257,17 @@ extension SmilesManageAddressesViewController {
     
     private func handleRemoveAddressResponse(response: RemoveAddressResponseModel) {
         
-        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            SmilesLoader.dismiss()
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             if let deletedAddress, deletedAddress.latitude == LocationStateSaver.getLocationInfo()?.latitude, deletedAddress.longitude == LocationStateSaver.getLocationInfo()?.longitude {
-                LocationManager.shared.getLocation { [weak self] location, error in
-                    self?.input.send(.getUserLocation(location: location))
+                if SmilesLocationHandler.isLocationEnabled {
+                    LocationManager.shared.getLocation { [weak self] location, error in
+                        self?.input.send(.getUserLocation(location: location))
+                    }
+                } else {
+                    self.input.send(.getUserLocation(location: nil))
                 }
             } else {
                 SmilesLoader.dismiss()

@@ -283,12 +283,18 @@ extension UpdateLocationViewController {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
         self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
-        } else if let address = response.addresses {
-            self.editButton.isHidden = false
-            self.savedAddressedLabel.isHidden = false
-            self.addressDataSource = address
-            self.addressesTableView.reloadData()
+        } else {
+            setupAddressesData(addresses: response.addresses ?? [])
         }
+        
+    }
+    
+    private func setupAddressesData(addresses: [Address]) {
+        
+        self.editButton.isHidden = addresses.isEmpty
+        self.savedAddressedLabel.isHidden = addresses.isEmpty
+        self.addressDataSource = addresses
+        self.addressesTableView.reloadData()
         
     }
     
