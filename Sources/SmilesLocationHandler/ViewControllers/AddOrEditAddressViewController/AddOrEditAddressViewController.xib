@@ -79,26 +79,26 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WYo-MZ-3b8" userLabel="deliveryView">
                             <rect key="frame" x="0.0" y="0.0" width="412" height="88"/>
                             <subviews>
-                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="u86-6c-q2y">
-                                    <rect key="frame" x="16" y="20" width="285" height="45"/>
+                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="u86-6c-q2y">
+                                    <rect key="frame" x="16" y="14" width="285" height="56"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delivering to" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qLp-2o-ZfV">
-                                            <rect key="frame" x="0.0" y="0.0" width="74.333333333333329" height="17.666666666666668"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="74.333333333333329" height="32"/>
                                             <fontDescription key="fontDescription" name="Lato-SemiBold" family="Lato" pointSize="13"/>
                                             <color key="textColor" red="0.50196078430000002" green="0.50196078430000002" blue="0.50196078430000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="W7M-tb-F1r">
-                                            <rect key="frame" x="0.0" y="17.666666666666671" width="87.666666666666671" height="27.333333333333329"/>
+                                            <rect key="frame" x="0.0" y="32" width="87.666666666666671" height="24"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="location_pin" translatesAutoresizingMaskIntoConstraints="NO" id="6j9-j1-e2Y" customClass="location_pin_icon">
-                                                    <rect key="frame" x="0.0" y="0.0" width="24" height="27.333333333333332"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="24" id="Gv9-Te-PAv"/>
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Al- KIFAF" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xNi-pm-POY">
-                                                    <rect key="frame" x="31.999999999999996" y="0.0" width="55.666666666666657" height="27.333333333333332"/>
+                                                    <rect key="frame" x="31.999999999999996" y="0.0" width="55.666666666666657" height="24"/>
                                                     <fontDescription key="fontDescription" name="Lato-SemiBold" family="Lato" pointSize="13"/>
                                                     <color key="textColor" red="0.20784313730000001" green="0.2156862745" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -137,9 +137,9 @@
                             <color key="backgroundColor" red="0.25882352941176467" green="0.29803921568627451" blue="0.59999999999999998" alpha="0.20000000000000001" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstItem="u86-6c-q2y" firstAttribute="leading" secondItem="WYo-MZ-3b8" secondAttribute="leading" constant="16" id="5EU-Ze-hD4"/>
-                                <constraint firstItem="u86-6c-q2y" firstAttribute="top" secondItem="WYo-MZ-3b8" secondAttribute="top" constant="20" id="BrQ-uu-SBv"/>
+                                <constraint firstItem="u86-6c-q2y" firstAttribute="top" secondItem="WYo-MZ-3b8" secondAttribute="top" constant="14" id="BrQ-uu-SBv"/>
                                 <constraint firstAttribute="trailing" secondItem="SuL-bB-AqJ" secondAttribute="trailing" constant="16" id="Qsw-g0-RTJ"/>
-                                <constraint firstAttribute="bottom" secondItem="u86-6c-q2y" secondAttribute="bottom" constant="23" id="czf-bt-p0O"/>
+                                <constraint firstAttribute="bottom" secondItem="u86-6c-q2y" secondAttribute="bottom" constant="18" id="czf-bt-p0O"/>
                                 <constraint firstAttribute="height" constant="88" id="ebN-bB-j50"/>
                                 <constraint firstItem="SuL-bB-AqJ" firstAttribute="leading" secondItem="u86-6c-q2y" secondAttribute="trailing" constant="20" id="gXg-wJ-7t3"/>
                                 <constraint firstItem="SuL-bB-AqJ" firstAttribute="centerY" secondItem="WYo-MZ-3b8" secondAttribute="centerY" id="rDB-n5-ilW"/>
