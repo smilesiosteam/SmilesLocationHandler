@@ -44,7 +44,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable {
         
         
         let locationNavBarTitle = UILabel()
-        locationNavBarTitle.text = "SavedAddresses".localizedString
+        locationNavBarTitle.text = "Manage addresses".localizedString
         locationNavBarTitle.textColor = .black
         locationNavBarTitle.fontTextStyle = .smilesHeadline4
         
