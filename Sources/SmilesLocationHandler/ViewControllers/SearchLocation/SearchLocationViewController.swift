@@ -11,8 +11,9 @@ import SmilesUtilities
 import Combine
 import SmilesLoader
 import SmilesLanguageManager
+import CoreLocation
 
-class SearchLocationViewController: UIViewController {
+class SearchLocationViewController: UIViewController, SmilesPresentableMessage {
 
     // MARK: - OUTLETS -
     @IBOutlet weak var searchResultsTableView: UITableView!
@@ -42,7 +43,7 @@ class SearchLocationViewController: UIViewController {
             }
         }
     }
-    private var isFromUpdateLocation: Bool
+    private var isFromFoodCart: Bool?
     
     // MARK: - ACTIONS -
     @IBAction func clearPressed(_ sender: Any) {
@@ -56,9 +57,9 @@ class SearchLocationViewController: UIViewController {
     }
     
     // MARK: - INITIALIZERS -
-    init(isFromUpdateLocation: Bool, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
+    init(isFromFoodCart: Bool?, locationSelected: @escaping((SearchedLocationDetails) -> Void)) {
         self.locationSelected = locationSelected
-        self.isFromUpdateLocation = isFromUpdateLocation
+        self.isFromFoodCart = isFromFoodCart
         super.init(nibName: "SearchLocationViewController", bundle: .module)
     }
     
@@ -152,7 +153,7 @@ extension SearchLocationViewController {
                     self.setupSearchedLocationData(locationDetails: locationDetails)
                 case .fetchLocationDetailsDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 default: break
                 }
@@ -237,8 +238,8 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
                 model.cityName = selectedResult.formattedAddress
                 model.cityLatitude = Double(selectedResult.latitude)
                 model.cityLongitude = Double(selectedResult.longitude)
-                if isFromUpdateLocation {
-                    SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: .searchLocation, delegate: self)
+                if let isFromFoodCart {
+                    SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: isFromFoodCart ? .updateUserLocation(isFromFoodCart: isFromFoodCart) : .searchLocation, delegate: self)
                 } else {
                     locationSelected?(selectedResult)
                     SmilesLocationRouter.shared.popVC()
@@ -277,8 +278,8 @@ extension SearchLocationViewController {
             model.cityName = selectedResult.formattedAddress
             model.cityLatitude = Double(selectedResult.latitude)
             model.cityLongitude = Double(selectedResult.longitude)
-            if isFromUpdateLocation {
-                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: .searchLocation, delegate: self)
+            if let isFromFoodCart {
+                SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model, sourceScreen: isFromFoodCart ? .updateUserLocation(isFromFoodCart: isFromFoodCart) : .searchLocation, delegate: self)
             } else {
                 locationSelected?(selectedResult)
                 SmilesLocationRouter.shared.popVC()
@@ -319,6 +320,13 @@ extension SearchLocationViewController: ConfirmLocationDelegate {
         
         guard let latitude = location.lat, let longitude = location.long else { return }
         let selectedLocation = SearchedLocationDetails(latitude: latitude, longitude: longitude)
+        locationSelected?(selectedLocation)
+        
+    }
+    
+    func newAddressAdded(location: CLLocation) {
+        
+        let selectedLocation = SearchedLocationDetails(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         locationSelected?(selectedLocation)
         
     }

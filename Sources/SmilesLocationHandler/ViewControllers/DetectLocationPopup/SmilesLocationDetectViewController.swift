@@ -12,7 +12,7 @@ import SmilesUtilities
 import Combine
 import SmilesLoader
 
-class SmilesLocationDetectViewController: UIViewController {
+class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet private weak var mainContainerView: UIView!
@@ -63,6 +63,7 @@ class SmilesLocationDetectViewController: UIViewController {
         if let viewModel = viewModel {
             self.configure(with: viewModel)
         }
+        bind(to: setLocationViewModel)
     }
     private  func configure(with viewModel: DetectLocationPopupViewModel?) {
         
@@ -183,19 +184,32 @@ extension SmilesLocationDetectViewController {
                 SmilesLoader.dismiss()
                 switch event {
                 case .getUserLocationDidSucceed(let response, _):
-                    if let userInfo = response.userInfo {
-                        self.dismiss(animated: true, completion: {
-                            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                            NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
-                        })
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 default: break
                 }
             }.store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - RESPONSE HANDLING -
+extension SmilesLocationDetectViewController {
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            self.dismiss(animated: true, completion: {
+                LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+                NotificationCenter.default.post(name: .LocationUpdated, object: nil, userInfo: [Constants.Keys.shouldUpdateMamba : true])
+            })
+        }
+        
     }
     
 }

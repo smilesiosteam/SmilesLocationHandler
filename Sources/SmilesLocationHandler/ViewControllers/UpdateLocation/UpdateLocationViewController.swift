@@ -12,7 +12,7 @@ import Combine
 import SmilesLoader
 import CoreLocation
 
-final class UpdateLocationViewController: UIViewController, Toastable {
+final class UpdateLocationViewController: UIViewController, Toastable, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet weak var addressesTableView: UITableView!
@@ -36,11 +36,13 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     private var getAllAddresses = true
     private var userCurrentLocation: CLLocation?
     private weak var delegate: UpdateUserLocationDelegate?
+    private var isFromFoodCart: Bool
 
     
     // MARK: - Methods
-    init(delegate: UpdateUserLocationDelegate? = nil) {
+    init(delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool) {
         self.delegate = delegate
+        self.isFromFoodCart = isFromFoodCart
         super.init(nibName: "UpdateLocationViewController", bundle: .module)
     }
     
@@ -117,7 +119,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     }
     
     func setupTableViewCells() {
-        addressesTableView.registerCellFromNib(UpdateLocationCell.self, withIdentifier: String(describing: UpdateLocationCell.self), bundle: .module)
+        addressesTableView.registerCellFromNib(AddressDetailsTableViewCell.self, withIdentifier: String(describing: AddressDetailsTableViewCell.self), bundle: .module)
     }
     
     @objc func onClickBack() {
@@ -144,21 +146,19 @@ final class UpdateLocationViewController: UIViewController, Toastable {
     
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
-        if (isEditingEnabled) {
-            self.isEditingEnabled = false
-            self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
-        } else {
-            self.isEditingEnabled = true
-            self.editButton.setTitle("Done".localizedString, for: .normal)
+        if let navigationController {
+            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController)
         }
-        self.addressesTableView.reloadData()
     }
     
     @IBAction func didTabSearchButton(_ sender: UIButton) {
-        SmilesLocationRouter.shared.pushSearchLocationVC(isFromUpdateLocation: true, locationSelected: { [weak self] selectedLocation in
+        SmilesLocationRouter.shared.pushSearchLocationVC(isFromFoodCart: isFromFoodCart, locationSelected: { [weak self] selectedLocation in
             self?.getAllAddresses = false
-            SmilesLoader.show()
-            self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
+            // Added delay so that Add address screen poped completely and this controller become visible
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                SmilesLoader.show()
+                self?.input.send(.getUserLocation(location: CLLocation(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude)))
+            }
         })
     }
     
@@ -179,7 +179,7 @@ final class UpdateLocationViewController: UIViewController, Toastable {
         let city = GetCitiesModel()
         city.cityLatitude = userCurrentLocation?.coordinate.latitude
         city.cityLongitude = userCurrentLocation?.coordinate.longitude
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, sourceScreen: .updateUserLocation, delegate: self)
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, sourceScreen: .updateUserLocation(isFromFoodCart: isFromFoodCart), delegate: self)
         
     }
     
@@ -197,43 +197,25 @@ final class UpdateLocationViewController: UIViewController, Toastable {
 
 
 // MARK: - UITableView Delegate & DataSource -
-extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, SmilesUpdateLocationTableViewCellDelegate {
+extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSource, AddressDetailsTbaleViewCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return addressDataSource.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "UpdateLocationCell", for: indexPath) as? UpdateLocationCell else { return UITableViewCell() }
-        cell.delegate = self
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
         let address = addressDataSource[indexPath.row]
         var isSelected: Bool?
         if let selectedAddress {
             isSelected = selectedAddress.addressId == address.addressId
         }
-        cell.configureCell(with: address, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
+        cell.delegate = self
+        cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
         return cell
     }
     
-    func didTapDeleteButtonInCell(_ cell: UpdateLocationCell) {
-        // Handle the action here based on the cell's action
-        if let indexPath = self.addressesTableView.indexPath(for: cell) {
-            let item = self.addressDataSource[indexPath.row]
-            let message = "\("btn_delete".localizedString) \(item.nickname ?? "") \("ResturantAddress".localizedString)"
-            if let vc =  SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: .deleteWorkAddress(message: message))) as? SmilesLocationDetectViewController {
-                vc.deletePressed = { [weak self] in
-                    guard let self else { return }
-                    self.addressDataSource.remove(at: indexPath.row)
-                    self.addressesTableView.reloadData()
-                    SmilesLoader.show()
-                    self.input.send(.removeAddress(address_id: (item.addressId ?? "")))
-                }
-                self.present(vc, animated: true)
-            }
-            // Perform actions based on indexPath
-        }
-    }
-    func didTapDetailButtonInCell(_ cell: UpdateLocationCell) {
+    func didTapDetailButtonInCell(_ cell: AddressDetailsTableViewCell) {
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
@@ -245,8 +227,8 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
                 self.addressesTableView.reloadData()
             }
         }
-        
     }
+    
 }
 // MARK: - ViewModel Binding
 extension UpdateLocationViewController {
@@ -257,46 +239,30 @@ extension UpdateLocationViewController {
         output
             .sink { [weak self] event in
                 guard let self else { return }
-                SmilesLoader.dismiss()
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    if let address = response.addresses {
-                        self.editButton.isHidden = false
-                        self.savedAddressedLabel.isHidden = false
-                        self.addressDataSource = address
-                        self.addressesTableView.reloadData()
-                    }
+                    SmilesLoader.dismiss()
+                    self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg, showForRetry: true), delegate: self)
-                    }
-                case .removeAddressDidSucceed(response: _):
-                    let model = ToastModel()
-                    model.title = "address_has_been_deleted".localizedString
-                    model.imageIcon = UIImage(named: "green_tic_icon", in: .module, with: nil)
-                    self.showToast(model: model)
-                case .removeAddressDidFail(let error):
-                    if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        SmilesLocationRouter.shared.popVC()
-                        self.delegate?.userLocationUpdatedSuccessfully()
-                    }
+                    SmilesLoader.dismiss()
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
+                    SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
-                case .saveAddressDidSucceed(response: _):
-                    if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
-                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                        self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                    }
+                case .saveAddressDidSucceed(let response):
+                    SmilesLoader.dismiss()
+                    self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .fetchAddressFromCoordinatesDidSucceed(let address):
                     self.currentLocationLabel.text = address
@@ -304,9 +270,59 @@ extension UpdateLocationViewController {
                 case .fetchAddressFromCoordinatesDidFail(_):
                     self.currentLocationLabel.text = ""
                     self.currentLocationContainer.isHidden = true
+                default: break
                 }
             }.store(in: &cancellables)
     }
+}
+
+// MARK: - RESPONSE HANDLING -
+extension UpdateLocationViewController {
+    
+    private func handleAddressListResponse(response: GetAllAddressesResponse) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+        self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        } else {
+            setupAddressesData(addresses: response.addresses ?? [])
+        }
+        
+    }
+    
+    private func setupAddressesData(addresses: [Address]) {
+        
+        self.editButton.isHidden = addresses.isEmpty
+        self.savedAddressedLabel.isHidden = addresses.isEmpty
+        self.addressDataSource = addresses
+        self.addressesTableView.reloadData()
+        
+    }
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        SmilesLoader.dismiss()
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            SmilesLocationRouter.shared.popVC()
+            self.delegate?.userLocationUpdatedSuccessfully()
+        }
+        
+    }
+    
+    private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let latitudeString = self.selectedAddress?.latitude, let longitudeString = self.selectedAddress?.longitude,
+           let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+            SmilesLoader.show()
+            self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+        }
+        
+    }
+    
 }
 
 // MARK: - CONFIRM LOCATION DELEGATE -
@@ -320,6 +336,7 @@ extension UpdateLocationViewController: ConfirmLocationDelegate {
     
     func locationPicked(location: SearchLocationResponseModel) {
         guard let latitude = location.lat, let longitude = location.long else { return }
+        getAllAddresses = false
         isCurrentLocationSetByUser = true
         SmilesLoader.show()
         self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
@@ -328,13 +345,13 @@ extension UpdateLocationViewController: ConfirmLocationDelegate {
 }
 
 // MARK: - SMILES ERROR VIEW DELEGATE -
-extension UpdateLocationViewController: SmilesErrorViewDelegate {
+extension UpdateLocationViewController: SmilesMessageViewDelegate {
     
-    func primaryButtonPressed() {
-        SmilesLoader.show()
-        self.input.send(.getAllAddress)
+    func primaryButtonPressed(isForRetry: Bool) {
+        if isForRetry {
+            SmilesLoader.show()
+            self.input.send(.getAllAddress)
+        }
     }
-    
-    func secondaryButtonPressed() {}
     
 }

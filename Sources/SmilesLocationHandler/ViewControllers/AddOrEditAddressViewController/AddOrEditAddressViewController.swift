@@ -13,20 +13,7 @@ import Combine
 import CoreLocation
 import SmilesLoader
 
-enum SmilesConfirmLocationRedirection {
-    case toUpdateLocation
-    case toAddNewAddress
-    case toHome
-    case toBack
-    case toRestaurantDetail
-    case toFoodCart
-    case toEnterAddress
-    case toEditAddress
-    case toCategoryContainer
-    case toCollectionDetails
-}
-
-class AddOrEditAddressViewController: UIViewController {
+class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage {
     
     // MARK: - IBOutlets
     @IBOutlet weak var btnChange: UIButton!
@@ -139,7 +126,6 @@ class AddOrEditAddressViewController: UIViewController {
     }()
     private weak var delegate: ConfirmLocationDelegate?
     private weak var updateLocationDelegate: UpdateUserLocationDelegate?
-    var redirectTo: SmilesConfirmLocationRedirection?
     
     // MARK: - Methods
     init(addressObj: Address?, selectedLocation: SearchLocationResponseModel?, delegate: ConfirmLocationDelegate?, updateLocationDelegate: UpdateUserLocationDelegate?) {
@@ -313,15 +299,19 @@ class AddOrEditAddressViewController: UIViewController {
     // MARK: - IBActions
     @IBAction func changeButtonClicked(_ sender : Any) {
         
-        let model = GetCitiesModel()
-        if let object = self.addressObj {
-            model.cityLatitude = Double(object.latitude ?? "")
-            model.cityLongitude = Double(object.longitude ?? "")
-        } else if let lat = selectedLocation?.lat, let long = selectedLocation?.long {
-            model.cityLatitude = lat
-            model.cityLongitude = long
+        if let controllers = navigationController?.viewControllers, controllers[safe: controllers.count - 2] is ConfirmUserLocationViewController {
+            SmilesLocationRouter.shared.popVC()
+        } else {
+            let model = GetCitiesModel()
+            if let object = self.addressObj {
+                model.cityLatitude = Double(object.latitude ?? "")
+                model.cityLongitude = Double(object.longitude ?? "")
+            } else if let lat = selectedLocation?.lat, let long = selectedLocation?.long {
+                model.cityLatitude = lat
+                model.cityLongitude = long
+            }
+            SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
         }
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: model,sourceScreen: .editAddressViewController, delegate: self)
         
     }
     
@@ -367,48 +357,90 @@ extension AddOrEditAddressViewController {
                 guard let self else { return }
                 SmilesLoader.dismiss()
                 switch event {
-                case .fetchLocationsNickNameDidSucceed(let nickNameResponse):
-                    if let nickNamesArray = nickNameResponse.addressDetail?.nicknames {
-                        self.nickNamesResponse(nickNames: nickNamesArray)
-                    }
+                case .fetchLocationsNickNameDidSucceed(let response):
+                    self.handleNickNamesResponse(response: response)
                 case .fetchLocationsNickNameDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .fetchLocationNameDidSucceed(response: let response):
                     self.updateLocationName(place: response)
                 case .fetchLocationNameDidFail(let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
-                case .saveAddressDidSucceed(_):
-                    if updateLocationDelegate != nil {
-                        if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
-                           let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                            SmilesLoader.show()
-                            self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                        }
-                    } else {
-                        self.redirectUserAfterConfirmLocation()
-                    }
+                case .saveAddressDidSucceed(let response):
+                    self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: errorMsg))
+                        self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        SmilesLocationRouter.shared.popVC()
-                        self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 }
             }.store(in: &cancellables)
     }
 }
+
+// MARK: - RESPONSE HANDLING -
+extension AddOrEditAddressViewController {
+    
+    private func handleNickNamesResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
+        } else if let nickNamesArray = response.addressDetail?.nicknames {
+            self.nickNamesResponse(nickNames: nickNamesArray)
+        }
+        
+    }
+    
+    private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else {
+            if updateLocationDelegate != nil {
+                if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
+                   let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                    SmilesLoader.show()
+                    self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                }
+            } else {
+                self.redirectUserAfterConfirmLocation()
+            }
+        }
+        
+    }
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            SmilesLocationRouter.shared.popVC()
+            self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
+        }
+        
+    }
+    
+}
+
+// MARK: - SMILES ERROR VIEW DELEGATE -
+extension AddOrEditAddressViewController: SmilesMessageViewDelegate {
+    
+    func primaryButtonPressed() {
+        SmilesLoader.show()
+        self.input.send(.getLocationsNickName)
+    }
+    
+}
+
 
 // MARK: - UICollectionView Delegate & DataSource
 extension AddOrEditAddressViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -622,13 +654,16 @@ extension AddOrEditAddressViewController {
     
     func redirectUserAfterConfirmLocation() {
         
-        if let controllers = navigationController?.viewControllers, let updateLocationVC = controllers[safe: controllers.count - 3] as? UpdateLocationViewController {
-            if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
-            }
-            self.navigationController?.popToViewController(updateLocationVC, animated: true)
-        } else {
+        guard let controllers = navigationController?.viewControllers else { return }
+        if controllers[safe: controllers.count - 2] is SmilesManageAddressesViewController {
             SmilesLocationRouter.shared.popVC()
+        } else {
+            if let updateLocationVC = controllers.last(where: { $0 is UpdateLocationViewController }) {
+                if let latitudeString = addressObj?.latitude, let longitudeString = addressObj?.longitude, let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                    delegate?.newAddressAdded(location: CLLocation(latitude: latitude, longitude: longitude))
+                }
+                self.navigationController?.popToViewController(updateLocationVC, animated: true)
+            }
         }
         
     }
@@ -727,10 +762,15 @@ extension AddOrEditAddressViewController: ConfirmLocationDelegate {
     func locationPicked(location: SearchLocationResponseModel) {
         
         self.addressLabel.text = location.title
-        let addressObj = Address()
-        addressObj.latitude =  "\(location.lat ?? 0)"
-        addressObj.longitude = "\(location.long ?? 0)"
-        self.addressObj = addressObj
+        if addressObj != nil {
+            self.addressObj?.latitude =  "\(location.lat ?? 0)"
+            self.addressObj?.longitude = "\(location.long ?? 0)"
+        } else {
+            let addressObj = Address()
+            addressObj.latitude =  "\(location.lat ?? 0)"
+            addressObj.longitude = "\(location.long ?? 0)"
+            self.addressObj = addressObj
+        }
         
     }
     

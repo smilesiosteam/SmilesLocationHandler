@@ -14,15 +14,15 @@ import Combine
 import CoreLocation
 import SmilesLoader
 
-enum ConfirmLocatiuonSourceScreen {
+enum ConfirmLocationSourceScreen {
     case addAddressViewController
     case editAddressViewController
     case searchLocation
-    case updateUserLocation
+    case updateUserLocation(isFromFoodCart: Bool)
     case setLocation
 }
 
-class ConfirmUserLocationViewController: UIViewController {
+class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMessage {
 
     // MARK: - OUTLETS -
     @IBOutlet weak var mapView: GMSMapView!
@@ -41,7 +41,7 @@ class ConfirmUserLocationViewController: UIViewController {
     private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     private weak var delegate: ConfirmLocationDelegate?
-    private var sourceScreen: ConfirmLocatiuonSourceScreen = .addAddressViewController
+    private var sourceScreen: ConfirmLocationSourceScreen = .addAddressViewController
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
@@ -93,7 +93,7 @@ class ConfirmUserLocationViewController: UIViewController {
         switch sourceScreen {
         case .addAddressViewController:
             moveToAddAddress(with: location)
-        case .editAddressViewController, .updateUserLocation:
+        case .editAddressViewController:
             delegate?.locationPicked(location: location)
             SmilesLocationRouter.shared.popVC()
         case .searchLocation:
@@ -106,12 +106,19 @@ class ConfirmUserLocationViewController: UIViewController {
                 SmilesLoader.show()
                 input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
             }
+        case .updateUserLocation(let isFromFoodCart):
+            if isFromFoodCart {
+                moveToAddAddress(with: location)
+            } else {
+                delegate?.locationPicked(location: location)
+                SmilesLocationRouter.shared.popVC()
+            }
         }
         
     }
     
     // MARK: - INITIALIZERS -
-    init(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen, delegate: ConfirmLocationDelegate?) {
+    init(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocationSourceScreen, delegate: ConfirmLocationDelegate?) {
         self.selectedCity = selectedCity
         self.sourceScreen = sourceScreen
         self.delegate = delegate
@@ -261,20 +268,33 @@ extension ConfirmUserLocationViewController {
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
                     debugPrint(error?.localizedDescription ?? "")
                 case .getUserLocationDidSucceed(let response, _):
-                    SmilesLoader.dismiss()
-                    if let userInfo = response.userInfo {
-                        LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                        self.navigationController?.popToRootViewController()
-                        NotificationCenter.default.post(name: .LocationUpdated, object: nil)
-                    }
+                    self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
                     SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
-                        SmilesErrorHandler.shared.showError(on: self, error: SmilesError(description: error.localizedDescription))
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
                 default: break
                 }
             }.store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - RESPONSE HANDLING -
+extension ConfirmUserLocationViewController {
+    
+    private func handleUserLocationResponse(response: RegisterLocationResponse) {
+        
+        SmilesLoader.dismiss()
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            self.navigationController?.popToRootViewController()
+            NotificationCenter.default.post(name: .LocationUpdated, object: nil)
+        }
+        
     }
     
 }

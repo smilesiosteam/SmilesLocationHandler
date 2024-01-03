@@ -98,37 +98,23 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         LocationManager.shared.destroyLocationManager()
         switch self.controllerType{
         case .fromFood:
-            if let location = LocationStateSaver.getLocationInfo() {
-                if let _ = location.locationId {
-                    debugPrint("call update service for mamba")
-                    if isFirstLaunch {
-                        updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
-                    } else {
-                        locationName = location.location ?? ""
-                        locationNickName = location.nickName ?? "Current Location".localizedString
-                        self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-                    }
-                } else {
-                    guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
-                          let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
-                    self.locationsUseCaseInput.send(.registerUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-                }
-            }
+            handleFoodMambaCalls()
         default:
             if controllerType == .fromDashboard && isFirstLaunch {
+                setupLocation()
                 if isAllowed {
                     getUserCurrentLocation()
                 } else {
-                    self.locationsUseCaseInput.send(.getUserLocation(location: nil))
+                    var previousLocation: CLLocation? = nil
+                    if let location = LocationStateSaver.getLocationInfo(),
+                       let latitudeString = location.latitude, let longitudeString = location.longitude,
+                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
+                        previousLocation = CLLocation(latitude: latitude, longitude: longitude)
+                    }
+                    self.locationsUseCaseInput.send(.getUserLocation(location: previousLocation))
                 }
             } else {
-                if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
-                    locationName = loc
-                    locationNickName = location.nickName ?? "Current Location".localizedString
-                    self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-                } else {
-                    setupSetLocationString()
-                }
+                setupLocation()
             }
         }
         
@@ -139,6 +125,37 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         if let placemark = placemark {
             self.displayLocationName((placemark.name ?? "") + ", " + (placemark.country ?? ""))
         }
+    }
+    
+    private func setupLocation() {
+        
+        if let location = LocationStateSaver.getLocationInfo(),let loc = location.location, !loc.isEmpty{
+            locationName = loc
+            locationNickName = location.nickName ?? "Current Location".localizedString
+            self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
+        } else {
+            setupSetLocationString()
+        }
+        
+    }
+    
+    private func handleFoodMambaCalls() {
+        
+        if let location = LocationStateSaver.getLocationInfo() {
+            if let _ = location.locationId {
+                debugPrint("call update service for mamba")
+                if isFirstLaunch {
+                    updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
+                } else {
+                    setupLocation()
+                }
+            } else {
+                guard let latitudeString = location.latitude, let latitude = Double(latitudeString),
+                      let longitudeString = location.longitude, let longitude = Double(longitudeString) else { return }
+                self.locationsUseCaseInput.send(.registerUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+            }
+        }
+        
     }
     
 }
@@ -198,11 +215,7 @@ extension SmilesLocationHandler {
         
         fireEvent?(Constants.AnalyticsEvent.locationUpdated)
         LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
-        if let userInfo = LocationStateSaver.getLocationInfo() {
-            locationName = userInfo.location ?? ""
-            locationNickName = userInfo.nickName ?? "Current Location".localizedString
-            self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-        }
+        setupLocation()
         self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         
     }
@@ -212,11 +225,7 @@ extension SmilesLocationHandler {
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationRegistered)
             LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
-            if let userInfo = LocationStateSaver.getLocationInfo() {
-                locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "Current Location".localizedString
-                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-            }
+            setupLocation()
             self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
         }
         
@@ -230,15 +239,10 @@ extension SmilesLocationHandler {
     private func getUserLocationDidSucceed(response: RegisterLocationResponse, location: CLLocation?) {
         
         if let userInfo = response.userInfo {
-            if controllerType == .fromFood {
-                self.locationsUseCaseInput.send(.registerUserLocation(location: location))
-            } else{
-                LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-                locationName = userInfo.location ?? ""
-                locationNickName = userInfo.nickName ?? "Current Location".localizedString
-                self.smilesLocationHandlerDelegate?.showUserLocation(locationName: locationName, andLocationNickName: locationNickName)
-                self.smilesLocationHandlerDelegate?.gotUserLocation()
-            }
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            handleFoodMambaCalls()
+            setupLocation()
+            self.smilesLocationHandlerDelegate?.gotUserLocation()
         }
         
         if let responseMsg = response.responseMsg, !responseMsg.isEmpty {

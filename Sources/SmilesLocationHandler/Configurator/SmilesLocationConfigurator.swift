@@ -18,9 +18,9 @@ struct SmilesLocationConfigurator {
         case setLocationPopUp
         case manageAddresses
         case addOrEditAddress(addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate? = nil, updateLocationDelegate: UpdateUserLocationDelegate? = nil)
-        case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocatiuonSourceScreen, delegate: ConfirmLocationDelegate?)
-        case searchLocation(isFromUpdateLocation: Bool, locationSelected: ((SearchedLocationDetails) -> Void))
-        case updateLocation(delegate: UpdateUserLocationDelegate?)
+        case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocationSourceScreen, delegate: ConfirmLocationDelegate?)
+        case searchLocation(isFromFoodCart: Bool?, locationSelected: ((SearchedLocationDetails) -> Void))
+        case updateLocation(delegate: UpdateUserLocationDelegate?, isFromFoodCart: Bool)
         
     }
     
@@ -36,14 +36,14 @@ struct SmilesLocationConfigurator {
         case .confirmUserLocation(let selectedCity, let sourceScreen, let delegate):
             let vc = ConfirmUserLocationViewController(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)
             return vc
-        case .searchLocation(let isFromUpdateLocation, let locationSelected):
-            let vc = SearchLocationViewController(isFromUpdateLocation: isFromUpdateLocation, locationSelected: locationSelected)
+        case .searchLocation(let isFromFoodCart, let locationSelected):
+            let vc = SearchLocationViewController(isFromFoodCart: isFromFoodCart, locationSelected: locationSelected)
             return vc
         case .addOrEditAddress(let addressObject, let selectedLocation, let delegate, let updateLocationDelegate):
             let vc = AddOrEditAddressViewController(addressObj: addressObject, selectedLocation: selectedLocation, delegate: delegate, updateLocationDelegate: updateLocationDelegate)
             return vc
-        case .updateLocation(let delegate):
-            let vc = UpdateLocationViewController(delegate: delegate)
+        case .updateLocation(let delegate, let isFromFoodCart):
+            let vc = UpdateLocationViewController(delegate: delegate, isFromFoodCart: isFromFoodCart)
             return vc
         }
     }
