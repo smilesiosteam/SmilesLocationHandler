@@ -105,13 +105,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                 if isAllowed {
                     getUserCurrentLocation()
                 } else {
-                    var previousLocation: CLLocation? = nil
-                    if let location = LocationStateSaver.getLocationInfo(),
-                       let latitudeString = location.latitude, let longitudeString = location.longitude,
-                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                        previousLocation = CLLocation(latitude: latitude, longitude: longitude)
-                    }
-                    self.locationsUseCaseInput.send(.getUserLocation(location: previousLocation))
+                    self.locationsUseCaseInput.send(.getUserLocation(location: nil))
                 }
             } else {
                 setupLocation()
