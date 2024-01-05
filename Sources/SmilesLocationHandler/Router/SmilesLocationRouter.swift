@@ -19,10 +19,10 @@ public final class SmilesLocationRouter: NSObject {
     
     // MARK: - Methods
     
-    public func showDetectLocationPopup(from viewController: UIViewController, controllerType: LocationPopUpType, switchToOpenStreetMap: Bool = false) {
+    public func showDetectLocationPopup(from viewController: UIViewController, controllerType: LocationPopUpType, switchToOpenStreetMap: Bool = false, dismissed: (() -> Void)? = nil) {
         
         Constants.switchToOpenStreetMap = switchToOpenStreetMap
-        if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: controllerType)) as? SmilesLocationDetectViewController {
+        if let detectLocationPopup = SmilesLocationConfigurator.create(type: .createDetectLocationPopup(controllerType: controllerType, dismissed: dismissed)) as? SmilesLocationDetectViewController {
             viewController.modalPresentationStyle = .overFullScreen
             viewController.present(detectLocationPopup, animated: true)
         }

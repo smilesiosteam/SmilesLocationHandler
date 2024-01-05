@@ -30,6 +30,7 @@ class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMes
     private var setLocationInput: PassthroughSubject<SetLocationViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     var deletePressed: (() -> Void)?
+    private var dismissed: (() -> Void)?
     
     // MARK: - IBActions
     @IBAction private func didTabDetectLocationButton(_ sender: UIButton) {
@@ -45,9 +46,10 @@ class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMes
     }
     
     // MARK: - Methods
-    init(controllerType: LocationPopUpType) {
+    init(controllerType: LocationPopUpType, dismissed: (() -> Void)?) {
         self.viewModel = DetectLocationPopupViewModelFactory.createViewModel(for: controllerType)
         self.controllerType = controllerType
+        self.dismissed = dismissed
         super.init(nibName: "SmilesLocationDetectViewController", bundle: .module)
         self.modalPresentationStyle = .overFullScreen
     }
@@ -112,6 +114,10 @@ class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMes
             dismiss(animated: true) {
                 self.deletePressed?()
             }
+        case .automaticallyDetectLocation:
+            dismiss(animated: true) {
+                LocationManager.shared.showPopupForSettings()
+            }
         }
     }
     
@@ -123,6 +129,10 @@ class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMes
             }
         case .deleteWorkAddress:
             dismiss(animated: true)
+        case .automaticallyDetectLocation:
+            dismiss(animated: true) {
+                self.dismissed?()
+            }
         }
     }
     

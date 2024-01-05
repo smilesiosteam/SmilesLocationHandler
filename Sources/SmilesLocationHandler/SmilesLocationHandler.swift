@@ -30,7 +30,7 @@ public class SmilesLocationHandler {
     private var isFirstLaunch = false
     public var fireEvent: ((String) -> Void)?
     public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
-    static var isLocationEnabled = false
+    public static var isLocationEnabled = false
     
     // MARK: - INITIALIZERS -
     init() {
