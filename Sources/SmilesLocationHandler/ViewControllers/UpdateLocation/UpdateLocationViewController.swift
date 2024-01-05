@@ -147,7 +147,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
         if let navigationController {
-            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController)
+            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController, updateLocationDelegate: self)
         }
     }
     
@@ -351,6 +351,19 @@ extension UpdateLocationViewController: SmilesMessageViewDelegate {
         if isForRetry {
             SmilesLoader.show()
             self.input.send(.getAllAddress)
+        }
+    }
+    
+}
+
+// MARK: - UPDATE USER LOCATION DELEGATE -
+extension UpdateLocationViewController: UpdateUserLocationDelegate {
+    
+    func userLocationUpdatedSuccessfully() {
+        if let controllers = navigationController?.viewControllers,
+           let index = controllers.firstIndex(where: { $0 is UpdateLocationViewController }) {
+            navigationController?.popToViewController(controllers[index - 1], animated: true)
+            delegate?.userLocationUpdatedSuccessfully()
         }
     }
     

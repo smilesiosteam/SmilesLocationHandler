@@ -16,7 +16,7 @@ struct SmilesLocationConfigurator {
         
         case createDetectLocationPopup(controllerType: LocationPopUpType)
         case setLocationPopUp
-        case manageAddresses
+        case manageAddresses(updateLocationDelegate: UpdateUserLocationDelegate?)
         case addOrEditAddress(addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate? = nil, updateLocationDelegate: UpdateUserLocationDelegate? = nil)
         case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocationSourceScreen, delegate: ConfirmLocationDelegate?)
         case searchLocation(isFromFoodCart: Bool?, locationSelected: ((SearchedLocationDetails) -> Void))
@@ -31,8 +31,8 @@ struct SmilesLocationConfigurator {
         case .setLocationPopUp:
             let vc = SetLocationPopupViewController()
             return vc
-        case .manageAddresses:
-            return SmilesManageAddressesViewController()
+        case .manageAddresses(let delegate):
+            return SmilesManageAddressesViewController(delegate: delegate)
         case .confirmUserLocation(let selectedCity, let sourceScreen, let delegate):
             let vc = ConfirmUserLocationViewController(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)
             return vc

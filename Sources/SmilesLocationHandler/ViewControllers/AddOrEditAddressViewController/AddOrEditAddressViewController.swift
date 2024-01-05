@@ -670,7 +670,7 @@ extension AddOrEditAddressViewController {
     
     func nickNamesResponse(nickNames: [Nicknames]) {
         
-        if let address = addressObj, updateLocationDelegate == nil {
+        if let address = addressObj, address.nicknames != nil {
             setViewForEdit(address: address)
         } else {
             nickNamesArray = nickNames
