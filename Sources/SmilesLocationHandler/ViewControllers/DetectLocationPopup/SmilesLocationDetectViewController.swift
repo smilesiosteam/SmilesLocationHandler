@@ -103,11 +103,13 @@ class SmilesLocationDetectViewController: UIViewController, SmilesPresentableMes
     private func handleDetectLocationAction() {
         switch controllerType {
         case .detectLocation:
-            if SmilesLocationHandler.isLocationEnabled {
-                detectUserLocation()
-            } else {
-                dismiss(animated: true) {
-                    LocationManager.shared.showPopupForSettings()
+            LocationManager.shared.isLocationEnabled() { [weak self] isEnabled in
+                if isEnabled {
+                    self?.detectUserLocation()
+                } else {
+                    self?.dismiss(animated: true) {
+                        LocationManager.shared.showPopupForSettings()
+                    }
                 }
             }
         case .deleteWorkAddress:

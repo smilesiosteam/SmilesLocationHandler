@@ -28,6 +28,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
     }()
     private var deletedAddress: Address?
     private weak var delegate: UpdateUserLocationDelegate?
+    private var isLocationPermissionsEnabled = false
     
     // MARK: - Methods
     init(delegate: UpdateUserLocationDelegate? = nil) {
@@ -96,6 +97,9 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
             address.addressId == deletedAddress?.addressId
         }
         addressesTableView.reloadData()
+        if addressDataSource.count == 1 {
+            editButton.isHidden = !isDeleteFunctionalityRequired(for: addressDataSource.first!)
+        }
         if addressDataSource.isEmpty {
             editButton.isHidden = true
             savedAddressedLabel.isHidden = true
@@ -117,6 +121,9 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
+        LocationManager.shared.isLocationEnabled() { [weak self] isEnabled in
+            self?.isLocationPermissionsEnabled = isEnabled
+        }
         setUpNavigationBar()
         updateUI()
         SmilesLoader.show()
@@ -150,7 +157,7 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
         let address = addressDataSource[indexPath.row]
         cell.delegate = self
-        cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: isEditingEnabled)
+        cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: isEditingEnabled, isDeleteEnabled: isDeleteFunctionalityRequired(for: address))
         return cell
     }
     func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
@@ -259,11 +266,25 @@ extension SmilesManageAddressesViewController {
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
-            self.editButton.isHidden = false
+            if address.count == 1 {
+                self.editButton.isHidden = !isDeleteFunctionalityRequired(for: address.first!)
+            } else {
+                self.editButton.isHidden = false
+            }
             self.savedAddressedLabel.isHidden = false
             self.addressDataSource = address
             self.addressesTableView.reloadData()
         }
+        
+    }
+    
+    private func isDeleteFunctionalityRequired(for address: Address) -> Bool {
+        
+        if address.selection == 1, LocationStateSaver.getLocationInfo()?.latitude == address.latitude,
+           LocationStateSaver.getLocationInfo()?.longitude == address.longitude, !isLocationPermissionsEnabled {
+            return false
+        }
+        return true
         
     }
     
@@ -274,7 +295,7 @@ extension SmilesManageAddressesViewController {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             if let deletedAddress, deletedAddress.latitude == LocationStateSaver.getLocationInfo()?.latitude, deletedAddress.longitude == LocationStateSaver.getLocationInfo()?.longitude {
-                if SmilesLocationHandler.isLocationEnabled {
+                if isLocationPermissionsEnabled {
                     LocationManager.shared.getLocation { [weak self] location, error in
                         self?.input.send(.getUserLocation(location: location))
                     }
@@ -298,6 +319,7 @@ extension SmilesManageAddressesViewController {
         } else {
             handleUserLocationFailedResponse()
         }
+        delegate?.defaultAddressDeleted()
         
     }
     

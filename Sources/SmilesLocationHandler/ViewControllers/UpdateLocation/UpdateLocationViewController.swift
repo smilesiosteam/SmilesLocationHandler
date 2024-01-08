@@ -37,6 +37,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     private var userCurrentLocation: CLLocation?
     private weak var delegate: UpdateUserLocationDelegate?
     private var isFromFoodCart: Bool
+    private var updateFoodCart = false
 
     
     // MARK: - Methods
@@ -104,13 +105,16 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         self.confirmLocationButton.isUserInteractionEnabled = false
         self.confirmLocationButton.backgroundColor = .black.withAlphaComponent(0.1)
         self.confirmLocationButton.setTitleColor(.black.withAlphaComponent(0.5), for: .normal)
-        if SmilesLocationHandler.isLocationEnabled && !isCurrentLocationSetByUser {
-            LocationManager.shared.getLocation { [weak self] location, error in
-                guard let self, let location else { return }
-                self.userCurrentLocation = location
-                self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
+        LocationManager.shared.isLocationEnabled(completion: { [weak self] isEnabled in
+            guard let self else { return }
+            if isEnabled && !self.isCurrentLocationSetByUser {
+                LocationManager.shared.getLocation { [weak self] location, error in
+                    guard let self, let location else { return }
+                    self.userCurrentLocation = location
+                    self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
+                }
             }
-        }
+        })
         
     }
     
@@ -124,6 +128,9 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
+        if isFromFoodCart && updateFoodCart {
+            delegate?.userLocationUpdatedSuccessfully()
+        }
     }
     
     // MARK: - View Controller Lifecycle
@@ -365,6 +372,10 @@ extension UpdateLocationViewController: UpdateUserLocationDelegate {
             navigationController?.popToViewController(controllers[index - 1], animated: true)
             delegate?.userLocationUpdatedSuccessfully()
         }
+    }
+    
+    func defaultAddressDeleted() {
+        updateFoodCart = true
     }
     
 }

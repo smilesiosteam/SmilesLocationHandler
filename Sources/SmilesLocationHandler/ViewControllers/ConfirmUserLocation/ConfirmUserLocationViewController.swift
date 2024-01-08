@@ -60,23 +60,26 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
     
     @IBAction func currentLocationPressed(_ sender: Any) {
         
-        if LocationManager.shared.isEnabled() {
-            let lat = self.mapView.myLocation?.coordinate.latitude
-            let lng = self.mapView.myLocation?.coordinate.longitude
-            
-            if let lati = lat, let long = lng {
-                showLocationMarkerOnMap(latitude: lati, longitude: long)
-                latitude = String(format: "%f", lati)
-                longitude = String(format: "%f", long)
-                if !Constants.switchToOpenStreetMap {
-                    input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
-                } else {
-                    let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
-                    input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
+        LocationManager.shared.isLocationEnabled() { [weak self] isEnabled in
+            guard let self else { return }
+            if isEnabled {
+                let lat = self.mapView.myLocation?.coordinate.latitude
+                let lng = self.mapView.myLocation?.coordinate.longitude
+                
+                if let lati = lat, let long = lng {
+                    showLocationMarkerOnMap(latitude: lati, longitude: long)
+                    latitude = String(format: "%f", lati)
+                    longitude = String(format: "%f", long)
+                    if !Constants.switchToOpenStreetMap {
+                        input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
+                    } else {
+                        let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+                        input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
+                    }
                 }
+            } else {
+                LocationManager.shared.showPopupForSettings()
             }
-        } else {
-            LocationManager.shared.showPopupForSettings()
         }
         
     }

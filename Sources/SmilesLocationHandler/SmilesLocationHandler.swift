@@ -30,7 +30,6 @@ public class SmilesLocationHandler {
     private var isFirstLaunch = false
     public var fireEvent: ((String) -> Void)?
     public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
-    public static var isLocationEnabled = false
     
     // MARK: - INITIALIZERS -
     init() {
@@ -94,7 +93,6 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
     public func locationIsAllowedByUser(isAllowed: Bool) {
         
         debugPrint("locationIsAllowedByUser \(isAllowed)")
-        SmilesLocationHandler.isLocationEnabled = isAllowed
         LocationManager.shared.destroyLocationManager()
         switch self.controllerType{
         case .fromFood:
