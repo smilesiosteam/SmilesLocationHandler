@@ -46,6 +46,7 @@ public final class LocationManager: NSObject {
         // setup code
         return instance
     }()
+    public var isLocationEnabled = false
     
     private override init() {}
     
@@ -119,12 +120,21 @@ public final class LocationManager: NSObject {
     ///
     /// - Parameter completionHandler: nil
     /// - Returns: Bool
-    public func isLocationEnabled() -> Bool {
-        return CLLocationManager.locationServicesEnabled()
-    }
-    
-    public func isEnabled() -> Bool {
-        return SmilesLocationHandler.isLocationEnabled
+    public func isLocationEnabled(completion: @escaping ((Bool) -> Void)) {
+        DispatchQueue.global().async {
+            if CLLocationManager.locationServicesEnabled() {
+                switch CLLocationManager.authorizationStatus() {
+                    case .notDetermined, .restricted, .denied:
+                        completion(false)
+                    case .authorizedAlways, .authorizedWhenInUse:
+                    completion(true)
+                    @unknown default:
+                    completion(false)
+                }
+            } else {
+                completion(false)
+            }
+        }
     }
     
     /// Get current location
@@ -349,11 +359,13 @@ extension LocationManager: CLLocationManagerDelegate {
     
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
+        LocationManager.shared.isLocationEnabled = false
         switch status {
             
         case .authorizedWhenInUse,.authorizedAlways:
             self.locationManager?.startUpdatingLocation()
             self.delegate?.locationIsAllowedByUser(isAllowed: true)
+            LocationManager.shared.isLocationEnabled = true
             
         case .denied:
             let deniedError = NSError(
