@@ -121,19 +121,13 @@ public final class LocationManager: NSObject {
     /// - Parameter completionHandler: nil
     /// - Returns: Bool
     public func isLocationEnabled(completion: @escaping ((Bool) -> Void)) {
-        DispatchQueue.global().async {
-            if CLLocationManager.locationServicesEnabled() {
-                switch CLLocationManager.authorizationStatus() {
-                    case .notDetermined, .restricted, .denied:
-                        completion(false)
-                    case .authorizedAlways, .authorizedWhenInUse:
-                    completion(true)
-                    @unknown default:
-                    completion(false)
-                }
-            } else {
+        switch CLLocationManager.authorizationStatus() {
+            case .notDetermined, .restricted, .denied:
                 completion(false)
-            }
+            case .authorizedAlways, .authorizedWhenInUse:
+            completion(true)
+            @unknown default:
+            completion(false)
         }
     }
     

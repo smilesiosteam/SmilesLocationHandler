@@ -113,6 +113,9 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
                     self.userCurrentLocation = location
                     self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
                 }
+            } else {
+                self.currentLocationLabel.text = ""
+                self.currentLocationContainer.isHidden = true
             }
         })
         
