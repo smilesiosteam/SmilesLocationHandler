@@ -355,11 +355,11 @@ extension AddOrEditAddressViewController {
         output
             .sink { [weak self] event in
                 guard let self else { return }
-                SmilesLoader.dismiss()
                 switch event {
                 case .fetchLocationsNickNameDidSucceed(let response):
                     self.handleNickNamesResponse(response: response)
                 case .fetchLocationsNickNameDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
@@ -372,12 +372,14 @@ extension AddOrEditAddressViewController {
                 case .saveAddressDidSucceed(let response):
                     self.handleSaveAddressResponse(response: response)
                 case .saveAddressDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
                     self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(error: let error):
+                    SmilesLoader.dismiss()
                     if !error.localizedDescription.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
@@ -391,6 +393,7 @@ extension AddOrEditAddressViewController {
     
     private func handleNickNamesResponse(response: SaveAddressResponseModel) {
         
+        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let nickNamesArray = response.addressDetail?.nicknames {
@@ -402,15 +405,18 @@ extension AddOrEditAddressViewController {
     private func handleSaveAddressResponse(response: SaveAddressResponseModel) {
         
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            SmilesLoader.dismiss()
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else {
             if updateLocationDelegate != nil {
                 if let latitudeString = self.addressObj?.latitude, let longitudeString = self.addressObj?.longitude,
                    let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                    SmilesLoader.show()
                     self.input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
+                } else {
+                    SmilesLoader.dismiss()
                 }
             } else {
+                SmilesLoader.dismiss()
                 self.redirectUserAfterConfirmLocation()
             }
         }
@@ -419,6 +425,7 @@ extension AddOrEditAddressViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
+        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
