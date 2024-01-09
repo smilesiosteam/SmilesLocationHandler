@@ -205,10 +205,20 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
                  let item = self.addressDataSource[indexPath.row]
                 // Perform actions based on indexPath
                 if let navigationController = self.navigationController {
-                    SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item, delegate: nil, updateLocationDelegate: delegate)
+                    SmilesLocationRouter.shared.pushAddOrEditAddressViewController(with: navigationController, addressObject: item, delegate: nil, updateLocationDelegate: isDefaultAddressSelected(address: item) ? delegate : nil)
                 }
             }
         }
+        
+    }
+    
+    private func isDefaultAddressSelected(address: Address) -> Bool {
+        
+        if address.latitude == LocationStateSaver.getLocationInfo()?.latitude,
+           address.longitude == LocationStateSaver.getLocationInfo()?.longitude {
+           return true
+        }
+        return false
         
     }
     
