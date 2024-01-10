@@ -24,8 +24,8 @@ class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage
     @IBOutlet var textFieldCollection: [UITextField]!
     @IBOutlet var addressLabel: UILabel! {
         didSet {
-            addressLabel.fontTextStyle = .smilesTitle2
-            addressLabel.textColor = .black.withAlphaComponent(0.7)
+            addressLabel.fontTextStyle = .smilesTitle1
+            addressLabel.textColor = .black
         }
     }
     @IBOutlet var flatNoTextField: UITextField!
@@ -39,7 +39,7 @@ class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage
     @IBOutlet var deliveryToLabel: UILabel! {
         didSet {
             deliveryToLabel.textColor = .black.withAlphaComponent(0.8)
-            deliveryToLabel.fontTextStyle = .smilesTitle2
+            deliveryToLabel.fontTextStyle = .smilesBody2
         }
     }
     @IBOutlet var villaFlatNoLabel: UILabel! {
@@ -215,7 +215,7 @@ class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage
         btnChange.fontTextStyle = .smilesTitle2
         nickNameView.isHidden = true
         for txtField in textFieldCollection {
-            txtField.fontTextStyle = .smilesHeadline4
+            txtField.fontTextStyle = .smilesTitle1
             txtField.textColor = .black
             txtField.placeHolderTextColor = .placeholderTextFiedColor
             txtField.delegate = self
