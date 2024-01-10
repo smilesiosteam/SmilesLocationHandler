@@ -38,7 +38,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     private weak var delegate: UpdateUserLocationDelegate?
     private var isFromFoodCart: Bool
     private var updateFoodCart = false
-
+    private var showShimmer = false
     
     // MARK: - Methods
     init(delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool) {
@@ -136,6 +136,16 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         }
     }
     
+    private func getAddresses() {
+        
+        if let addresses = GetAllAddressesResponse.fromModuleFile()?.addresses {
+            showShimmer = true
+            setupAddressesData(addresses: addresses)
+        }
+        self.input.send(.getAllAddress)
+        
+    }
+    
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -149,8 +159,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         setUpNavigationBar()
         updateUI()
         if getAllAddresses {
-            SmilesLoader.show()
-            self.input.send(.getAllAddress)
+            getAddresses()
         }
     }
     
@@ -220,8 +229,16 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         if let selectedAddress {
             isSelected = selectedAddress.addressId == address.addressId
         }
-        cell.delegate = self
-        cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
+        cell.delegate = showShimmer ? nil : self
+        DispatchQueue.main.async {
+            if self.showShimmer {
+                cell.enableSkeleton()
+                cell.showAnimatedSkeleton()
+            } else {
+                cell.hideSkeleton()
+            }
+            cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: self.isEditingEnabled, isSelected: isSelected)
+        }
         return cell
     }
     
@@ -251,10 +268,8 @@ extension UpdateLocationViewController {
                 guard let self else { return }
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    SmilesLoader.dismiss()
                     self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
-                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
@@ -294,6 +309,7 @@ extension UpdateLocationViewController {
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
         self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else {
+            showShimmer = false
             setupAddressesData(addresses: response.addresses ?? [])
         }
         
@@ -359,8 +375,7 @@ extension UpdateLocationViewController: SmilesMessageViewDelegate {
     
     func primaryButtonPressed(isForRetry: Bool) {
         if isForRetry {
-            SmilesLoader.show()
-            self.input.send(.getAllAddress)
+            getAddresses()
         }
     }
     

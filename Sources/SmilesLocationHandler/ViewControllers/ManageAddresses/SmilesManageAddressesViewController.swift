@@ -29,6 +29,7 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
     private var deletedAddress: Address?
     private weak var delegate: UpdateUserLocationDelegate?
     private var isLocationPermissionsEnabled = false
+    private var showShimmer = false
     
     // MARK: - Methods
     init(delegate: UpdateUserLocationDelegate? = nil) {
@@ -111,6 +112,16 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
         
     }
     
+    private func getAddresses() {
+        
+        if let addresses = GetAllAddressesResponse.fromModuleFile()?.addresses {
+            showShimmer = true
+            setupAddressesData(addresses: addresses)
+        }
+        self.input.send(.getAllAddress)
+        
+    }
+    
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -126,13 +137,13 @@ final class SmilesManageAddressesViewController: UIViewController, Toastable, Sm
         }
         setUpNavigationBar()
         updateUI()
-        SmilesLoader.show()
-        self.input.send(.getAllAddress)
+        getAddresses()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
+    
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
         if (isEditingEnabled) {
@@ -156,8 +167,16 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
         let address = addressDataSource[indexPath.row]
-        cell.delegate = self
-        cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: isEditingEnabled, isDeleteEnabled: isDeleteFunctionalityRequired(for: address))
+        cell.delegate = showShimmer ? nil : self
+        DispatchQueue.main.async {
+            if self.showShimmer {
+                cell.enableSkeleton()
+                cell.showAnimatedSkeleton()
+            } else {
+                cell.hideSkeleton()
+            }
+            cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: self.isEditingEnabled, isDeleteEnabled: self.isDeleteFunctionalityRequired(for: address))
+        }
         return cell
     }
     func createAddressString(flatNo: String?, building: String?, street: String?, locationName: String?) -> String {
@@ -262,19 +281,28 @@ extension SmilesManageAddressesViewController {
     
     private func handleAddressListResponse(response: GetAllAddressesResponse) {
         
-        SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else if let address = response.addresses {
-            if address.count == 1 {
-                self.editButton.isHidden = !isDeleteFunctionalityRequired(for: address.first!)
+            showShimmer = false
+            setupAddressesData(addresses: address)
+        }
+        
+    }
+    
+    private func setupAddressesData(addresses: [Address]) {
+        
+        self.editButton.isHidden = showShimmer
+        if !showShimmer {
+            if addresses.count == 1 {
+                self.editButton.isHidden = !isDeleteFunctionalityRequired(for: addresses.first!)
             } else {
                 self.editButton.isHidden = false
             }
-            self.savedAddressedLabel.isHidden = false
-            self.addressDataSource = address
-            self.addressesTableView.reloadData()
         }
+        self.savedAddressedLabel.isHidden = false
+        self.addressDataSource = addresses
+        self.addressesTableView.reloadData()
         
     }
     
@@ -338,8 +366,7 @@ extension SmilesManageAddressesViewController: SmilesMessageViewDelegate {
     
     func primaryButtonPressed(isForRetry: Bool) {
         if isForRetry {
-            SmilesLoader.show()
-            self.input.send(.getAllAddress)
+            getAddresses()
         }
     }
     

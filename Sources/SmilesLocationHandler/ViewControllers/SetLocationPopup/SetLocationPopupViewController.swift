@@ -194,11 +194,13 @@ extension SetLocationPopupViewController: UICollectionViewDelegate, UICollection
         
         let cell = collectionView.dequeueReusableCell(withClass: LocationTitleCollectionViewCell.self, for: indexPath)
         if let city = citiesResponse?.cities?[indexPath.item] {
-            if showShimmer {
-                cell.enableSkeleton()
-                cell.showAnimatedSkeleton()
-            } else {
-                cell.hideSkeleton()
+            DispatchQueue.main.async {
+                if self.showShimmer {
+                    cell.enableSkeleton()
+                    cell.showAnimatedSkeleton()
+                } else {
+                    cell.hideSkeleton()
+                }
                 cell.setValues(city: city)
             }
         }
