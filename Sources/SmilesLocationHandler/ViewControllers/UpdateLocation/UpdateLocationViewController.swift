@@ -102,9 +102,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
-        self.confirmLocationButton.isUserInteractionEnabled = false
-        self.confirmLocationButton.backgroundColor = .black.withAlphaComponent(0.1)
-        self.confirmLocationButton.setTitleColor(.black.withAlphaComponent(0.5), for: .normal)
+        setupConfirmButton()
         LocationManager.shared.isLocationEnabled(completion: { [weak self] isEnabled in
             guard let self else { return }
             if isEnabled && !self.isCurrentLocationSetByUser {
@@ -119,10 +117,6 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
             }
         })
         
-    }
-    
-    private func setupCurrentLocationContainerSelection(isSelected: Bool = false) {
-        currentLocationContainer.layer.borderColor = (isSelected ? .appRevampPurpleMainColor : UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)).cgColor
     }
     
     func setupTableViewCells() {
@@ -143,6 +137,15 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
             setupAddressesData(addresses: addresses)
         }
         self.input.send(.getAllAddress)
+        
+    }
+    
+    private func setupConfirmButton() {
+        
+        let isAddressSelected = selectedAddress != nil
+        self.confirmLocationButton.isUserInteractionEnabled = isAddressSelected
+        self.confirmLocationButton.backgroundColor = isAddressSelected ? .appRevampPurpleMainColor : .black.withAlphaComponent(0.1)
+        self.confirmLocationButton.setTitleColor(isAddressSelected ? .white : .black.withAlphaComponent(0.5), for: .normal)
         
     }
     
@@ -193,7 +196,6 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         }
         selectedAddress = nil
         self.addressesTableView.reloadData()
-        setupCurrentLocationContainerSelection(isSelected: true)
         
         let city = GetCitiesModel()
         city.cityLatitude = userCurrentLocation?.coordinate.latitude
@@ -246,11 +248,8 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
-                self.confirmLocationButton.isUserInteractionEnabled = true
-                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor
-                self.confirmLocationButton.setTitleColor(.white, for: .normal)
                 self.selectedAddress = self.addressDataSource[indexPath.row]
-                setupCurrentLocationContainerSelection(isSelected: false)
+                setupConfirmButton()
                 self.addressesTableView.reloadData()
             }
         }
