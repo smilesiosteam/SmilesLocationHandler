@@ -318,17 +318,13 @@ class AddOrEditAddressViewController: UIViewController, SmilesPresentableMessage
     @IBAction func saveButtonClicked(_ sender: Any) {
         
         let address = Address()
-        if let id = self.addressObj?.addressId {
-            address.addressId = id
-        } else {
-            address.addressId = nil
-        }
-        
+        address.addressId = addressObj?.addressId
         address.nickname = selectedNickName?.lowercased().contains("other".lowercased()) ?? false ? nickNameTextField.text : selectedNickName
         address.street = streetTextField.text
         address.building = buildingNameTextField.text
         address.flatNo = flatNoTextField.text
         address.landmark = landmarkTextField.text
+        address.selection = addressObj?.selection
         
         if let addressob = addressObj {
             address.latitude = addressob.latitude
