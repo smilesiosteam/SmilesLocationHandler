@@ -30,7 +30,6 @@ public class SmilesLocationHandler {
     private var isFirstLaunch = false
     public var fireEvent: ((String) -> Void)?
     public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
-    static var isLocationEnabled = false
     
     // MARK: - INITIALIZERS -
     init() {
@@ -94,7 +93,6 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
     public func locationIsAllowedByUser(isAllowed: Bool) {
         
         debugPrint("locationIsAllowedByUser \(isAllowed)")
-        SmilesLocationHandler.isLocationEnabled = isAllowed
         LocationManager.shared.destroyLocationManager()
         switch self.controllerType{
         case .fromFood:
@@ -105,13 +103,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                 if isAllowed {
                     getUserCurrentLocation()
                 } else {
-                    var previousLocation: CLLocation? = nil
-                    if let location = LocationStateSaver.getLocationInfo(),
-                       let latitudeString = location.latitude, let longitudeString = location.longitude,
-                       let latitude = Double(latitudeString), let longitude = Double(longitudeString) {
-                        previousLocation = CLLocation(latitude: latitude, longitude: longitude)
-                    }
-                    self.locationsUseCaseInput.send(.getUserLocation(location: previousLocation))
+                    self.locationsUseCaseInput.send(.getUserLocation(location: nil))
                 }
             } else {
                 setupLocation()

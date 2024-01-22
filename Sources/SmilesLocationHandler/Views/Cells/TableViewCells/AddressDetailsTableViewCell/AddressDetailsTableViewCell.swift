@@ -58,7 +58,7 @@ class AddressDetailsTableViewCell: UITableViewCell {
         self.detailLabel.semanticContentAttribute = AppCommonMethods.languageIsArabic() ? .forceRightToLeft : .forceLeftToRight
         
     }
-    func configureCell(with address: Address?, isFromManageAddress: Bool, isEditingEnabled: Bool, isSelected: Bool? = nil) {
+    func configureCell(with address: Address?, isFromManageAddress: Bool, isEditingEnabled: Bool, isSelected: Bool? = nil, isDeleteEnabled: Bool = true) {
         
         if let address = address {
             self.headingLabel.text = address.nickname
@@ -70,9 +70,15 @@ class AddressDetailsTableViewCell: UITableViewCell {
             self.detailLabel.text =  createAddressString(flatNo: flatNo, building: building, street: street, locationName: locationName)
             self.addressIcon.setImageWithUrlString(address.nicknameIcon ?? "")
             
-            editButton.isHidden = !isEditingEnabled
-            mainViewLeading.constant = isEditingEnabled ? 48 : 16
-            mainViewTrailing.constant = isEditingEnabled ? 0 : 16
+            if isDeleteEnabled {
+                self.editButton.isHidden = !isEditingEnabled
+                self.mainViewLeading.constant = isEditingEnabled ? 48 : 16
+                self.mainViewTrailing.constant = isEditingEnabled ? 0 : 16
+            } else {
+                self.editButton.isHidden = true
+                self.mainViewLeading.constant = 16
+                self.mainViewTrailing.constant = 16
+            }
             
             if !isFromManageAddress {
                 if isEditingEnabled {
@@ -83,7 +89,7 @@ class AddressDetailsTableViewCell: UITableViewCell {
                 if let isSelected {
                     setupSelection(isSelected: isSelected)
                 } else {
-                    if let userInfo = LocationStateSaver.getLocationInfo(), let location = userInfo.location, let latitude = userInfo.latitude, let longitude = userInfo.longitude {
+                    if address.selection == 1, let userInfo = LocationStateSaver.getLocationInfo(), let location = userInfo.location, let latitude = userInfo.latitude, let longitude = userInfo.longitude {
                         if location == address.locationName, latitude == address.latitude, longitude == address.longitude {
                             setupSelection(isSelected: true)
                             return

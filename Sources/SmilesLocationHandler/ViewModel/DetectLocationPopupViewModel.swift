@@ -23,6 +23,7 @@ import Foundation
 public enum LocationPopUpType {
     case detectLocation
     case deleteWorkAddress(message: String? = nil)
+    case automaticallyDetectLocation
     // Add more cases as needed
 }
 
@@ -34,6 +35,8 @@ final class DetectLocationPopupViewModelFactory {
             return createViewModelForDetectLocation()
         case .deleteWorkAddress(let message):
             return createViewModelForDeleteWorkAddress(message: message)
+        case .automaticallyDetectLocation:
+            return createViewModelForAutomaticallyDetectLocation()
         }
     }
     

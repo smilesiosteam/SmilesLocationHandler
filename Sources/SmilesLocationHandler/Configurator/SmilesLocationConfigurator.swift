@@ -14,9 +14,9 @@ struct SmilesLocationConfigurator {
     
     enum ConfiguratorType {
         
-        case createDetectLocationPopup(controllerType: LocationPopUpType)
+        case createDetectLocationPopup(controllerType: LocationPopUpType, dismissed: (() -> Void)? = nil)
         case setLocationPopUp
-        case manageAddresses
+        case manageAddresses(updateLocationDelegate: UpdateUserLocationDelegate?)
         case addOrEditAddress(addressObject: Address? = nil, selectedLocation: SearchLocationResponseModel? = nil, delegate: ConfirmLocationDelegate? = nil, updateLocationDelegate: UpdateUserLocationDelegate? = nil)
         case confirmUserLocation(selectedCity: GetCitiesModel?, sourceScreen: ConfirmLocationSourceScreen, delegate: ConfirmLocationDelegate?)
         case searchLocation(isFromFoodCart: Bool?, locationSelected: ((SearchedLocationDetails) -> Void))
@@ -26,13 +26,13 @@ struct SmilesLocationConfigurator {
     
     static func create(type: ConfiguratorType) -> UIViewController {
         switch type {
-        case .createDetectLocationPopup(let controllerType):
-            return SmilesLocationDetectViewController(controllerType: controllerType)
+        case .createDetectLocationPopup(let controllerType, let dismissed):
+            return SmilesLocationDetectViewController(controllerType: controllerType, dismissed: dismissed)
         case .setLocationPopUp:
             let vc = SetLocationPopupViewController()
             return vc
-        case .manageAddresses:
-            return SmilesManageAddressesViewController()
+        case .manageAddresses(let delegate):
+            return SmilesManageAddressesViewController(delegate: delegate)
         case .confirmUserLocation(let selectedCity, let sourceScreen, let delegate):
             let vc = ConfirmUserLocationViewController(selectedCity: selectedCity, sourceScreen: sourceScreen, delegate: delegate)
             return vc

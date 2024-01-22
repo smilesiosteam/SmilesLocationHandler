@@ -51,7 +51,7 @@ import SmilesBaseMainRequestManager
     }
     
     public static func removeRecentLocations() {
-        UserDefaults.standard.removeObject(forKey: UserDefaultKeys.recentLocationSaver)
+        UserDefaults.standard.removeObject(forKey: Constants.Keys.recentLocation)
     }
     
     //MARK: - Check Rating View

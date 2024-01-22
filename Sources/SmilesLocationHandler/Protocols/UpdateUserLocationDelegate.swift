@@ -10,5 +10,10 @@ import Foundation
 public protocol UpdateUserLocationDelegate: AnyObject {
     
     func userLocationUpdatedSuccessfully()
+    func defaultAddressDeleted()
     
+}
+
+public extension UpdateUserLocationDelegate {
+    func defaultAddressDeleted() {}
 }

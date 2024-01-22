@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -66,13 +66,13 @@
                             </constraints>
                         </imageView>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Set your location to get offers &amp; recommendations from places around you!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RKT-3S-uF1">
-                            <rect key="frame" x="16" y="162" width="361" height="51"/>
+                            <rect key="frame" x="16" y="162" width="361" height="48"/>
                             <fontDescription key="fontDescription" name="CircularXXTT-Medium" family="CircularXX TT" pointSize="22"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7jw-I3-Ce3" customClass="UICustomButton" customModule="SmilesUtilities">
-                            <rect key="frame" x="16" y="309" width="361" height="48"/>
+                            <rect key="frame" x="16" y="306" width="361" height="48"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="48" id="6PV-1N-rVT"/>
@@ -100,7 +100,7 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZCd-L5-vp4" customClass="UICustomButton" customModule="SmilesUtilities">
-                            <rect key="frame" x="16" y="245" width="361" height="48"/>
+                            <rect key="frame" x="16" y="242" width="361" height="48"/>
                             <color key="backgroundColor" red="0.47450980390000003" green="0.25882352939999997" blue="0.5568627451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="48" id="1wX-Sl-xPL"/>
@@ -135,7 +135,6 @@
                         <constraint firstAttribute="trailing" secondItem="RKT-3S-uF1" secondAttribute="trailing" constant="16" id="QuP-NY-ApL"/>
                         <constraint firstItem="ZCd-L5-vp4" firstAttribute="leading" secondItem="kNB-Nn-QYE" secondAttribute="leading" constant="16" id="RdQ-UV-tz8"/>
                         <constraint firstItem="7jw-I3-Ce3" firstAttribute="leading" secondItem="kNB-Nn-QYE" secondAttribute="leading" constant="16" id="eJD-Eg-iV7"/>
-                        <constraint firstAttribute="bottom" secondItem="7jw-I3-Ce3" secondAttribute="bottom" constant="31" id="hve-xc-h5R"/>
                         <constraint firstItem="vwU-rp-ll2" firstAttribute="centerX" secondItem="kNB-Nn-QYE" secondAttribute="centerX" id="jDw-Z6-VTC"/>
                         <constraint firstItem="58e-jr-pPc" firstAttribute="top" secondItem="kNB-Nn-QYE" secondAttribute="top" constant="24" id="nou-oj-Lf2"/>
                         <constraint firstItem="7jw-I3-Ce3" firstAttribute="top" secondItem="ZCd-L5-vp4" secondAttribute="bottom" constant="16" id="w2L-Fe-oZC"/>
@@ -154,6 +153,7 @@
                 <constraint firstItem="tvG-wK-NxJ" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="RvO-4u-Kq1"/>
                 <constraint firstItem="tvG-wK-NxJ" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="fIB-40-bBi"/>
                 <constraint firstItem="tvG-wK-NxJ" firstAttribute="bottom" secondItem="vwU-rp-ll2" secondAttribute="bottom" id="iu7-xN-0J2"/>
+                <constraint firstItem="7jw-I3-Ce3" firstAttribute="bottom" secondItem="fnl-2z-Ty3" secondAttribute="bottom" id="jvu-RM-p1L"/>
                 <constraint firstItem="kNB-Nn-QYE" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="qdh-dr-KQk"/>
                 <constraint firstItem="kNB-Nn-QYE" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="t4K-hM-tY9"/>
             </constraints>

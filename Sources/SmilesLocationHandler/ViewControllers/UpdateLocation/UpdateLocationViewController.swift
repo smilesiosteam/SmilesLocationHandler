@@ -37,7 +37,8 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     private var userCurrentLocation: CLLocation?
     private weak var delegate: UpdateUserLocationDelegate?
     private var isFromFoodCart: Bool
-
+    private var updateFoodCart = false
+    private var showShimmer = false
     
     // MARK: - Methods
     init(delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool) {
@@ -101,21 +102,21 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
         self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
-        self.confirmLocationButton.isUserInteractionEnabled = false
-        self.confirmLocationButton.backgroundColor = .black.withAlphaComponent(0.1)
-        self.confirmLocationButton.setTitleColor(.black.withAlphaComponent(0.5), for: .normal)
-        if SmilesLocationHandler.isLocationEnabled && !isCurrentLocationSetByUser {
-            LocationManager.shared.getLocation { [weak self] location, error in
-                guard let self, let location else { return }
-                self.userCurrentLocation = location
-                self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
+        setupConfirmButton()
+        LocationManager.shared.isLocationEnabled(completion: { [weak self] isEnabled in
+            guard let self else { return }
+            if isEnabled && !self.isCurrentLocationSetByUser {
+                LocationManager.shared.getLocation { [weak self] location, error in
+                    guard let self, let location else { return }
+                    self.userCurrentLocation = location
+                    self.input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(location: location))
+                }
+            } else {
+                self.currentLocationLabel.text = ""
+                self.currentLocationContainer.isHidden = true
             }
-        }
+        })
         
-    }
-    
-    private func setupCurrentLocationContainerSelection(isSelected: Bool = false) {
-        currentLocationContainer.layer.borderColor = (isSelected ? .appRevampPurpleMainColor : UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)).cgColor
     }
     
     func setupTableViewCells() {
@@ -124,6 +125,28 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     
     @objc func onClickBack() {
         self.navigationController?.popViewController(animated: true)
+        if isFromFoodCart && updateFoodCart {
+            delegate?.userLocationUpdatedSuccessfully()
+        }
+    }
+    
+    private func getAddresses() {
+        
+        if let addresses = GetAllAddressesResponse.fromModuleFile()?.addresses {
+            showShimmer = true
+            setupAddressesData(addresses: addresses)
+        }
+        self.input.send(.getAllAddress)
+        
+    }
+    
+    private func setupConfirmButton() {
+        
+        let isAddressSelected = selectedAddress != nil
+        self.confirmLocationButton.isUserInteractionEnabled = isAddressSelected
+        self.confirmLocationButton.backgroundColor = isAddressSelected ? .appRevampPurpleMainColor : .black.withAlphaComponent(0.1)
+        self.confirmLocationButton.setTitleColor(isAddressSelected ? .white : .black.withAlphaComponent(0.5), for: .normal)
+        
     }
     
     // MARK: - View Controller Lifecycle
@@ -139,15 +162,14 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         setUpNavigationBar()
         updateUI()
         if getAllAddresses {
-            SmilesLoader.show()
-            self.input.send(.getAllAddress)
+            getAddresses()
         }
     }
     
     // MARK: - IBActions
     @IBAction func didTabEditButton(_ sender: UIButton) {
         if let navigationController {
-            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController)
+            SmilesLocationRouter.shared.pushManageAddressesViewController(with: navigationController, updateLocationDelegate: self)
         }
     }
     
@@ -174,7 +196,6 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         }
         selectedAddress = nil
         self.addressesTableView.reloadData()
-        setupCurrentLocationContainerSelection(isSelected: true)
         
         let city = GetCitiesModel()
         city.cityLatitude = userCurrentLocation?.coordinate.latitude
@@ -210,8 +231,16 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         if let selectedAddress {
             isSelected = selectedAddress.addressId == address.addressId
         }
-        cell.delegate = self
-        cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: isEditingEnabled, isSelected: isSelected)
+        cell.delegate = showShimmer ? nil : self
+        DispatchQueue.main.async {
+            if self.showShimmer {
+                cell.enableSkeleton()
+                cell.showAnimatedSkeleton()
+            } else {
+                cell.hideSkeleton()
+            }
+            cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: self.isEditingEnabled, isSelected: isSelected)
+        }
         return cell
     }
     
@@ -219,11 +248,8 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
             if let indexPath = self.addressesTableView.indexPath(for: cell) {
-                self.confirmLocationButton.isUserInteractionEnabled = true
-                self.confirmLocationButton.backgroundColor = .appRevampPurpleMainColor
-                self.confirmLocationButton.setTitleColor(.white, for: .normal)
                 self.selectedAddress = self.addressDataSource[indexPath.row]
-                setupCurrentLocationContainerSelection(isSelected: false)
+                setupConfirmButton()
                 self.addressesTableView.reloadData()
             }
         }
@@ -241,10 +267,8 @@ extension UpdateLocationViewController {
                 guard let self else { return }
                 switch event {
                 case .fetchAllAddressDidSucceed(let response):
-                    SmilesLoader.dismiss()
                     self.handleAddressListResponse(response: response)
                 case .fetchAllAddressDidFail(error: let error):
-                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
@@ -284,6 +308,7 @@ extension UpdateLocationViewController {
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
         self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage, showForRetry: true), delegate: self)
         } else {
+            showShimmer = false
             setupAddressesData(addresses: response.addresses ?? [])
         }
         
@@ -349,9 +374,25 @@ extension UpdateLocationViewController: SmilesMessageViewDelegate {
     
     func primaryButtonPressed(isForRetry: Bool) {
         if isForRetry {
-            SmilesLoader.show()
-            self.input.send(.getAllAddress)
+            getAddresses()
         }
+    }
+    
+}
+
+// MARK: - UPDATE USER LOCATION DELEGATE -
+extension UpdateLocationViewController: UpdateUserLocationDelegate {
+    
+    func userLocationUpdatedSuccessfully() {
+        if let controllers = navigationController?.viewControllers,
+           let index = controllers.firstIndex(where: { $0 is UpdateLocationViewController }) {
+            navigationController?.popToViewController(controllers[index - 1], animated: true)
+            delegate?.userLocationUpdatedSuccessfully()
+        }
+    }
+    
+    func defaultAddressDeleted() {
+        updateFoodCart = true
     }
     
 }
