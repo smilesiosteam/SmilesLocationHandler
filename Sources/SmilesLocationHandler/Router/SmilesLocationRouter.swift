@@ -59,8 +59,9 @@ public final class SmilesLocationRouter: NSObject {
         }
     }
     
-    public func pushAddressDetailsViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate?) {
+    public func pushAddressDetailsViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate?, switchToOpenStreetMap: Bool) {
         self.navigationController = navigationController
+        Constants.switchToOpenStreetMap = switchToOpenStreetMap
         let selectedLocation = Address()
         selectedLocation.latitude = LocationStateSaver.getLocationInfo()?.latitude
         selectedLocation.longitude = LocationStateSaver.getLocationInfo()?.longitude
@@ -71,8 +72,9 @@ public final class SmilesLocationRouter: NSObject {
         }
     }
     
-    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool = false) {
+    public func pushUpdateLocationViewController(with navigationController: UINavigationController, delegate: UpdateUserLocationDelegate? = nil, isFromFoodCart: Bool = false, switchToOpenStreetMap: Bool) {
         self.navigationController = navigationController
+        Constants.switchToOpenStreetMap = switchToOpenStreetMap
         let vc = SmilesLocationConfigurator.create(type: .updateLocation(delegate: delegate, isFromFoodCart: isFromFoodCart))
         vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)

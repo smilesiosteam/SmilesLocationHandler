@@ -22,6 +22,6 @@ struct Constants {
         static let locationRegistered = "location_registered_success"
         static let locationUpdated = "location_updated_success"
     }
-    static var switchToOpenStreetMap: Bool = false
+    static var switchToOpenStreetMap: Bool = true
     
 }
