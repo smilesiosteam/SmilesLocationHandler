@@ -28,6 +28,7 @@ public class SmilesLocationHandler {
     private var locationNickName = ""
     private var controllerType : LocationCheckEntryPoint = .fromDashboard
     private var isFirstLaunch = false
+    private var updateMambaLocation = false
     public var fireEvent: ((String) -> Void)?
     public weak var smilesLocationHandlerDelegate : SmilesLocationHandlerDelegate?
     
@@ -36,10 +37,11 @@ public class SmilesLocationHandler {
         locationsViewModel.fireEvent = fireEvent
     }
     
-    public convenience init(delegate: SmilesLocationHandlerDelegate?, isFirstLaunch: Bool = false , controllerType: LocationCheckEntryPoint = .fromDashboard){
+    public convenience init(delegate: SmilesLocationHandlerDelegate?, isFirstLaunch: Bool = false, updateMambaLocation: Bool = false , controllerType: LocationCheckEntryPoint = .fromDashboard){
         self.init()
         self.controllerType = controllerType
         self.isFirstLaunch = isFirstLaunch
+        self.updateMambaLocation = updateMambaLocation
         self.smilesLocationHandlerDelegate = delegate
         self.bind(to: self.locationsViewModel)
         LocationManager.shared.delegate = self
@@ -105,6 +107,8 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                 } else {
                     self.locationsUseCaseInput.send(.getUserLocation(location: nil))
                 }
+            } else if updateMambaLocation {
+                handleFoodMambaCalls()
             } else {
                 setupLocation()
             }
@@ -131,12 +135,12 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         
     }
     
-    public func handleFoodMambaCalls() {
+    private func handleFoodMambaCalls() {
         
         if let location = LocationStateSaver.getLocationInfo() {
             if let _ = location.locationId {
                 debugPrint("call update service for mamba")
-                if isFirstLaunch {
+                if isFirstLaunch || updateMambaLocation {
                     updateUserLocationForVertical(location.latitude ?? "0", locationLong: location.longitude ?? "0", isUpdated: true)
                 } else {
                     setupLocation()
