@@ -131,7 +131,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
         
     }
     
-    private func handleFoodMambaCalls() {
+    public func handleFoodMambaCalls() {
         
         if let location = LocationStateSaver.getLocationInfo() {
             if let _ = location.locationId {
