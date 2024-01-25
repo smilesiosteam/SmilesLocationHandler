@@ -108,6 +108,7 @@ extension SmilesLocationHandler: LocationUpdateProtocol {
                     self.locationsUseCaseInput.send(.getUserLocation(location: nil))
                 }
             } else if updateMambaLocation {
+                setupLocation()
                 handleFoodMambaCalls()
             } else {
                 setupLocation()
