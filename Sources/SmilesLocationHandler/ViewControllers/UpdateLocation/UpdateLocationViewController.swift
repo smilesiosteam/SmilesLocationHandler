@@ -273,7 +273,6 @@ extension UpdateLocationViewController {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg, showForRetry: true), delegate: self)
                     }
                 case .getUserLocationDidSucceed(response: let response, location: _):
-                    SmilesLoader.dismiss()
                     self.handleUserLocationResponse(response: response)
                 case .getUserLocationDidFail(let error):
                     SmilesLoader.dismiss()
@@ -294,6 +293,13 @@ extension UpdateLocationViewController {
                 case .fetchAddressFromCoordinatesDidFail(_):
                     self.currentLocationLabel.text = ""
                     self.currentLocationContainer.isHidden = true
+                case .updateUserLocationDidSucceed(response: let response):
+                    self.handleUpdateLocationOnMamba(response: response)
+                case .updateUserLocationDidFail(error: let error):
+                    SmilesLoader.dismiss()
+                    if !error.localizedDescription.isEmpty {
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
+                    }
                 default: break
                 }
             }.store(in: &cancellables)
@@ -325,13 +331,29 @@ extension UpdateLocationViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            SmilesLoader.dismiss()
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            guard let latitudeString = userInfo.latitude, let latitude = Double(latitudeString),
+                  let longitudeString = userInfo.longitude, let longitude = Double(longitudeString) else { return }
+            self.input.send(.updateLocationToMamba(location: CLLocation(latitude: latitude, longitude: longitude)))
+        }
+        
+    }
+    
+    private func handleUpdateLocationOnMamba(response: RegisterLocationResponse) {
+        
         SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
-            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
-            SmilesLocationRouter.shared.popVC()
-            self.delegate?.userLocationUpdatedSuccessfully()
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
+            if !updateFoodCart {
+                SmilesLocationRouter.shared.popVC()
+                self.delegate?.userLocationUpdatedSuccessfully()
+            }
         }
         
     }
@@ -393,6 +415,10 @@ extension UpdateLocationViewController: UpdateUserLocationDelegate {
     
     func defaultAddressDeleted() {
         updateFoodCart = true
+        guard let userInfo = LocationStateSaver.getLocationInfo(),
+              let latitudeString = userInfo.latitude, let latitude = Double(latitudeString),
+              let longitudeString = userInfo.longitude, let longitude = Double(longitudeString) else { return }
+        self.input.send(.updateLocationToMamba(location: CLLocation(latitude: latitude, longitude: longitude)))
     }
     
 }

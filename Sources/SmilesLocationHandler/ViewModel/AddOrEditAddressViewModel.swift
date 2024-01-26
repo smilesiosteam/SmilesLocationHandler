@@ -19,6 +19,7 @@ class AddOrEditAddressViewModel: NSObject {
         case getLocationName(lat: String, long: String)
         case saveAddress(address: Address?)
         case getUserLocation(location: CLLocation?)
+        case updateLocationToMamba(location: CLLocation)
     }
     
     enum Output {
@@ -33,6 +34,9 @@ class AddOrEditAddressViewModel: NSObject {
         
         case getUserLocationDidSucceed(response: RegisterLocationResponse,location: CLLocation?)
         case getUserLocationDidFail(error: NetworkError)
+        
+        case updateUserLocationDidSucceed(response : RegisterLocationResponse)
+        case updateUserLocationDidFail(error: NetworkError)
     }
     
     // MARK: -- Variables
@@ -65,9 +69,22 @@ extension AddOrEditAddressViewModel {
             case .getUserLocation(location: let location):
                 self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
                 self?.setLocationInput.send(.getUserLocation(location: location))
+            case .updateLocationToMamba(location: let location):
+                self?.handleFoodMambaCalls(location: location)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
+    }
+    
+    private func handleFoodMambaCalls(location: CLLocation) {
+        
+        if let _ = LocationStateSaver.getLocationInfo()?.locationId {
+            self.bind(to: self.setLocationViewModel)
+            self.setLocationInput.send(.updateUserLocation(location: location, withUserInfo: false))
+        } else {
+            self.setLocationInput.send(.registerUserLocation(location: location))
+        }
+        
     }
     
 }
@@ -116,6 +133,14 @@ extension AddOrEditAddressViewModel {
                     self?.output.send(.getUserLocationDidSucceed(response: response, location: location))
                 case .getUserLocationDidFail(let error):
                     self?.output.send(.getUserLocationDidFail(error: error))
+                case .registerUserLocationDidSucceed(let response, _):
+                    self?.output.send(.updateUserLocationDidSucceed(response: response))
+                case .registerUserLocationDidFail(let error):
+                    self?.output.send(.updateUserLocationDidFail(error: error))
+                case .updateUserLocationDidSucceed(let response):
+                    self?.output.send(.updateUserLocationDidSucceed(response: response))
+                case .updateUserLocationDidFail(let error):
+                    self?.output.send(.updateUserLocationDidFail(error: error))
                 default: break
                 }
             }.store(in: &cancellables)

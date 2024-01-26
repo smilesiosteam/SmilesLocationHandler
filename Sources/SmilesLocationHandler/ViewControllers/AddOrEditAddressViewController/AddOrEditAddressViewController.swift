@@ -379,6 +379,13 @@ extension AddOrEditAddressViewController {
                     if !error.localizedDescription.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
                     }
+                case .updateUserLocationDidSucceed(response: let response):
+                    self.handleUpdateLocationOnMamba(response: response)
+                case .updateUserLocationDidFail(error: let error):
+                    SmilesLoader.dismiss()
+                    if !error.localizedDescription.isEmpty {
+                        self.showMessage(model: SmilesMessageModel(description: error.localizedDescription))
+                    }
                 }
             }.store(in: &cancellables)
     }
@@ -421,11 +428,25 @@ extension AddOrEditAddressViewController {
     
     private func handleUserLocationResponse(response: RegisterLocationResponse) {
         
+        if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
+            SmilesLoader.dismiss()
+            self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
+        } else if let userInfo = response.userInfo {
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            guard let latitudeString = userInfo.latitude, let latitude = Double(latitudeString),
+                  let longitudeString = userInfo.longitude, let longitude = Double(longitudeString) else { return }
+            self.input.send(.updateLocationToMamba(location: CLLocation(latitude: latitude, longitude: longitude)))
+        }
+        
+    }
+    
+    private func handleUpdateLocationOnMamba(response: RegisterLocationResponse) {
+        
         SmilesLoader.dismiss()
         if let errorMessage = response.responseMsg, !errorMessage.isEmpty {
             self.showMessage(model: SmilesMessageModel(title: response.errorTitle, description: errorMessage))
         } else if let userInfo = response.userInfo {
-            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: false)
+            LocationStateSaver.saveLocationInfo(userInfo, isFromMamba: true)
             SmilesLocationRouter.shared.popVC()
             self.updateLocationDelegate?.userLocationUpdatedSuccessfully()
         }
