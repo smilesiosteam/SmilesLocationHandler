@@ -262,6 +262,7 @@ extension SmilesManageAddressesViewController {
                 case .removeAddressDidSucceed(let response):
                     self.handleRemoveAddressResponse(response: response)
                 case .removeAddressDidFail(let error):
+                    SmilesLoader.dismiss()
                     if let errorMsg = error?.localizedDescription, !errorMsg.isEmpty {
                         self.showMessage(model: SmilesMessageModel(description: errorMsg))
                     }
