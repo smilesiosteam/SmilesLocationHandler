@@ -101,7 +101,7 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
         self.confirmLocationButton.setTitle("confirm_address".localizedString, for: .normal)
         self.addNewAddressLabel.text = "add_new_address".localizedString
         self.savedAddressedLabel.text = "SavedAddresses".localizedString
-        self.editButton.setTitle("btn_edit".localizedString.capitalizingFirstLetter(), for: .normal)
+        self.editButton.setTitle("Manage".localizedString, for: .normal)
         setupConfirmButton()
         LocationManager.shared.isLocationEnabled(completion: { [weak self] isEnabled in
             guard let self else { return }
