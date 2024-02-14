@@ -134,6 +134,7 @@ extension LocationServicesViewModel {
         
         let token = GMSAutocompleteSessionToken.init()
         let filter = GMSAutocompleteFilter()
+        filter.countries = ["AE"]
         let placesClient = GMSPlacesClient()
         
         placesClient.findAutocompletePredictions(fromQuery: location, filter: filter, sessionToken: token) { [weak self] (results, error) in
