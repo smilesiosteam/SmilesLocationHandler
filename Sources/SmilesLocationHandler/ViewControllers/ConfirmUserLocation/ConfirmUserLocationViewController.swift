@@ -200,17 +200,6 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
             let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 15)
             marker.appearAnimation = .pop
             
-            /// Set the map style by passing the URL of the local file.
-            do {
-                if let styleURL = Bundle.main.url(forResource: "MapsStyling", withExtension: "json") {
-                    self.mapView.mapStyle = try GMSMapStyle(contentsOfFileURL: styleURL)
-                } else {
-                    print("Unable to find style.json")
-                }
-            } catch {
-                print("One or more of the map styles failed to load. \(error)")
-            }
-            
             if let formatAddress = formattedAddress {
                 print(formatAddress)
                 self.locationLabel.text = formatAddress
