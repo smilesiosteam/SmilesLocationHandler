@@ -185,7 +185,10 @@ final class UpdateLocationViewController: UIViewController, Toastable, SmilesPre
     }
     
     @IBAction func didTabAddAddressButton(_ sender: UIButton) {
-        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: nil, delegate: self)
+        let city = GetCitiesModel()
+        city.cityLatitude = userCurrentLocation?.coordinate.latitude
+        city.cityLongitude = userCurrentLocation?.coordinate.longitude
+        SmilesLocationRouter.shared.pushConfirmUserLocationVC(selectedCity: city, delegate: self)
     }
     
     @IBAction func didTabCurrentLocationButton(_ sender: UIButton) {
