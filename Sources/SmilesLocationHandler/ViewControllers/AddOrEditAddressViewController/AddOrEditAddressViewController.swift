@@ -483,15 +483,12 @@ extension AddOrEditAddressViewController: UICollectionViewDelegate, UICollection
         let nickNameObject = nickNamesArray[indexPath.item]
         cell.containerView.layer.borderWidth = 1
         if nickNameObject.isSelected.asBoolOrFalse() {
-            
             cell.containerView.backgroundColor = UIColor(red: 66/255, green: 76/255, blue: 152/255, alpha: 0.2)
             selectedNickName = nickNameObject.nickname
             collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
-            nickNameView.isHidden = false
         } else {
             cell.containerView.backgroundColor = UIColor(hex: "ffffff")
             collectionView.deselectItem(at: indexPath, animated: true)
-            nickNameView.isHidden = true
         }
         cell.containerView.layer.borderColor = UIColor.black.withAlphaComponent(0.2).cgColor
         cell.configureCellWithData(nickName: nickNameObject)
@@ -698,6 +695,9 @@ extension AddOrEditAddressViewController {
             setViewForEdit(address: address)
         } else {
             nickNamesArray = nickNames
+            if let nickname = nickNamesArray.last {
+                nickNameView.isHidden = !(nickname.isSelected ?? false)
+            }
             self.nickNameCollectionView.reloadData()
         }
         saveButton.isUserInteractionEnabled = true
