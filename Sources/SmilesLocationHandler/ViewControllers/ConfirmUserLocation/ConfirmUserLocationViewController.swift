@@ -35,8 +35,8 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
     private lazy var viewModel: SetLocationViewModel = {
         return SetLocationViewModel()
     }()
-    private var latitude: String = "25.20"
-    private var longitude: String = "55.27"
+    private var latitude: Double = 25.20
+    private var longitude: Double = 55.27
     private var mapGesture = false
     private var selectedCity: GetCitiesModel?
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
@@ -51,9 +51,9 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
             SmilesLocationRouter.shared.popVC()
         default:
             SmilesLocationRouter.shared.pushSearchLocationVC(locationSelected: { [weak self] selectedLocation in
-                self?.latitude = "\(selectedLocation.latitude)"
-                self?.longitude = "\(selectedLocation.longitude)"
-                self?.showLocationMarkerOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
+                self?.latitude = selectedLocation.latitude
+                self?.longitude = selectedLocation.longitude
+                self?.showLocationOnMap(latitude: selectedLocation.latitude, longitude: selectedLocation.longitude, formattedAddress: selectedLocation.formattedAddress)
             })
         }
     }
@@ -63,17 +63,14 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         LocationManager.shared.isLocationEnabled() { [weak self] isEnabled in
             guard let self else { return }
             if isEnabled {
-                let lat = self.mapView.myLocation?.coordinate.latitude
-                let lng = self.mapView.myLocation?.coordinate.longitude
-                
-                if let lati = lat, let long = lng {
-                    showLocationMarkerOnMap(latitude: lati, longitude: long)
-                    latitude = String(format: "%f", lati)
-                    longitude = String(format: "%f", long)
+                if let lat = self.mapView.myLocation?.coordinate.latitude, let long = self.mapView.myLocation?.coordinate.longitude {
+                    latitude = lat
+                    longitude = long
+                    showLocationOnMap(latitude: latitude, longitude: longitude)
                     if !Constants.switchToOpenStreetMap {
-                        input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
+                        input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(self.latitude)", longitude: "\(self.longitude)"))
                     } else {
-                        let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+                        let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
                         input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
                     }
                 }
@@ -105,10 +102,8 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
                 delegate?.locationPicked(location: location)
             }
         case .setLocation:
-            if let latitude = Double(latitude), let longitude = Double(longitude) {
-                SmilesLoader.show()
-                input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
-            }
+            SmilesLoader.show()
+            input.send(.getUserLocation(location: CLLocation(latitude: latitude, longitude: longitude)))
         case .updateUserLocation(let isFromFoodCart):
             if isFromFoodCart {
                 moveToAddAddress(with: location)
@@ -150,7 +145,7 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         currentLocationButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: AppCommonMethods.languageIsArabic() ? 0 : 5,
                                                              bottom: 0, right: AppCommonMethods.languageIsArabic() ? 5 : 0)
         setupMap()
-        setupPinForLocation()
+        setupLocationOnMap()
         
     }
 
@@ -182,6 +177,15 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         mapView.delegate = self
         mapView.settings.myLocationButton = false
         mapView.isMyLocationEnabled = true
+        setupMapPin()
+        
+    }
+    
+    private func setupMapPin() {
+        
+        let pinView = LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: 123))
+        pinView.center = mapView.center
+        self.view.addSubview(pinView)
         
     }
     
@@ -191,52 +195,37 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         }
     }
     
-    private func showLocationMarkerOnMap(latitude: Double, longitude: Double, formattedAddress: String? = nil) {
+    private func showLocationOnMap(latitude: Double, longitude: Double, formattedAddress: String? = nil) {
         
         DispatchQueue.main.async {
             self.mapView.clear()
-            let position = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            let marker = GMSMarker(position: position)
             let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 15)
-            marker.appearAnimation = .pop
-            
+            self.mapView.camera = camera
             if let formatAddress = formattedAddress {
-                print(formatAddress)
                 self.locationLabel.text = formatAddress
             }
-            marker.icon = UIImage(named: "mapPinNew", in: .module, compatibleWith: nil)
-            marker.setIconSize(scaledToSize: .init(width: 40, height: 40))
-            self.mapView.camera = camera
-            marker.map = self.mapView
-            self.mapView.selectedMarker = marker
         }
         
     }
     
-    private func setupPinForLocation() {
+    private func setupLocationOnMap() {
         
         if let latitude = selectedCity?.cityLatitude, let longitude = selectedCity?.cityLongitude {
-            self.latitude = "\(latitude)"
-            self.longitude = "\(longitude)"
-            showLocationMarkerOnMap(latitude: latitude, longitude: longitude)
+            self.latitude = latitude
+            self.longitude = longitude
         } else if let location = selectedLocation {
-            latitude = "\(location.latitude)"
-            longitude = "\(location.longitude)"
-            showLocationMarkerOnMap(latitude: location.latitude, longitude: location.longitude)
+            latitude = location.latitude
+            longitude = location.longitude
         }
         
+        showLocationOnMap(latitude: latitude, longitude: longitude)
         if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: latitude, longitude: longitude))
+            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(latitude)", longitude: "\(longitude)"))
         } else {
-            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
         }
-        
-//        if isFromAddNewAddress.asBoolOrFalse() == true {
-//            CommonMethods.fireEvent(withTag: "\(FirebaseEventTags.NewAddressMap.rawValue)")
-//        } else {
-//            CommonMethods.fireEvent(withTag: "\(FirebaseEventTags.DetectLocationMapOpened.rawValue)")
-//        }
+
     }
     
 }
@@ -294,34 +283,15 @@ extension ConfirmUserLocationViewController {
 // MARK: - GOOGLE MAPS DELEGATE -
 extension ConfirmUserLocationViewController: GMSMapViewDelegate {
     
-    func mapView(_ mapView: GMSMapView, didChange position: GMSCameraPosition) {
-        
-        CATransaction.begin()
-        CATransaction.setAnimationDuration(0.7)
-        mapView.selectedMarker?.position = position.target
-        CATransaction.commit()
-        let lat = position.target.latitude
-        let long = position.target.longitude
-        latitude = String(format: "%f", lat)
-        longitude = String(format: "%f", long)
-        
-    }
-    
-    func mapView(_ mapView: GMSMapView, markerInfoWindow marker: GMSMarker) -> UIView? {
-        return LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: 63))
-    }
-    
     func mapView(_ mapView: GMSMapView, idleAt position: GMSCameraPosition) {
         
-        let lat = position.target.latitude
-        let long = position.target.longitude
-        latitude = String(format: "%f", lat)
-        longitude = String(format: "%f", long)
+        latitude = position.target.latitude
+        longitude = position.target.longitude
         
         if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: self.latitude, longitude: self.longitude))
+            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(self.latitude)", longitude: "\(self.longitude)"))
         } else {
-            let coordinates = CLLocationCoordinate2D(latitude: latitude.toDouble() ?? 0, longitude: longitude.toDouble() ?? 0)
+            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
         }
         

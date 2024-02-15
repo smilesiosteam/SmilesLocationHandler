@@ -13,9 +13,7 @@ class LocationPinView: UIView {
     // MARK: - OUTLETS -
     @IBOutlet var mainView: UIView!
     @IBOutlet weak var mainStackView: UIStackView!
-    
-    // MARK: - PROPERTIES -
-    private var arrowView: UIView!
+    @IBOutlet weak var arrowView: UIView!
     
     // MARK: - METHODS -
     override func awakeFromNib() {
@@ -49,8 +47,6 @@ class LocationPinView: UIView {
         let arrowWidth: CGFloat = 24
         let arrowHeight: CGFloat = 15
         let halfWidth = arrowWidth / 2
-        arrowView = UIView(frame: CGRect(x: 0, y: 0, width: arrowWidth, height: arrowHeight))
-        arrowView.backgroundColor = .clear
         let path = UIBezierPath()
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: halfWidth, y: arrowHeight))
@@ -61,12 +57,6 @@ class LocationPinView: UIView {
         shape.fillColor = UIColor.black.withAlphaComponent(0.6).cgColor
         shape.path = path.cgPath
         arrowView.layer.addSublayer(shape)
-        self.addSubview(arrowView)
-        arrowView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            arrowView.centerXAnchor.constraint(equalTo: mainStackView.centerXAnchor, constant: -(halfWidth)),
-            arrowView.topAnchor.constraint(equalTo: mainStackView.bottomAnchor)
-        ])
         
      }
 

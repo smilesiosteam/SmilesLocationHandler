@@ -10,23 +10,24 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LocationPinView" customModule="SmilesLocationHandler">
             <connections>
+                <outlet property="arrowView" destination="PCV-gO-3HK" id="stV-f4-fA1"/>
                 <outlet property="mainStackView" destination="qZO-PW-FPq" id="S65-X8-KIZ"/>
                 <outlet property="mainView" destination="iN0-l3-epB" id="vgY-15-biH"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="1144" height="204"/>
+            <rect key="frame" x="0.0" y="0.0" width="1144" height="272"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="qZO-PW-FPq">
-                    <rect key="frame" x="302" y="59" width="540" height="52.333333333333343"/>
+                    <rect key="frame" x="302" y="59" width="540" height="123"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-wl-8uR" customClass="UICustomView" customModule="SmilesUtilities">
-                            <rect key="frame" x="0.0" y="0.0" width="540" height="52.333333333333336"/>
+                            <rect key="frame" x="0.0" y="0.0" width="540" height="48"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="yiR-iy-g42" customClass="UILocalizableLabel" customModule="SmilesUtilities">
-                                    <rect key="frame" x="16" y="15.999999999999998" width="508" height="20.333333333333329"/>
+                                    <rect key="frame" x="16" y="16" width="508" height="16"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <nil key="highlightedColor"/>
@@ -40,7 +41,7 @@
                             <constraints>
                                 <constraint firstAttribute="bottom" secondItem="yiR-iy-g42" secondAttribute="bottom" constant="16" id="CSj-KF-zfc"/>
                                 <constraint firstItem="yiR-iy-g42" firstAttribute="leading" secondItem="T2T-wl-8uR" secondAttribute="leading" constant="16" id="RQT-jl-Khb"/>
-                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="48" id="W3W-9J-Ff5"/>
+                                <constraint firstAttribute="height" constant="48" id="W3W-9J-Ff5"/>
                                 <constraint firstItem="yiR-iy-g42" firstAttribute="top" secondItem="T2T-wl-8uR" secondAttribute="top" constant="16" id="ahL-yc-vV6"/>
                                 <constraint firstAttribute="trailing" secondItem="yiR-iy-g42" secondAttribute="trailing" constant="16" id="bsQ-Tg-bLL"/>
                             </constraints>
@@ -50,6 +51,21 @@
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                         </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PCV-gO-3HK">
+                            <rect key="frame" x="258" y="48" width="24" height="15"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="24" id="0b9-Gf-FsI"/>
+                                <constraint firstAttribute="height" constant="15" id="nGD-sx-Amk"/>
+                            </constraints>
+                        </view>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mapPinNew" translatesAutoresizingMaskIntoConstraints="NO" id="2Ra-sE-UHa">
+                            <rect key="frame" x="240" y="63" width="60" height="60"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="60" id="WXq-R2-kVj"/>
+                                <constraint firstAttribute="width" secondItem="2Ra-sE-UHa" secondAttribute="height" multiplier="1:1" id="irP-Zb-9eF"/>
+                            </constraints>
+                        </imageView>
                     </subviews>
                 </stackView>
             </subviews>
@@ -63,7 +79,7 @@
                 <constraint firstItem="qZO-PW-FPq" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="hgq-Hq-pso"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="-367.93893129770993" y="-208.45070422535213"/>
+            <point key="canvasLocation" x="-367.93893129770993" y="-184.50704225352115"/>
         </view>
     </objects>
     <designables>
@@ -71,4 +87,7 @@
             <size key="intrinsicContentSize" width="41.333333333333336" height="20.333333333333332"/>
         </designable>
     </designables>
+    <resources>
+        <image name="mapPinNew" width="56" height="56"/>
+    </resources>
 </document>
