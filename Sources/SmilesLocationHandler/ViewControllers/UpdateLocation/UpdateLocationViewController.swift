@@ -235,13 +235,14 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
             isSelected = selectedAddress.addressId == address.addressId
         }
         cell.delegate = showShimmer ? nil : self
-        DispatchQueue.main.async {
-            if self.showShimmer {
+        if showShimmer {
+            DispatchQueue.main.async {
                 cell.enableSkeleton()
                 cell.showAnimatedSkeleton()
-            } else {
-                cell.hideSkeleton()
+                cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: self.isEditingEnabled, isSelected: isSelected)
             }
+        } else {
+            cell.hideSkeleton()
             cell.configureCell(with: address, isFromManageAddress: false, isEditingEnabled: self.isEditingEnabled, isSelected: isSelected)
         }
         return cell

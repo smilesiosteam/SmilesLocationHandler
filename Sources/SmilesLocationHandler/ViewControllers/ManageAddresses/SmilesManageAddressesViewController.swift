@@ -168,13 +168,14 @@ extension SmilesManageAddressesViewController: UITableViewDelegate, UITableViewD
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddressDetailsTableViewCell", for: indexPath) as? AddressDetailsTableViewCell else { return UITableViewCell() }
         let address = addressDataSource[indexPath.row]
         cell.delegate = showShimmer ? nil : self
-        DispatchQueue.main.async {
-            if self.showShimmer {
+        if showShimmer {
+            DispatchQueue.main.async {
                 cell.enableSkeleton()
                 cell.showAnimatedSkeleton()
-            } else {
-                cell.hideSkeleton()
+                cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: self.isEditingEnabled, isDeleteEnabled: self.isDeleteFunctionalityRequired(for: address))
             }
+        } else {
+            cell.hideSkeleton()
             cell.configureCell(with: address, isFromManageAddress: true, isEditingEnabled: self.isEditingEnabled, isDeleteEnabled: self.isDeleteFunctionalityRequired(for: address))
         }
         return cell
