@@ -36,7 +36,7 @@
                                             <nil key="highlightedColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesTitle2"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="Move the pin to your exact delivery spot on map"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="Please zoom in to find your exact location"/>
                                             </userDefinedRuntimeAttributes>
                                         </label>
                                     </subviews>
