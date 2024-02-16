@@ -20,49 +20,54 @@
             <rect key="frame" x="0.0" y="0.0" width="1144" height="272"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="qZO-PW-FPq">
-                    <rect key="frame" x="302" y="59" width="540" height="123"/>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="qZO-PW-FPq">
+                    <rect key="frame" x="302" y="59" width="540" height="113"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-wl-8uR" customClass="UICustomView" customModule="SmilesUtilities">
-                            <rect key="frame" x="0.0" y="0.0" width="540" height="48"/>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="mWf-Mp-0Cx">
+                            <rect key="frame" x="0.0" y="0.0" width="540" height="63"/>
                             <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="yiR-iy-g42" customClass="UILocalizableLabel" customModule="SmilesUtilities">
-                                    <rect key="frame" x="16" y="16" width="508" height="16"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <nil key="highlightedColor"/>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-wl-8uR" customClass="UICustomView" customModule="SmilesUtilities">
+                                    <rect key="frame" x="0.0" y="0.0" width="540" height="48"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="yiR-iy-g42" customClass="UILocalizableLabel" customModule="SmilesUtilities">
+                                            <rect key="frame" x="16" y="16" width="508" height="16"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesTitle2"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="Move the pin to your exact delivery spot on map"/>
+                                            </userDefinedRuntimeAttributes>
+                                        </label>
+                                    </subviews>
+                                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="yiR-iy-g42" secondAttribute="bottom" constant="16" id="CSj-KF-zfc"/>
+                                        <constraint firstItem="yiR-iy-g42" firstAttribute="leading" secondItem="T2T-wl-8uR" secondAttribute="leading" constant="16" id="RQT-jl-Khb"/>
+                                        <constraint firstAttribute="height" constant="48" id="W3W-9J-Ff5"/>
+                                        <constraint firstItem="yiR-iy-g42" firstAttribute="top" secondItem="T2T-wl-8uR" secondAttribute="top" constant="16" id="ahL-yc-vV6"/>
+                                        <constraint firstAttribute="trailing" secondItem="yiR-iy-g42" secondAttribute="trailing" constant="16" id="bsQ-Tg-bLL"/>
+                                    </constraints>
                                     <userDefinedRuntimeAttributes>
-                                        <userDefinedRuntimeAttribute type="string" keyPath="fontTextStyleName" value="smilesTitle2"/>
-                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedString" value="mapPinLongPressText"/>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="10"/>
+                                        </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
-                                </label>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PCV-gO-3HK">
+                                    <rect key="frame" x="258" y="48" width="24" height="15"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="24" id="0b9-Gf-FsI"/>
+                                        <constraint firstAttribute="height" constant="15" id="nGD-sx-Amk"/>
+                                    </constraints>
+                                </view>
                             </subviews>
-                            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                        </stackView>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mapPinNew" translatesAutoresizingMaskIntoConstraints="NO" id="2Ra-sE-UHa">
+                            <rect key="frame" x="250" y="73" width="40" height="40"/>
                             <constraints>
-                                <constraint firstAttribute="bottom" secondItem="yiR-iy-g42" secondAttribute="bottom" constant="16" id="CSj-KF-zfc"/>
-                                <constraint firstItem="yiR-iy-g42" firstAttribute="leading" secondItem="T2T-wl-8uR" secondAttribute="leading" constant="16" id="RQT-jl-Khb"/>
-                                <constraint firstAttribute="height" constant="48" id="W3W-9J-Ff5"/>
-                                <constraint firstItem="yiR-iy-g42" firstAttribute="top" secondItem="T2T-wl-8uR" secondAttribute="top" constant="16" id="ahL-yc-vV6"/>
-                                <constraint firstAttribute="trailing" secondItem="yiR-iy-g42" secondAttribute="trailing" constant="16" id="bsQ-Tg-bLL"/>
-                            </constraints>
-                            <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                    <real key="value" value="10"/>
-                                </userDefinedRuntimeAttribute>
-                            </userDefinedRuntimeAttributes>
-                        </view>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PCV-gO-3HK">
-                            <rect key="frame" x="258" y="48" width="24" height="15"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="24" id="0b9-Gf-FsI"/>
-                                <constraint firstAttribute="height" constant="15" id="nGD-sx-Amk"/>
-                            </constraints>
-                        </view>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mapPinNew" translatesAutoresizingMaskIntoConstraints="NO" id="2Ra-sE-UHa">
-                            <rect key="frame" x="240" y="63" width="60" height="60"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="60" id="WXq-R2-kVj"/>
+                                <constraint firstAttribute="height" constant="40" id="WXq-R2-kVj"/>
                                 <constraint firstAttribute="width" secondItem="2Ra-sE-UHa" secondAttribute="height" multiplier="1:1" id="irP-Zb-9eF"/>
                             </constraints>
                         </imageView>
@@ -88,6 +93,6 @@
         </designable>
     </designables>
     <resources>
-        <image name="mapPinNew" width="56" height="56"/>
+        <image name="mapPinNew" width="40" height="51"/>
     </resources>
 </document>

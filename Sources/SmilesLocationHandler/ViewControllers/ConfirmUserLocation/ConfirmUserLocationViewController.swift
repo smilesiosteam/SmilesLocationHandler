@@ -42,6 +42,8 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
     private var selectedLocation: CLLocationCoordinate2D? = CLLocationCoordinate2DMake(25.20, 55.27)
     private weak var delegate: ConfirmLocationDelegate?
     private var sourceScreen: ConfirmLocationSourceScreen = .addAddressViewController
+    private var pinView: LocationPinView!
+    private var pinViewHeight: CGFloat = 113
     
     // MARK: - ACTIONS -
     @IBAction func searchPressed(_ sender: Any) {
@@ -138,6 +140,11 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         setUpNavigationBar()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pinView.center = CGPoint(x: mapView.center.x, y: mapView.center.y - (pinViewHeight / 2))
+    }
+    
     private func setupViews() {
         
         bind(to: viewModel)
@@ -183,8 +190,7 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
     
     private func setupMapPin() {
         
-        let pinView = LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: 123))
-        pinView.center = mapView.center
+        pinView = LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: pinViewHeight))
         self.view.addSubview(pinView)
         
     }
