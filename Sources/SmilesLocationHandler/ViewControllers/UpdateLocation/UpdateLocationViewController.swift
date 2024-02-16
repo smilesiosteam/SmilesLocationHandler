@@ -248,6 +248,10 @@ extension UpdateLocationViewController: UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
+    }
+    
     func didTapDetailButtonInCell(_ cell: AddressDetailsTableViewCell) {
         // if editing mode is enabled then it will not let user select
         if !isEditingEnabled{
