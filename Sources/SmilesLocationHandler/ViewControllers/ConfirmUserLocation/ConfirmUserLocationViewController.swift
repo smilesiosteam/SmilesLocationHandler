@@ -191,6 +191,7 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
     private func setupMapPin() {
         
         pinView = LocationPinView(frame: CGRect(x: 0, y: 0, width: mapView.frame.width, height: pinViewHeight))
+        pinView.isUserInteractionEnabled = false
         self.view.addSubview(pinView)
         
     }
@@ -310,7 +311,6 @@ extension ConfirmUserLocationViewController {
     
     private func configureAddressString(response: SWGoogleAddressResponse) {
         
-        mapView.isUserInteractionEnabled = true
         if let results = response.results {
             guard let formatAddress = results.first?.formattedAddress else {
                 return
@@ -322,7 +322,6 @@ extension ConfirmUserLocationViewController {
     
     private func configureAddressString(response: OSMLocationResponse) {
         
-        mapView.isUserInteractionEnabled = true
         guard let address = response.displayName else { return }
         self.locationLabel.text = address
         
