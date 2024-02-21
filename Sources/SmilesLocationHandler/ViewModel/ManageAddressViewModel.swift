@@ -37,7 +37,7 @@ class ManageAddressViewModel: NSObject {
         case saveAddressDidFail(error: NetworkError?)
         
         case fetchAddressFromCoordinatesDidSucceed(address: String)
-        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
+        case fetchAddressFromCoordinatesDidFail(error: String?)
         
         case updateUserLocationDidSucceed(response : RegisterLocationResponse)
         case updateUserLocationDidFail(error: NetworkError)
@@ -76,7 +76,7 @@ extension ManageAddressViewModel {
             case .reverseGeocodeLatitudeAndLongitudeForAddress(let location):
                 self?.bind(to: self?.setLocationViewModel ?? SetLocationViewModel())
                 if !Constants.switchToOpenStreetMap {
-                    self?.setLocationInput.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(location.coordinate.latitude)", longitude: "\(location.coordinate.longitude)"))
+                    self?.setLocationInput.send(.reverseGeocodeLatitudeAndLongitudeForAddress(coordinates: location.coordinate))
                 } else {
                     self?.setLocationInput.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: location.coordinate, format: .json))
                 }
@@ -137,11 +137,8 @@ extension ManageAddressViewModel {
                 case .getUserLocationDidFail(let error):
                     self?.output.send(.getUserLocationDidFail(error: error))
                 case .fetchAddressFromCoordinatesDidSucceed(let response):
-                    if let results = response.results {
-                        guard let formatAddress = results.first?.formattedAddress else {
-                            return
-                        }
-                        self?.output.send(.fetchAddressFromCoordinatesDidSucceed(address: formatAddress))
+                    if let formatedAddress = response.lines?.joined(separator: ", ") {
+                        self?.output.send(.fetchAddressFromCoordinatesDidSucceed(address: formatedAddress))
                     } else {
                         self?.output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
                     }
@@ -154,7 +151,7 @@ extension ManageAddressViewModel {
                         self?.output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
                     }
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
-                    self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error))
+                    self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error?.localizedDescription))
                 case .registerUserLocationDidSucceed(let response, _):
                     self?.output.send(.updateUserLocationDidSucceed(response: response))
                 case .registerUserLocationDidFail(let error):

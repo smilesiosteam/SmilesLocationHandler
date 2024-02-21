@@ -70,7 +70,7 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
                     longitude = long
                     showLocationOnMap(latitude: latitude, longitude: longitude)
                     if !Constants.switchToOpenStreetMap {
-                        input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(self.latitude)", longitude: "\(self.longitude)"))
+                        input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(coordinates: CLLocationCoordinate2D(latitude: lat, longitude: long)))
                     } else {
                         let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
                         input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
@@ -227,7 +227,7 @@ class ConfirmUserLocationViewController: UIViewController, SmilesPresentableMess
         
         showLocationOnMap(latitude: latitude, longitude: longitude)
         if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(latitude)", longitude: "\(longitude)"))
+            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(coordinates: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)))
         } else {
             let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
@@ -250,7 +250,7 @@ extension ConfirmUserLocationViewController {
                 case .fetchAddressFromCoordinatesDidSucceed(let response):
                     self.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesDidFail(let error):
-                    debugPrint(error?.localizedDescription ?? "")
+                    debugPrint(error)
                 case .fetchAddressFromCoordinatesOSMDidSucceed(let response):
                     self.configureAddressString(response: response)
                 case .fetchAddressFromCoordinatesOSMDidFail(let error):
@@ -296,7 +296,7 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
         longitude = position.target.longitude
         
         if !Constants.switchToOpenStreetMap {
-            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(latitude: "\(self.latitude)", longitude: "\(self.longitude)"))
+            input.send(.reverseGeocodeLatitudeAndLongitudeForAddress(coordinates: position.target))
         } else {
             let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             input.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: .json))
@@ -309,14 +309,9 @@ extension ConfirmUserLocationViewController: GMSMapViewDelegate {
 // MARK: - API RESPONSE CONFIGURATION -
 extension ConfirmUserLocationViewController {
     
-    private func configureAddressString(response: SWGoogleAddressResponse) {
+    private func configureAddressString(response: GMSAddress) {
         
-        if let results = response.results {
-            guard let formatAddress = results.first?.formattedAddress else {
-                return
-            }
-            self.locationLabel.text = formatAddress
-        }
+        self.locationLabel.text = response.lines?.joined(separator: ", ")
         
     }
     

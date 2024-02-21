@@ -11,13 +11,14 @@ import NetworkingLayer
 import SmilesUtilities
 import CoreLocation
 import SmilesBaseMainRequestManager
+import GoogleMaps
 
 public class SetLocationViewModel: NSObject {
     
     // MARK: - INPUT. View event methods
     public enum Input {
         case getCities
-        case reverseGeocodeLatitudeAndLongitudeForAddress(latitude: String, longitude: String)
+        case reverseGeocodeLatitudeAndLongitudeForAddress(coordinates: CLLocationCoordinate2D)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
         case searchLocation(location: String, isFromGoogle: Bool)
         case getLocationDetails(locationId: String, isFromGoogle: Bool)
@@ -31,8 +32,8 @@ public class SetLocationViewModel: NSObject {
         case fetchCitiesDidSucceed(response: GetCitiesResponse)
         case fetchCitiesDidFail(error: NetworkError)
         
-        case fetchAddressFromCoordinatesDidSucceed(response: SWGoogleAddressResponse)
-        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
+        case fetchAddressFromCoordinatesDidSucceed(response: GMSAddress)
+        case fetchAddressFromCoordinatesDidFail(error: String)
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: NetworkError?)
@@ -74,9 +75,9 @@ extension SetLocationViewModel {
             switch event {
             case .getCities:
                 self?.getCities()
-            case .reverseGeocodeLatitudeAndLongitudeForAddress(let latitude, let longitude):
+            case .reverseGeocodeLatitudeAndLongitudeForAddress(let coordinates):
                 self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
-                self?.locationServicesInput.send(.reverseGeoCodeToGetCompleteAddress(latitude: latitude, longitude: longitude))
+                self?.locationServicesInput.send(.reverseGeoCodeToGetCompleteAddress(coordinates: coordinates))
             case .locationReverseGeocodingFromOSMCoordinates(let coordinates, let format):
                 self?.bind(to: self?.locationServicesViewModel ?? LocationServicesViewModel())
                 self?.locationServicesInput.send(.locationReverseGeocodingFromOSMCoordinates(coordinates: coordinates, format: format))

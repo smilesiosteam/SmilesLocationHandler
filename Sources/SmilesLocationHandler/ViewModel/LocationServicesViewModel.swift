@@ -11,12 +11,13 @@ import NetworkingLayer
 import SmilesUtilities
 import CoreLocation
 import GooglePlaces
+import GoogleMaps
 
 public class LocationServicesViewModel: NSObject {
     
     // MARK: - INPUT. View event methods
     public enum Input {
-        case reverseGeoCodeToGetCompleteAddress(latitude: String, longitude: String)
+        case reverseGeoCodeToGetCompleteAddress(coordinates: CLLocationCoordinate2D)
         case locationReverseGeocodingFromOSMCoordinates(coordinates: CLLocationCoordinate2D, format: OSMResponseType)
         case searchLocation(text: String, isFromGoogle: Bool)
         case getLocationDetails(locationId: String, isFromGoogle: Bool)
@@ -24,8 +25,8 @@ public class LocationServicesViewModel: NSObject {
     }
     
     public enum Output {
-        case fetchAddressFromCoordinatesDidSucceed(response: SWGoogleAddressResponse)
-        case fetchAddressFromCoordinatesDidFail(error: NetworkError?)
+        case fetchAddressFromCoordinatesDidSucceed(response: GMSAddress)
+        case fetchAddressFromCoordinatesDidFail(error: String)
         
         case fetchAddressFromCoordinatesOSMDidSucceed(response: OSMLocationResponse)
         case fetchAddressFromCoordinatesOSMDidFail(error: NetworkError?)
@@ -53,8 +54,8 @@ extension LocationServicesViewModel {
         output = PassthroughSubject<Output, Never>()
         input.sink { [weak self] event in
             switch event {
-            case .reverseGeoCodeToGetCompleteAddress(let latitude, let longitude):
-                self?.getAddressFromCoordinates(latitude: latitude, longitude: longitude)
+            case .reverseGeoCodeToGetCompleteAddress(let coordinates):
+                self?.getAddressFromCoordinates(coordinates: coordinates)
             case .locationReverseGeocodingFromOSMCoordinates(let coordinates, let format):
                 self?.getAddressFromCoordinatesOSM(coordinates: coordinates, format: format)
             case .searchLocation(let location, let isFromGoogle):
@@ -81,31 +82,18 @@ extension LocationServicesViewModel {
 // MARK: - API CALLS -
 extension LocationServicesViewModel {
     
-    private func getAddressFromCoordinates(latitude: String, longitude: String) {
+    private func getAddressFromCoordinates(coordinates: CLLocationCoordinate2D) {
         
-        guard let key = Bundle.main.object(forInfoDictionaryKey: Constants.Keys.googleAppKey) as? String else {
-            output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
-            return
+        let geocoder = GMSGeocoder()
+        
+        geocoder.reverseGeocodeCoordinate(coordinates) { [weak self] response, error in
+            if let location = response?.firstResult() {
+                self?.output.send(.fetchAddressFromCoordinatesDidSucceed(response: location))
+            } else {
+                self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error?.localizedDescription ?? ""))
+            }
         }
         
-        let service = LocationServicesRepository(
-            networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),
-            endPoint: .reverseGeoCodeToGetCompleteAddress(latLong: "\(latitude),\(longitude)", key: key)
-        )
-        
-        service.reverseGeoCodeToGetCompleteAddress()
-            .sink { [weak self] completion in
-                debugPrint(completion)
-                switch completion {
-                case .failure(let error):
-                    self?.output.send(.fetchAddressFromCoordinatesDidFail(error: error))
-                case .finished:
-                    debugPrint("nothing much to do here")
-                }
-            } receiveValue: { [weak self] response in
-                self?.output.send(.fetchAddressFromCoordinatesDidSucceed(response: response))
-            }
-            .store(in: &cancellables)
     }
     
     private func getAddressFromCoordinatesOSM(coordinates: CLLocationCoordinate2D, format: OSMResponseType) {
@@ -244,7 +232,7 @@ extension LocationServicesViewModel {
     private func getPolyline(origion: CLLocationCoordinate2D, destination: CLLocationCoordinate2D, wayPoints: CLLocationCoordinate2D?) {
         
         guard let key = Bundle.main.object(forInfoDictionaryKey: Constants.Keys.googleAppKey) as? String else {
-            output.send(.fetchAddressFromCoordinatesDidFail(error: nil))
+            output.send(.getPolylineDidFail(error: nil))
             return
         }
         
