@@ -205,10 +205,12 @@ extension SmilesLocationHandler {
     
     private func updateUserLocationSucceeded(response : RegisterLocationResponse) {
         
-        fireEvent?(Constants.AnalyticsEvent.locationUpdated)
-        LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
-        setupLocation()
-        self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+        if let userInfo = response.userInfo {
+            fireEvent?(Constants.AnalyticsEvent.locationUpdated)
+            LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
+            setupLocation()
+            self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+        }
         
     }
     

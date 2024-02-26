@@ -18,14 +18,14 @@ import SmilesBaseMainRequestManager
                 previousInfo?.locationId = userLoc.locationId
                 previousInfo?.mambaId = userLoc.mambaId
             }
-            UserDefaults.standard.set(try! PropertyListEncoder().encode(isFromMamba ? previousInfo : userLoc), forKey: UserDefaultKeys.locationSaver)
+            UserDefaults.standard.set(try? PropertyListEncoder().encode(isFromMamba ? previousInfo : userLoc), forKey: UserDefaultKeys.locationSaver)
             SmilesBaseMainRequestManager.shared.baseMainRequestConfigs?.userInfo = isFromMamba ? previousInfo : userLoc
         }
     }
 
     public static func getLocationInfo() -> AppUserInfo? {
         if let userLocation = UserDefaults.standard.data(forKey: UserDefaultKeys.locationSaver) {
-            return try! PropertyListDecoder().decode(AppUserInfo.self, from: userLocation)
+            return try? PropertyListDecoder().decode(AppUserInfo.self, from: userLocation)
         }
         return nil
     }
@@ -39,13 +39,13 @@ import SmilesBaseMainRequestManager
     
     public static func saveRecentLocationObject (_ location: [SearchLocationResponseModel]?) {
         if let loc = location {
-            UserDefaults.standard.set(try! PropertyListEncoder().encode(loc), forKey: UserDefaultKeys.recentLocationSaver)
+            UserDefaults.standard.set(try? PropertyListEncoder().encode(loc), forKey: UserDefaultKeys.recentLocationSaver)
         }
     }
     
     public static func getRecentLocations() -> [SearchLocationResponseModel]? {
         if let location = UserDefaults.standard.data(forKey: UserDefaultKeys.recentLocationSaver) {
-            return try! PropertyListDecoder().decode([SearchLocationResponseModel].self, from: location)
+            return try? PropertyListDecoder().decode([SearchLocationResponseModel].self, from: location)
         }
         return nil
     }
