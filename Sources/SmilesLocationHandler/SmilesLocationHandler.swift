@@ -207,9 +207,14 @@ extension SmilesLocationHandler {
         
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationUpdated)
+            
+            let savedLocationID = LocationStateSaver.getLocationInfo()?.locationId ?? ""
+          
             LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
             setupLocation()
-            self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+            if savedLocationID != userInfo.locationId {
+                self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+            }
         }
         
     }
