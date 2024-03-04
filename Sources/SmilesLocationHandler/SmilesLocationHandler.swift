@@ -212,11 +212,12 @@ extension SmilesLocationHandler {
           
             LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
             setupLocation()
-            if savedLocationID != userInfo.locationId {
-                self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+            if let locationId = userInfo.locationId, !locationId.isEmpty {
+                if savedLocationID != userInfo.locationId {
+                    self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+                }
             }
         }
-        
     }
     
     private func registerUserLocationSuccess(response: RegisterLocationResponse){

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "3dc6a42c7727c49bf26508e29b0a0b35f9c7e1ad",
-        "version" : "5.8.1"
+        "revision" : "723fa5a6c65812aec4a0d7cc432ee198883b6e00",
+        "version" : "5.9.0"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/smilesiosteam/NetworkingLayer.git",
       "state" : {
         "branch" : "main",
-        "revision" : "8ca4cfd1d524c7776f86e89b91ae3aae1270d9e7"
+        "revision" : "8f6901a1bd7f60712f960cd2953fa73e7d59c395"
       }
     },
     {
@@ -132,7 +132,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesUtilities.git",
       "state" : {
         "branch" : "main",
-        "revision" : "64bc2faa681461a23caae400c48522f594523acf"
+        "revision" : "158217bedb4b5a8b633a034da15fd4610fce8cc6"
       }
     }
   ],
