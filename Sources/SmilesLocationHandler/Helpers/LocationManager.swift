@@ -409,16 +409,54 @@ extension LocationManager: CLLocationManagerDelegate {
     
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         if #available(iOS 14.0, *) {
+            LocationManager.shared.isLocationEnabled = false
             switch manager.authorizationStatus {
             case .authorizedAlways, .authorizedWhenInUse:
                 self.locationManager?.startUpdatingLocation()
                 self.delegate?.locationIsAllowedByUser(isAllowed: true)
-            case .denied, .restricted:
+                LocationManager.shared.isLocationEnabled = true
+            case .denied:
+                let deniedError = NSError(
+                    domain: self.classForCoder.description(),
+                    code:Int(CLAuthorizationStatus.denied.rawValue),
+                    userInfo:
+                    [NSLocalizedDescriptionKey:LocationErrors.denied.rawValue,
+                     NSLocalizedFailureReasonErrorKey:LocationErrors.denied.rawValue,
+                     NSLocalizedRecoverySuggestionErrorKey:LocationErrors.denied.rawValue])
+                
+                if reverseGeocoding {
+                    didCompleteGeocoding(location: nil, placemark: nil, error: deniedError)
+                } else {
+                    didComplete(location: nil,error: deniedError)
+                }
+                
+                self.delegate?.locationIsAllowedByUser(isAllowed: false)
+                
+            case .restricted:
+                if reverseGeocoding {
+                    didComplete(location: nil,error: NSError(
+                        domain: self.classForCoder.description(),
+                        code:Int(CLAuthorizationStatus.restricted.rawValue),
+                        userInfo: nil))
+                } else {
+                    didComplete(location: nil,error: NSError(
+                        domain: self.classForCoder.description(),
+                        code:Int(CLAuthorizationStatus.restricted.rawValue),
+                        userInfo: nil))
+                }
+                
                 self.delegate?.locationIsAllowedByUser(isAllowed: false)
             case .notDetermined:
                 self.locationManager?.requestWhenInUseAuthorization()
             @unknown default:
-                break
+                didComplete(location: nil,error: NSError(
+                    domain: self.classForCoder.description(),
+                    code:Int(CLAuthorizationStatus.denied.rawValue),
+                    userInfo:
+                    [NSLocalizedDescriptionKey:LocationErrors.unknown.rawValue,
+                     NSLocalizedFailureReasonErrorKey:LocationErrors.unknown.rawValue,
+                     NSLocalizedRecoverySuggestionErrorKey:LocationErrors.unknown.rawValue]))
+                self.delegate?.locationIsAllowedByUser(isAllowed: false)
             }
         } else {
             // Fallback on earlier versions
