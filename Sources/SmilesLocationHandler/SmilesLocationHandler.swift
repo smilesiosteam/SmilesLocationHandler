@@ -207,11 +207,17 @@ extension SmilesLocationHandler {
         
         if let userInfo = response.userInfo {
             fireEvent?(Constants.AnalyticsEvent.locationUpdated)
+            
+            let savedLocationID = LocationStateSaver.getLocationInfo()?.locationId ?? ""
+          
             LocationStateSaver.saveLocationInfo(response.userInfo, isFromMamba: true)
             setupLocation()
-            self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+            if let locationId = userInfo.locationId, !locationId.isEmpty {
+                if savedLocationID != locationId {
+                    self.smilesLocationHandlerDelegate?.locationUpdatedSuccessfully()
+                }
+            }
         }
-        
     }
     
     private func registerUserLocationSuccess(response: RegisterLocationResponse){

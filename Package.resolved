@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "bc268c28fb170f494de9e9927c371b8342979ece",
-        "version" : "5.7.1"
+        "revision" : "723fa5a6c65812aec4a0d7cc432ee198883b6e00",
+        "version" : "5.9.0"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/smilesiosteam/NetworkingLayer.git",
       "state" : {
         "branch" : "main",
-        "revision" : "66df8ceb6b98dd821bc07162ab7102dd4c67109d"
+        "revision" : "8f6901a1bd7f60712f960cd2953fa73e7d59c395"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage.git",
       "state" : {
-        "revision" : "633996a807442ec28df9d33b0f88ce57a0e2fdbf",
-        "version" : "5.17.0"
+        "revision" : "73b9397cfbd902f606572964055464903b1d84c6",
+        "version" : "5.19.0"
       }
     },
     {
@@ -78,7 +78,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesBaseMainRequest.git",
       "state" : {
         "branch" : "main",
-        "revision" : "196b65fd71c0b23ccb87c05161213fda752c1fe3"
+        "revision" : "943fcb2821791a62a33954f54d4e14759c0b6cc3"
       }
     },
     {
@@ -105,7 +105,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesLanguageManager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d70bc6f7a910dd4e7dcae9224b4988500cd1006e"
+        "revision" : "bcaf6af165e819a4ad2aaf91bb959a7339051eaa"
       }
     },
     {
@@ -123,7 +123,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesStorage.git",
       "state" : {
         "branch" : "main",
-        "revision" : "89a57c302aab530f033ba35f001b09cfee822707"
+        "revision" : "83b0670cfb6ed00a1379ebf8826922589e5dbcbd"
       }
     },
     {
@@ -132,7 +132,7 @@
       "location" : "https://github.com/smilesiosteam/SmilesUtilities.git",
       "state" : {
         "branch" : "main",
-        "revision" : "876eb531b76ed4c45e6b0e78c3476014bd435a76"
+        "revision" : "fb68d5ab40481d32086fe457cae97b1316942f72"
       }
     }
   ],
