@@ -230,7 +230,7 @@ extension SearchLocationViewController: UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let result = searchResults[indexPath.row]
+        guard let result = searchResults[safe: indexPath.row] else { return }
         selectedResult = result
         if showRecents {
             if let selectedResult {
